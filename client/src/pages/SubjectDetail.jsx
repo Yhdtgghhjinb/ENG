@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../config/api';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -494,8 +494,8 @@ const SubjectDetail = () => {
   const load = useCallback(() => {
     setLoading(true); setError('');
     Promise.all([
-      axios.get(`/api/vtu/subjects/${subjectId}`),
-      axios.get(`/api/subjects/${subjectId}/resources`),
+      api.get(`/api/vtu/subjects/${subjectId}`),
+      api.get(`/api/subjects/${subjectId}/resources`),
     ])
       .then(([sr, rr]) => {
         setSubject(sr.data || null);

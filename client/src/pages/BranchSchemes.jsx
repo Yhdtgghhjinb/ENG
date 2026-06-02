@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 const schemeColors = [
@@ -17,8 +17,8 @@ const BranchSchemes = () => {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`/api/vtu/branches/${branchId}/schemes`),
-      axios.get(`/api/vtu/branches`),
+      api.get(`/api/vtu/branches/${branchId}/schemes`),
+      api.get(`/api/vtu/branches`),
     ]).then(([schemesRes, branchesRes]) => {
       setSchemes(schemesRes.data || []);
       const b = (branchesRes.data || []).find(x => String(x._id) === String(branchId));

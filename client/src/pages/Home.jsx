@@ -1,6 +1,6 @@
 ﻿import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 
 const Home = () => {
   const [branches, setBranches] = useState([]);
@@ -9,7 +9,7 @@ const Home = () => {
   useEffect(() => {
     const loadBranches = async () => {
       try {
-        const res = await axios.get('/api/vtu/branches');
+        const res = await api.get('/api/vtu/branches');
         setBranches(res.data || []);
       } catch {
         setBranches([]);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useSearchParams } from 'react-router-dom';
@@ -26,7 +26,7 @@ const Resources = () => {
 
   const fetchResources = async (params = {}) => {
     try { setLoading(true); setError('');
-      const res = await axios.get('/api/resources', { params });
+      const res = await api.get('/api/resources', { params });
       setResources(res.data || []);
       if (!selected && res.data?.length > 0) setSelected(res.data[0]);
     } catch { setError('Failed to load resources. Please try again.'); }
@@ -34,7 +34,7 @@ const Resources = () => {
   };
 
   const fetchFacets = async (params = {}) => {
-    try { const res = await axios.get('/api/resources/facets', { params }); setFacets((p) => ({ ...p, ...(res.data || {}) })); } catch {}
+    try { const res = await api.get('/api/resources/facets', { params }); setFacets((p) => ({ ...p, ...(res.data || {}) })); } catch {}
   };
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const Resources = () => {
     if (!trimmed) { fetchResources({ ...next, q: '' }); return; }
     try {
       setLoading(true); setError('');
-      const res = await axios.get('/api/resources/search', { params: { query: trimmed, ...next } });
+      const res = await api.get('/api/resources/search', { params: { query: trimmed, ...next } });
       const list = res.data?.resources || [];
       setResources(list);
       if (!selected && list.length > 0) setSelected(list[0]);

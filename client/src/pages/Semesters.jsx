@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 const semesterColors = [
@@ -23,9 +23,9 @@ const Semesters = () => {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`/api/vtu/branches/${branchId}/schemes/${schemeId}/semesters`),
-      axios.get(`/api/vtu/branches`),
-      axios.get(`/api/vtu/branches/${branchId}/schemes`),
+      api.get(`/api/vtu/branches/${branchId}/schemes/${schemeId}/semesters`),
+      api.get(`/api/vtu/branches`),
+      api.get(`/api/vtu/branches/${branchId}/schemes`),
     ]).then(([semRes, branchRes, schemeRes]) => {
       setSemesters(semRes.data || []);
       const b = (branchRes.data || []).find(x => String(x._id) === String(branchId));

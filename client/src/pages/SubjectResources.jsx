@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import { motion } from 'framer-motion';
 import Breadcrumbs from '../components/Breadcrumbs';
 
@@ -30,8 +30,8 @@ const SubjectResources = () => {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`/api/vtu/subjects/${subjectId}`),
-      axios.get(`/api/vtu/subjects/${subjectId}/resources`, { params: { type: category } }),
+      api.get(`/api/vtu/subjects/${subjectId}`),
+      api.get(`/api/vtu/subjects/${subjectId}/resources`, { params: { type: category } }),
     ]).then(([sr, rr]) => {
       setSubject(sr.data || null);
       setResources(rr.data || []);

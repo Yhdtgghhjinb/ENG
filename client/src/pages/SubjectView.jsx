@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 import { motion } from 'framer-motion';
 
 const SubjectView = () => {
@@ -9,7 +9,7 @@ const SubjectView = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios.get('/api/resources/subjects').then((r) => {
+    api.get('/api/resources/subjects').then((r) => {
       const list = r.data || [];
       setSubjects(list);
       if (list.length > 0) setActiveSubject(list[0]);
@@ -19,7 +19,7 @@ const SubjectView = () => {
   useEffect(() => {
     if (!activeSubject) return;
     setLoading(true);
-    axios.get(`/api/resources/subject/${encodeURIComponent(activeSubject)}`)
+    api.get(`/api/resources/subject/${encodeURIComponent(activeSubject)}`)
       .then((r) => setResources(r.data || []))
       .catch(() => setResources([]))
       .finally(() => setLoading(false));

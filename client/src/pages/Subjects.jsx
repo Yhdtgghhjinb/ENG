@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 
 const codeRegex = /\b\d{2}[A-Z]{2}\d{2}\b/i;
 
@@ -28,7 +28,7 @@ const Subjects = () => {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    axios.get('/api/resources').then((r) => setResources(r.data || [])).finally(() => setLoading(false));
+    api.get('/api/resources').then((r) => setResources(r.data || [])).finally(() => setLoading(false));
   }, []);
 
   const subjects = useMemo(() => {

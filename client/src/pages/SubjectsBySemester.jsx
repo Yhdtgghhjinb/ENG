@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 const subjectColors = [
@@ -24,9 +24,9 @@ const SubjectsBySemester = () => {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`/api/vtu/branches/${branchId}/schemes/${schemeId}/semesters/${semesterNumber}/subjects`),
-      axios.get(`/api/vtu/branches`),
-      axios.get(`/api/vtu/branches/${branchId}/schemes`),
+      api.get(`/api/vtu/branches/${branchId}/schemes/${schemeId}/semesters/${semesterNumber}/subjects`),
+      api.get(`/api/vtu/branches`),
+      api.get(`/api/vtu/branches/${branchId}/schemes`),
     ]).then(([subjectsRes, branchesRes, schemesRes]) => {
       setSubjects(subjectsRes.data || []);
       const b = (branchesRes.data || []).find(x => String(x._id) === String(branchId));
