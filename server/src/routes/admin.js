@@ -1,5 +1,5 @@
 const express  = require('express');
-const { upload } = require('../config/cloudinary');
+const { upload, isCloudinaryConfigured } = require('../config/cloudinary');
 
 const adminAuth = require('../middleware/adminAuth');
 const Branch    = require('../models/Branch');
@@ -198,10 +198,15 @@ router.post('/resources', upload.single('file'), async (req, res, next) => {
 
     if (!subject) return res.status(404).json({ message: 'Subject not found' });
 
-    // Determine file URL - use Cloudinary URL if file was uploaded
+    // Determine file URL - use Cloudinary URL if configured, otherwise local path
     let fileUrl = bodyUrl;
     if (req.file) {
-      fileUrl = req.file.path; // Cloudinary returns the URL in file.path
+      if (isCloudinaryConfigured) {
+        fileUrl = req.file.path; // Cloudinary returns the URL in file.path
+      } else {
+        const host = `${req.protocol}://${req.get('host')}`;
+        fileUrl = `${host}/uploads/${req.file.filename}`;
+      }
     }
     if (!fileUrl) return res.status(400).json({ message: 'File upload or fileUrl is required' });
 
@@ -263,9 +268,14 @@ router.put('/resources/:id', upload.single('file'), async (req, res, next) => {
       body.branchName     = subject.branchId.name;
       body.branchCode     = subject.branchId.code;
     }
-    // Use Cloudinary URL if new file uploaded
+    // Use Cloudinary URL if new file uploaded, otherwise local path
     if (req.file) {
-      body.fileUrl = req.file.path; // Cloudinary URL
+      if (isCloudinaryConfigured) {
+        body.fileUrl = req.file.path; // Cloudinary URL
+      } else {
+        const host = `${req.protocol}://${req.get('host')}`;
+        body.fileUrl = `${host}/uploads/${req.file.filename}`;
+      }
     }
     // Parse moduleNumber if provided
     if (body.moduleNumber != null && body.moduleNumber !== '') {
