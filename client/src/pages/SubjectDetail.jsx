@@ -33,7 +33,8 @@ const MODULE_COLORS = [
 const FileRow = ({ resource, color, rgb, isLast }) => {
   const [hovered,  setHovered]  = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const isPdf = resource.fileUrl?.toLowerCase().endsWith('.pdf');
+  // Check if it's a PDF - also check for Cloudinary URLs with parameters
+  const isPdf = resource.fileUrl?.toLowerCase().includes('.pdf') || resource.type === 'notes' || resource.type === 'question-papers';
 
   const trackDownload = () => {
     if (resource._id) fetch(`/api/resources/${resource._id}/download`, { method: 'POST' }).catch(() => {});
@@ -78,18 +79,30 @@ const FileRow = ({ resource, color, rgb, isLast }) => {
         {/* Buttons */}
         <div className="flex flex-shrink-0 items-center gap-2">
           {isPdf ? (
-            <button type="button" onClick={e => { e.stopPropagation(); setExpanded(v => !v); }}
-              className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
-              style={{
-                background: expanded ? `linear-gradient(135deg,rgba(${rgb},1),rgba(${rgb},0.7))` : `linear-gradient(135deg,${color}ee,${color}88)`,
-                boxShadow: `0 2px 8px rgba(${rgb},0.3)`,
-                border: `1px solid rgba(${rgb},0.45)`,
-              }}>
-              {expanded
-                ? <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>Close</>
-                : <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Open</>
-              }
-            </button>
+            <>
+              <button type="button" onClick={e => { e.stopPropagation(); setExpanded(v => !v); }}
+                className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  background: expanded ? `linear-gradient(135deg,rgba(${rgb},1),rgba(${rgb},0.7))` : `linear-gradient(135deg,${color}ee,${color}88)`,
+                  boxShadow: `0 2px 8px rgba(${rgb},0.3)`,
+                  border: `1px solid rgba(${rgb},0.45)`,
+                }}>
+                {expanded
+                  ? <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>Close</>
+                  : <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Open</>
+                }
+              </button>
+              <a href={resource.fileUrl} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
+                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[10px] font-medium transition-all duration-200 hover:-translate-y-0.5"
+                title="Open in new tab"
+                style={{
+                  background: hovered ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${hovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.07)'}`,
+                  color: hovered ? '#94a3b8' : '#64748b',
+                }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            </>
           ) : (
             <a href={resource.fileUrl} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
               className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
