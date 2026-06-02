@@ -1,7 +1,5 @@
 const express  = require('express');
-const multer   = require('multer');
-const path     = require('path');
-const fs       = require('fs');
+const { upload } = require('../config/cloudinary');
 
 const adminAuth = require('../middleware/adminAuth');
 const Branch    = require('../models/Branch');
@@ -11,29 +9,6 @@ const Subject   = require('../models/Subject');
 const Resource  = require('../models/Resource');
 
 const router = express.Router();
-
-// ── File upload ───────────────────────────────────────────────────────────────
-const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename:    (_req, file, cb) => {
-    const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    cb(null, `${Date.now()}-${safe}`);
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    const allowed = ['.pdf', '.doc', '.docx', '.ppt', '.pptx', '.zip'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowed.includes(ext)) return cb(null, true);
-    cb(new Error('Only PDF, DOC, DOCX, PPT, PPTX, ZIP files are allowed'));
-  },
-});
 
 router.use(adminAuth);
 
@@ -223,11 +198,10 @@ router.post('/resources', upload.single('file'), async (req, res, next) => {
 
     if (!subject) return res.status(404).json({ message: 'Subject not found' });
 
-    // Determine file URL
+    // Determine file URL - use Cloudinary URL if file was uploaded
     let fileUrl = bodyUrl;
     if (req.file) {
-      const host = `${req.protocol}://${req.get('host')}`;
-      fileUrl = `${host}/uploads/${req.file.filename}`;
+      fileUrl = req.file.path; // Cloudinary returns the URL in file.path
     }
     if (!fileUrl) return res.status(400).json({ message: 'File upload or fileUrl is required' });
 
@@ -289,9 +263,9 @@ router.put('/resources/:id', upload.single('file'), async (req, res, next) => {
       body.branchName     = subject.branchId.name;
       body.branchCode     = subject.branchId.code;
     }
+    // Use Cloudinary URL if new file uploaded
     if (req.file) {
-      const host = `${req.protocol}://${req.get('host')}`;
-      body.fileUrl = `${host}/uploads/${req.file.filename}`;
+      body.fileUrl = req.file.path; // Cloudinary URL
     }
     // Parse moduleNumber if provided
     if (body.moduleNumber != null && body.moduleNumber !== '') {
