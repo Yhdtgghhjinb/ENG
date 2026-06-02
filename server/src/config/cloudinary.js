@@ -33,6 +33,10 @@ if (isCloudinaryConfigured) {
         const originalName = file.originalname.split('.')[0];
         return `${originalName}-${timestamp}`;
       },
+      // Add transformation to make PDFs open inline instead of download
+      format: async (req, file) => {
+        return file.originalname.split('.').pop();
+      },
     },
   });
 

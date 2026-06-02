@@ -202,7 +202,9 @@ router.post('/resources', upload.single('file'), async (req, res, next) => {
     let fileUrl = bodyUrl;
     if (req.file) {
       if (isCloudinaryConfigured) {
-        fileUrl = req.file.path; // Cloudinary returns the URL in file.path
+        // Cloudinary returns the URL in file.path
+        // For PDFs to open inline instead of download, add fl_attachment flag=false
+        fileUrl = req.file.path.replace('/upload/', '/upload/fl_attachment:false/');
       } else {
         const host = `${req.protocol}://${req.get('host')}`;
         fileUrl = `${host}/uploads/${req.file.filename}`;
@@ -271,7 +273,8 @@ router.put('/resources/:id', upload.single('file'), async (req, res, next) => {
     // Use Cloudinary URL if new file uploaded, otherwise local path
     if (req.file) {
       if (isCloudinaryConfigured) {
-        body.fileUrl = req.file.path; // Cloudinary URL
+        // For PDFs to open inline instead of download
+        body.fileUrl = req.file.path.replace('/upload/', '/upload/fl_attachment:false/');
       } else {
         const host = `${req.protocol}://${req.get('host')}`;
         body.fileUrl = `${host}/uploads/${req.file.filename}`;
