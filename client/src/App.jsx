@@ -1,0 +1,63 @@
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import Home from './pages/Home';
+import Landing from './pages/Landing';
+import Resources from './pages/Resources';
+import Subjects from './pages/Subjects';
+import BranchSchemes from './pages/BranchSchemes';
+import Semesters from './pages/Semesters';
+import SubjectsBySemester from './pages/SubjectsBySemester';
+import SubjectDetail from './pages/SubjectDetail';
+import SubjectResources from './pages/SubjectResources';
+
+// Admin
+import AdminLayout from './admin/components/AdminLayout';
+import AdminLogin from './admin/pages/AdminLogin';
+import ProtectedRoute from './admin/components/ProtectedRoute';
+import AdminDashboard from './admin/pages/AdminDashboard';
+import AdminBranches from './admin/pages/AdminBranches';
+import AdminSchemes from './admin/pages/AdminSchemes';
+import AdminSemesters from './admin/pages/AdminSemesters';
+import AdminSubjects from './admin/pages/AdminSubjects';
+import AdminResources from './admin/pages/AdminResources';
+import AdminAnalytics from './admin/pages/AdminAnalytics';
+
+const App = () => {
+  return (
+    <Routes>
+      {/* Landing Page */}
+      <Route path="/" element={<Landing />} />
+
+      {/* Public site */}
+      <Route path="/home" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="resources" element={<Resources />} />
+        <Route path="branches/:branchId" element={<BranchSchemes />} />
+        <Route path="branches/:branchId/schemes/:schemeId" element={<Semesters />} />
+        <Route path="branches/:branchId/schemes/:schemeId/semesters/:semesterNumber" element={<SubjectsBySemester />} />
+        <Route path="subjects" element={<Subjects />} />
+        <Route path="subjects/:subjectId" element={<SubjectDetail />} />
+        <Route path="subjects/:subjectId/resources/:category" element={<SubjectResources />} />
+      </Route>
+
+      {/* Admin login - Public access */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+
+      {/* Admin panel - Protected, requires login */}
+      <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="branches"  element={<AdminBranches />} />
+        <Route path="schemes"   element={<AdminSchemes />} />
+        <Route path="semesters" element={<AdminSemesters />} />
+        <Route path="subjects"  element={<AdminSubjects />} />
+        <Route path="resources" element={<AdminResources />} />
+        <Route path="analytics" element={<AdminAnalytics />} />
+      </Route>
+
+      {/* Catch all - redirect to landing */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+export default App;
