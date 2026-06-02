@@ -142,7 +142,7 @@ const FileRow = ({ resource, color, rgb, isLast }) => {
                   style={{ background: 'rgba(255,255,255,0.06)' }}>✕</button>
               </div>
             </div>
-            <iframe src={resource.fileUrl} title={resource.title} className="w-full" style={{ height: 468, border: 'none', background: '#0a0f1e' }} />
+            <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(resource.fileUrl)}&embedded=true`} title={resource.title} className="w-full" style={{ height: 468, border: 'none', background: '#0a0f1e' }} />
           </motion.div>
         )}
       </AnimatePresence>

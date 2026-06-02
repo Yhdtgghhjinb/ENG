@@ -203,8 +203,18 @@ router.post('/resources', upload.single('file'), async (req, res, next) => {
     if (req.file) {
       if (isCloudinaryConfigured) {
         // Cloudinary returns the URL in file.path
-        // For PDFs to open inline instead of download, add fl_attachment flag=false
-        fileUrl = req.file.path.replace('/upload/', '/upload/fl_attachment:false/');
+        // For raw files (PDFs), we need to use the authenticated URL or convert to image delivery
+        // Replace /raw/upload/ with /image/upload/ and add .pdf at the end
+        let cloudinaryUrl = req.file.path;
+        
+        // If it's a PDF, modify URL to allow inline viewing
+        if (req.file.originalname.toLowerCase().endsWith('.pdf')) {
+          // Use Cloudinary's authenticated URL delivery or just store the URL as-is
+          // The frontend will handle the display
+          fileUrl = cloudinaryUrl;
+        } else {
+          fileUrl = cloudinaryUrl;
+        }
       } else {
         const host = `${req.protocol}://${req.get('host')}`;
         fileUrl = `${host}/uploads/${req.file.filename}`;
@@ -273,8 +283,7 @@ router.put('/resources/:id', upload.single('file'), async (req, res, next) => {
     // Use Cloudinary URL if new file uploaded, otherwise local path
     if (req.file) {
       if (isCloudinaryConfigured) {
-        // For PDFs to open inline instead of download
-        body.fileUrl = req.file.path.replace('/upload/', '/upload/fl_attachment:false/');
+        body.fileUrl = req.file.path;
       } else {
         const host = `${req.protocol}://${req.get('host')}`;
         body.fileUrl = `${host}/uploads/${req.file.filename}`;
