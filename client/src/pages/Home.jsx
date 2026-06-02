@@ -31,12 +31,21 @@ const Home = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="text-center space-y-2 py-6">
-          <div className="skeleton h-10 w-64 mx-auto rounded-xl" />
-          <div className="skeleton h-6 w-96 mx-auto rounded-lg" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-          {[1,2,3,4].map(i => <div key={i} className="skeleton h-44 rounded-xl" />)}
+        <div className="text-center space-y-4 py-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"
+            style={{
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+            }}>
+            <svg className="w-8 h-8 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <h3 className="text-lg sm:text-xl font-semibold text-white">Loading branches...</h3>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+            First load may take 30 seconds as we wake up the server ☕
+          </p>
         </div>
       </div>
     );
