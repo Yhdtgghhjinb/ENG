@@ -79,30 +79,18 @@ const FileRow = ({ resource, color, rgb, isLast }) => {
         {/* Buttons */}
         <div className="flex flex-shrink-0 items-center gap-2">
           {isPdf ? (
-            <>
-              <button type="button" onClick={e => { e.stopPropagation(); setExpanded(v => !v); }}
-                className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
-                style={{
-                  background: expanded ? `linear-gradient(135deg,rgba(${rgb},1),rgba(${rgb},0.7))` : `linear-gradient(135deg,${color}ee,${color}88)`,
-                  boxShadow: `0 2px 8px rgba(${rgb},0.3)`,
-                  border: `1px solid rgba(${rgb},0.45)`,
-                }}>
-                {expanded
-                  ? <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>Close</>
-                  : <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Open</>
-                }
-              </button>
-              <a href={resource.fileUrl} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
-                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[10px] font-medium transition-all duration-200 hover:-translate-y-0.5"
-                title="Open in new tab"
-                style={{
-                  background: hovered ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${hovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.07)'}`,
-                  color: hovered ? '#94a3b8' : '#64748b',
-                }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              </a>
-            </>
+            <button type="button" onClick={e => { e.stopPropagation(); setExpanded(v => !v); }}
+              className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
+              style={{
+                background: expanded ? `linear-gradient(135deg,rgba(${rgb},1),rgba(${rgb},0.7))` : `linear-gradient(135deg,${color}ee,${color}88)`,
+                boxShadow: `0 2px 8px rgba(${rgb},0.3)`,
+                border: `1px solid rgba(${rgb},0.45)`,
+              }}>
+              {expanded
+                ? <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>Close</>
+                : <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Open</>
+              }
+            </button>
           ) : (
             <a href={resource.fileUrl} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
               className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
@@ -136,7 +124,7 @@ const FileRow = ({ resource, color, rgb, isLast }) => {
               style={{ background: `rgba(${rgb},0.12)`, borderBottom: `1px solid rgba(${rgb},0.2)` }}>
               <span className="max-w-[260px] truncate text-xs font-medium text-slate-300">{resource.title}</span>
               <div className="flex items-center gap-2">
-                <a href={resource.fileUrl} target="_blank" rel="noreferrer" className="text-[11px] text-slate-500 hover:text-slate-300">Open in new tab ↗</a>
+                <a href={`https://docs.google.com/viewer?url=${encodeURIComponent(resource.fileUrl)}&embedded=true`} target="_blank" rel="noreferrer" className="text-[11px] text-slate-500 hover:text-slate-300">Open in new tab ↗</a>
                 <button type="button" onClick={() => setExpanded(false)}
                   className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200"
                   style={{ background: 'rgba(255,255,255,0.06)' }}>✕</button>
