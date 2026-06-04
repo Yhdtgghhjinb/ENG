@@ -40,19 +40,31 @@ const AdminLayout = () => {
         {/* Logo */}
         <div className="flex items-center gap-3 px-4 py-5" style={{ borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
           <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)', boxShadow: '0 0 20px rgba(99,102,241,0.5)' }}>
-            <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
-              <path d="M16 20 L16 48 L48 48 L48 20 Z" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,0.95)" strokeWidth="2"/>
-              <path d="M16 20 L32 16 L48 20" fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.85)" strokeWidth="2"/>
-              <path d="M28 20 L28 42 L32 38 L36 42 L36 20 Z" fill="#6366f1" strokeWidth="1.5"/>
-              <circle cx="44" cy="28" r="8" fill="#fbbf24" stroke="#ffffff" strokeWidth="2"/>
-              <path d="M44 24 L45 27 L48 27 L45.5 29 L46.5 32 L44 30 L41.5 32 L42.5 29 L40 27 L43 27 Z" fill="#ffffff"/>
+            style={{ 
+              background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', 
+              boxShadow: '0 0 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.1)',
+              border: '1.5px solid #475569'
+            }}>
+            <svg width="18" height="18" viewBox="0 0 64 64" fill="none">
+              <circle cx="32" cy="32" r="22" stroke="#64748b" strokeWidth="2" fill="none"/>
+              <circle cx="32" cy="32" r="16" stroke="#475569" strokeWidth="1.5" fill="none"/>
+              <circle cx="32" cy="32" r="7" fill="url(#vaultGradAdmin)" stroke="#94a3b8" strokeWidth="1"/>
+              <line x1="32" y1="15" x2="32" y2="23" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="49" y1="32" x2="41" y2="32" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="32" y1="49" x2="32" y2="41" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="15" y1="32" x2="23" y2="32" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
+              <defs>
+                <linearGradient id="vaultGradAdmin" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+                  <stop offset="100%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+                </linearGradient>
+              </defs>
             </svg>
           </div>
           {!collapsed && (
             <div>
               <p className="text-[13px] font-bold text-slate-100">Admin Panel</p>
-              <p className="text-[10px] text-slate-600">StudyHub VTU</p>
+              <p className="text-[10px] text-slate-600">VTU VAULT</p>
             </div>
           )}
           <button
@@ -132,11 +144,21 @@ const AdminLayout = () => {
             </button>
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)' }}>
-                <svg width="18" height="18" viewBox="0 0 64 64" fill="none">
-                  <path d="M16 20 L16 48 L48 48 L48 20 Z" fill="rgba(255,255,255,0.9)" strokeWidth="2"/>
-                  <path d="M16 20 L32 16 L48 20" fill="rgba(255,255,255,0.7)" strokeWidth="2"/>
-                  <path d="M28 20 L28 42 L32 38 L36 42 L36 20 Z" fill="#6366f1" strokeWidth="1.5"/>
+                style={{ 
+                  background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+                  border: '1.5px solid #475569'
+                }}>
+                <svg width="16" height="16" viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="22" stroke="#64748b" strokeWidth="2" fill="none"/>
+                  <circle cx="32" cy="32" r="7" fill="url(#vaultGradMobileAdmin)"/>
+                  <line x1="32" y1="15" x2="32" y2="23" stroke="#64748b" strokeWidth="2"/>
+                  <line x1="49" y1="32" x2="41" y2="32" stroke="#64748b" strokeWidth="2"/>
+                  <defs>
+                    <linearGradient id="vaultGradMobileAdmin">
+                      <stop offset="0%" style={{ stopColor: '#6366f1' }} />
+                      <stop offset="100%" style={{ stopColor: '#8b5cf6' }} />
+                    </linearGradient>
+                  </defs>
                 </svg>
               </div>
               <span className="text-sm font-bold text-slate-100">Admin</span>
@@ -147,7 +169,7 @@ const AdminLayout = () => {
           <div className="hidden lg:block">
             <p className="text-xs text-slate-600">Admin Dashboard</p>
             <p className="text-sm font-semibold text-slate-200">
-              {NAV.find(n => n.to === location.pathname)?.label || 'StudyHub VTU'}
+              {NAV.find(n => n.to === location.pathname)?.label || 'VTU VAULT'}
             </p>
           </div>
           
@@ -182,17 +204,26 @@ const AdminLayout = () => {
               <div className="flex items-center justify-between px-4 py-5" style={{ borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden"
-                    style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)' }}>
-                    <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
-                      <path d="M16 20 L16 48 L48 48 L48 20 Z" fill="rgba(255,255,255,0.9)" strokeWidth="2"/>
-                      <path d="M16 20 L32 16 L48 20" fill="rgba(255,255,255,0.7)" strokeWidth="2"/>
-                      <path d="M28 20 L28 42 L32 38 L36 42 L36 20 Z" fill="#6366f1" strokeWidth="1.5"/>
-                      <circle cx="44" cy="28" r="8" fill="#fbbf24" strokeWidth="2"/>
+                    style={{ 
+                      background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+                      border: '1.5px solid #475569'
+                    }}>
+                    <svg width="18" height="18" viewBox="0 0 64 64" fill="none">
+                      <circle cx="32" cy="32" r="22" stroke="#64748b" strokeWidth="2" fill="none"/>
+                      <circle cx="32" cy="32" r="7" fill="url(#vaultGradMenuMobile)"/>
+                      <line x1="32" y1="15" x2="32" y2="23" stroke="#64748b" strokeWidth="2"/>
+                      <line x1="49" y1="32" x2="41" y2="32" stroke="#64748b" strokeWidth="2"/>
+                      <defs>
+                        <linearGradient id="vaultGradMenuMobile">
+                          <stop offset="0%" style={{ stopColor: '#6366f1' }} />
+                          <stop offset="100%" style={{ stopColor: '#8b5cf6' }} />
+                        </linearGradient>
+                      </defs>
                     </svg>
                   </div>
                   <div>
                     <p className="text-[13px] font-bold text-slate-100">Admin Panel</p>
-                    <p className="text-[10px] text-slate-600">StudyHub VTU</p>
+                    <p className="text-[10px] text-slate-600">VTU VAULT</p>
                   </div>
                 </div>
                 <button
