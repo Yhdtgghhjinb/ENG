@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Landing from './pages/Landing';
+import Calculator from './pages/Calculator';
 import Resources from './pages/Resources';
 import Subjects from './pages/Subjects';
 import BranchSchemes from './pages/BranchSchemes';
@@ -31,6 +32,7 @@ const App = () => {
       {/* Public site */}
       <Route path="/home" element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="calculator" element={<Calculator />} />
         <Route path="resources" element={<Resources />} />
         <Route path="branches/:branchId" element={<BranchSchemes />} />
         <Route path="branches/:branchId/schemes/:schemeId" element={<Semesters />} />
