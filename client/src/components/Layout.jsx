@@ -143,16 +143,6 @@ const Layout = () => {
                       {item.badge}
                     </span>
                   )}
-
-                  {/* Active left accent bar */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="sidebar-bar"
-                      className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full"
-                      style={{ background: 'linear-gradient(180deg, #818cf8, #6366f1)', boxShadow: '0 0 8px rgba(99,102,241,0.8)' }}
-                      transition={{ type: 'spring', stiffness: 420, damping: 36 }}
-                    />
-                  )}
                 </>
               )}
             </NavLink>
