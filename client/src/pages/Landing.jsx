@@ -144,32 +144,29 @@ const Landing = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
+              className="flex flex-col items-center justify-center gap-6 px-4">
               <Link
                 to="/home"
-                className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold text-white transition-all duration-300 hover:scale-105 active:scale-95"
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 sm:px-12 py-5 sm:py-6 rounded-2xl text-lg sm:text-xl font-bold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
                 style={{
                   background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                  boxShadow: '0 10px 40px rgba(99,102,241,0.4), 0 0 0 1px rgba(255,255,255,0.1)',
+                  boxShadow: '0 20px 60px rgba(99,102,241,0.5), 0 0 0 1px rgba(255,255,255,0.1)',
                 }}>
-                Access Vault
-                <svg className="transition-transform group-hover:translate-x-1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Open Vault
+                <svg className="transition-transform group-hover:translate-x-1" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
               </Link>
-              <a
-                href="#features"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-base font-semibold text-slate-300 transition-all duration-300 hover:text-white active:scale-95"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backdropFilter: 'blur(10px)'
-                }}>
-                Explore Features
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 5v14M5 12l7 7 7-7"/>
+              <p className="text-sm text-slate-500 flex items-center gap-2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="20 6 9 17 4 12"/>
                 </svg>
-              </a>
+                No sign-up required • Instant access
+              </p>
             </motion.div>
 
             {/* Trust Indicators */}
