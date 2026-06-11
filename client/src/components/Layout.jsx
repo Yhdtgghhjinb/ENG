@@ -213,8 +213,8 @@ const Layout = () => {
         </header>
 
         {/* Content - Optimized for Mobile */}
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-28 sm:px-5 sm:py-5 sm:pb-32 md:px-8 md:py-6 lg:pb-8">
-          <div className="mx-auto max-w-7xl pb-4">
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-32 sm:px-5 sm:py-5 sm:pb-36 md:px-8 md:py-6 lg:pb-8">
+          <div className="mx-auto max-w-7xl pb-6">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={location.pathname}
@@ -290,15 +290,19 @@ const Layout = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-40 bg-black/20" 
-                  onClick={() => setShowMoreMenu(false)} 
+                  className="fixed inset-0 z-40 bg-black/30" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMoreMenu(false);
+                  }} 
                 />
                 <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.15 }}
                   className="absolute bottom-full right-4 mb-2 w-48 rounded-2xl overflow-hidden z-50"
+                  onClick={(e) => e.stopPropagation()}
                   style={{
                     background: 'rgba(10,16,36,0.98)',
                     backdropFilter: 'blur(24px)',
@@ -311,8 +315,15 @@ const Layout = () => {
                       <Link
                         key={item.to}
                         to={item.to}
-                        onClick={() => setShowMoreMenu(false)}
-                        className={`flex items-center gap-3 px-4 py-3 transition-all duration-200 border-b border-white/5 last:border-0 ${
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowMoreMenu(false);
+                          // Small delay to ensure menu closes before navigation
+                          setTimeout(() => {
+                            window.location.href = item.to;
+                          }, 50);
+                        }}
+                        className={`flex items-center gap-3 px-4 py-3 transition-all duration-200 border-b border-white/5 last:border-0 active:scale-95 ${
                           isActive ? 'text-indigo-300 bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10'
                         }`}>
                         <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
