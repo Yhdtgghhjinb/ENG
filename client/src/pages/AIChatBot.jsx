@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import { jsPDF } from 'jspdf';
 import api from '../config/api';
 
 const AIChatBot = () => {
@@ -205,9 +204,12 @@ const AIChatBot = () => {
       return;
     }
 
-    toast.loading('Generating PDF...');
+    const toastId = toast.loading('Generating PDF...');
     
     try {
+      // Lazy load jsPDF only when needed
+      const { jsPDF } = await import('jspdf');
+      
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
@@ -280,12 +282,10 @@ const AIChatBot = () => {
       }
 
       pdf.save(`VTU-Chat-${new Date().toISOString().split('T')[0]}.pdf`);
-      toast.dismiss();
-      toast.success('PDF downloaded successfully!');
+      toast.success('PDF downloaded successfully!', { id: toastId });
     } catch (error) {
       console.error('Error generating PDF:', error);
-      toast.dismiss();
-      toast.error('Failed to generate PDF');
+      toast.error('Failed to generate PDF', { id: toastId });
     }
   }, [messages]);
 
