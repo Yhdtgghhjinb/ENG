@@ -3,6 +3,9 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Landing from './pages/Landing';
 import Calculator from './pages/Calculator';
+import ExamCalendar from './pages/ExamCalendar';
+import Discussions from './pages/Discussions';
+import Notifications from './pages/Notifications';
 import Resources from './pages/Resources';
 import Subjects from './pages/Subjects';
 import BranchSchemes from './pages/BranchSchemes';
@@ -33,6 +36,9 @@ const App = () => {
       <Route path="/home" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="calculator" element={<Calculator />} />
+        <Route path="exam-calendar" element={<ExamCalendar />} />
+        <Route path="discussions" element={<Discussions />} />
+        <Route path="notifications" element={<Notifications />} />
         <Route path="resources" element={<Resources />} />
         <Route path="branches/:branchId" element={<BranchSchemes />} />
         <Route path="branches/:branchId/schemes/:schemeId" element={<Semesters />} />
