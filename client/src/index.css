@@ -831,6 +831,14 @@ html, body {
   overflow-x: hidden;
   width: 100%;
   position: relative;
+  height: 100%;
+}
+
+/* Fix mobile viewport height */
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: -webkit-fill-available;
+  }
 }
 
 /* Performance: Hardware acceleration for animations */
@@ -844,8 +852,21 @@ motion-div {
   -webkit-transform: translateZ(0);
 }
 
-/* Reduce animations on mobile for better performance */
+/* Mobile: Fix content area to prevent scroll issues */
 @media (max-width: 1024px) {
+  /* Main content area should fit viewport properly */
+  main {
+    max-height: calc(100vh - 120px);
+    max-height: calc(100dvh - 120px); /* Dynamic viewport height */
+  }
+  
+  /* Ensure content doesn't overflow */
+  .glass-shell {
+    max-height: calc(100vh - 140px);
+    max-height: calc(100dvh - 140px);
+    overflow-y: auto !important;
+  }
+  
   /* Disable expensive animations on mobile */
   .bg-scene::before,
   .bg-scene::after,
@@ -855,7 +876,7 @@ motion-div {
   
   /* Simpler transitions on mobile */
   * {
-    transition-duration: 0.2s !important;
+    transition-duration: 0.15s !important;
   }
   
   /* Better tap targets */
@@ -888,8 +909,13 @@ motion-div {
   /* Reduce blur on mobile for performance */
   .glass-shell,
   .glass-card {
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+  
+  /* Compact padding on mobile */
+  .glass-shell > div {
+    padding: 1rem !important;
   }
 }
 
@@ -906,6 +932,7 @@ motion-div {
 @media (max-width: 640px) {
   .glass-shell {
     border-radius: 1rem;
+    margin: 0.5rem;
   }
   
   /* Tighter grid gaps */
@@ -914,9 +941,14 @@ motion-div {
   }
   
   /* Smaller text on mobile */
-  .display-xl { font-size: clamp(2rem, 8vw, 2.8rem); }
-  .display-lg { font-size: clamp(1.75rem, 7vw, 2.2rem); }
-  .display-md { font-size: clamp(1.35rem, 6vw, 1.65rem); }
+  .display-xl { font-size: clamp(1.75rem, 7vw, 2.5rem); }
+  .display-lg { font-size: clamp(1.5rem, 6vw, 2rem); }
+  .display-md { font-size: clamp(1.25rem, 5vw, 1.5rem); }
+  
+  /* Compact headings */
+  h1 { font-size: clamp(1.5rem, 6vw, 2rem); }
+  h2 { font-size: clamp(1.25rem, 5vw, 1.5rem); }
+  h3 { font-size: clamp(1.1rem, 4vw, 1.25rem); }
 }
 
 /* Better focus states for keyboard navigation on desktop */
@@ -971,5 +1003,22 @@ motion-div {
   
   .glow-hover:hover::after {
     opacity: 0 !important;
+  }
+}
+
+/* Mobile: Better scrollbar */
+@media (max-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(99,102,241,0.3);
+    border-radius: 999px;
   }
 }

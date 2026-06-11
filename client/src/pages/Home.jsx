@@ -80,19 +80,19 @@ const Home = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       {/* Hero Section - Mobile Optimized */}
-      <div className="text-center space-y-2 py-4 sm:py-6">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight">VTU VAULT PLATFORM</h1>
-        <p className="text-xs sm:text-sm md:text-base text-slate-400 max-w-2xl mx-auto px-2">
+      <div className="text-center space-y-2 py-3 sm:py-4">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight">VTU VAULT PLATFORM</h1>
+        <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto px-2">
           Access study materials, notes, question papers, and resources by branch, scheme, and semester
         </p>
       </div>
 
       {/* Branch Cards - Fast & Clean */}
       <div>
-        <h2 className="text-base sm:text-lg md:text-xl font-semibold text-white mb-3 sm:mb-4">Engineering Branches</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+        <h2 className="text-sm sm:text-base md:text-lg font-semibold text-white mb-3 px-1">Engineering Branches</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
           {branches.map((branch, idx) => {
             const style = branchColors[idx % branchColors.length];
             return (

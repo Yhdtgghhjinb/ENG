@@ -213,9 +213,12 @@ const Layout = () => {
         </header>
 
         {/* Content - Optimized for Mobile Performance */}
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-32 sm:px-5 sm:py-5 sm:pb-36 md:px-8 md:py-6 lg:pb-8"
-          style={{ WebkitOverflowScrolling: 'touch' }}>
-          <div className="mx-auto max-w-7xl pb-6">
+        <main className="flex-1 overflow-hidden flex flex-col px-2 py-2 pb-24 sm:px-4 sm:py-4 sm:pb-28 md:px-6 md:py-5 lg:pb-8"
+          style={{ 
+            WebkitOverflowScrolling: 'touch',
+            maxHeight: 'calc(100dvh - 60px - 72px)'
+          }}>
+          <div className="flex-1 overflow-y-auto mx-auto w-full max-w-7xl">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={location.pathname}
@@ -223,10 +226,10 @@ const Layout = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.1 }}
-                className="glass-shell gradient-border rounded-2xl sm:rounded-3xl"
-                style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.07)' }}
+                className="glass-shell gradient-border rounded-xl sm:rounded-2xl h-full overflow-y-auto"
+                style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.07)' }}
               >
-                <div className="p-4 sm:p-6 md:p-8 lg:p-10">
+                <div className="p-3 sm:p-5 md:p-6 lg:p-8">
                   <Outlet />
                 </div>
               </motion.div>
