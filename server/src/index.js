@@ -163,7 +163,7 @@ app.listen(PORT, () => {
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔐 CORS Origins: ${allowedOrigins.join(', ')}`);
   
-  // Sync VTU notifications on startup
+  // Sync VTU notifications on startup (non-blocking, longer delay)
   setTimeout(() => {
     console.log('🔄 Initiating VTU notifications sync on startup...');
     syncVTUNotifications()
@@ -173,7 +173,7 @@ app.listen(PORT, () => {
       .catch(err => {
         console.error('❌ Startup VTU sync failed:', err.message);
       });
-  }, 3000); // Wait 3 seconds for DB to be fully ready
+  }, 10000); // Wait 10 seconds for Railway health check to pass first
 
   // Schedule periodic VTU sync every 6 hours
   const SYNC_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
@@ -189,4 +189,5 @@ app.listen(PORT, () => {
   }, SYNC_INTERVAL);
   
   console.log(`⏰ VTU sync scheduled every 6 hours`);
+  console.log(`🚀 Server is ready and healthy!`);
 });
