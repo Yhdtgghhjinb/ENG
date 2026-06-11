@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../config/api';
@@ -28,9 +28,9 @@ const MODULE_COLORS = [
 ];
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   FILE ROW — single resource with inline PDF viewer
+   FILE ROW — single resource with inline PDF viewer (MEMOIZED)
 ───────────────────────────────────────────────────────────────────────────── */
-const FileRow = ({ resource, color, rgb, isLast }) => {
+const FileRow = memo(({ resource, color, rgb, isLast }) => {
   const [hovered,  setHovered]  = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -257,12 +257,12 @@ const FileRow = ({ resource, color, rgb, isLast }) => {
       )}
     </>
   );
-};
+});
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MODULE ACCORDION — used inside the Notes section
+   MODULE ACCORDION — used inside the Notes section (MEMOIZED)
 ───────────────────────────────────────────────────────────────────────────── */
-const ModuleAccordion = ({ moduleNumber, unitTitle, resources, defaultOpen }) => {
+const ModuleAccordion = memo(({ moduleNumber, unitTitle, resources, defaultOpen }) => {
   const [open, setOpen] = useState(defaultOpen);
   const mc = MODULE_COLORS[(moduleNumber - 1) % MODULE_COLORS.length];
 
@@ -309,15 +309,36 @@ const ModuleAccordion = ({ moduleNumber, unitTitle, resources, defaultOpen }) =>
       </AnimatePresence>
     </div>
   );
-};
+});
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SECTION CARD — wraps each of the 9 sections
+   SECTION CARD — wraps each of the 9 sections (LAZY LOADING)
 ───────────────────────────────────────────────────────────────────────────── */
-const SectionCard = ({ section, count, children, defaultOpen = false }) => {
+const SectionCard = ({ section, count, children, defaultOpen = false, subjectId, onLoad }) => {
   const [open, setOpen] = useState(defaultOpen);
-  const { label, icon, color, rgb, desc } = section;
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(defaultOpen); // Track if resources have been loaded
+  const { label, icon, color, rgb, desc, key } = section;
   const hasContent = count > 0;
+
+  // Lazy load resources when section is expanded
+  const handleToggle = useCallback(async () => {
+    const newOpen = !open;
+    setOpen(newOpen);
+    
+    // Load resources only when opening for the first time
+    if (newOpen && !loaded && hasContent && onLoad) {
+      setLoading(true);
+      try {
+        await onLoad(key);
+        setLoaded(true);
+      } catch (error) {
+        console.error(`Failed to load ${label}:`, error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [open, loaded, hasContent, onLoad, key, label]);
 
   return (
     <motion.div
@@ -333,7 +354,7 @@ const SectionCard = ({ section, count, children, defaultOpen = false }) => {
         transition: 'all 0.25s ease',
       }}>
       {/* Section header */}
-      <button type="button" onClick={() => setOpen(v => !v)}
+      <button type="button" onClick={handleToggle}
         className="flex w-full items-center justify-between px-6 py-5 text-left transition-colors duration-200"
         style={{ background: open ? `rgba(${rgb},0.06)` : 'transparent' }}>
         <div className="flex items-center gap-4">
@@ -390,7 +411,13 @@ const SectionCard = ({ section, count, children, defaultOpen = false }) => {
             exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="overflow-hidden">
             <div className="px-5 pb-5 pt-3">
-              {hasContent ? children : (
+              {loading ? (
+                <div className="flex items-center justify-center py-8 gap-3">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
+                    style={{ borderColor: color }}/>
+                  <p className="text-sm text-slate-400">Loading {label.toLowerCase()}...</p>
+                </div>
+              ) : hasContent ? children : (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
                   <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl text-2xl"
                     style={{ background: `rgba(${rgb},0.08)`, border: `1px dashed rgba(${rgb},0.2)` }}>
@@ -694,42 +721,70 @@ const Skeleton = () => (
 const SubjectDetail = () => {
   const { subjectId } = useParams();
   const [subject,  setSubject]  = useState(null);
-  const [data,     setData]     = useState(null);   // full structured response
+  const [counts,   setCounts]   = useState({});
+  const [sections, setSections] = useState({}); // Lazy-loaded section data
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState('');
 
-  const load = useCallback(() => {
+  // Initial fast load - only metadata and counts
+  const loadInitial = useCallback(async () => {
     setLoading(true); setError('');
-    Promise.all([
-      api.get(`/api/vtu/subjects/${subjectId}`),
-      api.get(`/api/subjects/${subjectId}/resources`),
-    ])
-      .then(([sr, rr]) => {
-        setSubject(sr.data || null);
-        setData(rr.data || null);
-      })
-      .catch(() => setError('Failed to load subject data. Please try again.'))
-      .finally(() => setLoading(false));
+    try {
+      const [sr, cr] = await Promise.all([
+        api.get(`/api/vtu/subjects/${subjectId}`),
+        api.get(`/api/subjects/${subjectId}/counts`),
+      ]);
+      setSubject(sr.data || null);
+      setCounts(cr.data?.counts || {});
+    } catch (err) {
+      setError('Failed to load subject data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }, [subjectId]);
 
-  useEffect(() => { load(); }, [load]);
+  // Lazy load a specific section when user expands it
+  const loadSection = useCallback(async (sectionKey) => {
+    if (sections[sectionKey]) return; // Already loaded
+    
+    try {
+      const response = await api.get(`/api/subjects/${subjectId}/resources`, {
+        params: { section: sectionKey, limit: 100 }
+      });
+      
+      const data = response.data;
+      setSections(prev => ({
+        ...prev,
+        [sectionKey]: {
+          resources: data[sectionKey] || [],
+          notes: data.notes || null,
+          handout: data.handout || null,
+        }
+      }));
+    } catch (err) {
+      console.error(`Failed to load section ${sectionKey}:`, err);
+      throw err;
+    }
+  }, [subjectId, sections]);
+
+  useEffect(() => { loadInitial(); }, [loadInitial]);
 
   // Derive counts for each section
-  const counts = {
-    notes:      (data?.notes?.total) || 0,
-    pyq:        (data?.pyq?.length)  || 0,
-    model:      (data?.model?.length)|| 0,
-    textbook:   (data?.textbook?.length) || 0,
-    lab:        (data?.lab?.length)  || 0,
-    important:  (data?.important?.length) || 0,
-    assignment: (data?.assignment?.length) || 0,
-    reference:  (data?.reference?.length) || 0,
-    handout:    data?.handout ? 1 : 0,
+  const sectionCounts = {
+    notes:      counts.notes || 0,
+    pyq:        counts.pyq || 0,
+    model:      counts.model || 0,
+    textbook:   counts.textbook || 0,
+    lab:        counts.lab || 0,
+    important:  counts.important || 0,
+    assignment: counts.assignment || 0,
+    reference:  counts.reference || 0,
+    handout:    counts.handout || 0,
   };
 
-  const totalFiles = data?.total || 0;
-  const noteModules = data?.notes?.modules || [];
-  const noteGeneral = data?.notes?.general || [];
+  const totalFiles = Object.values(sectionCounts).reduce((a, b) => a + b, 0);
+  const noteModules = sections.notes?.notes?.modules || [];
+  const noteGeneral = sections.notes?.notes?.general || [];
 
   return (
     <div className="space-y-6">
@@ -799,10 +854,10 @@ const SubjectDetail = () => {
       {subject && <CourseInfo subject={subject} />}
 
       {/* ── Section overview chips ───────────────────────────────────────── */}
-      {!loading && data && (
+      {!loading && (
         <div className="flex flex-wrap gap-2">
           {SECTIONS.map(s => {
-            const c = counts[s.key] || 0;
+            const c = sectionCounts[s.key] || 0;
             return (
               <div key={s.key} className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-semibold transition-all duration-200"
                 style={{
@@ -830,7 +885,12 @@ const SubjectDetail = () => {
           {(() => {
             const s = SECTIONS.find(x => x.key === 'notes');
             return (
-              <SectionCard section={s} count={counts.notes} defaultOpen={counts.notes > 0}>
+              <SectionCard 
+                section={s} 
+                count={sectionCounts.notes} 
+                defaultOpen={false}
+                subjectId={subjectId}
+                onLoad={loadSection}>
                 <div className="space-y-3">
                   {noteModules.map((m, i) => (
                     <ModuleAccordion
@@ -869,9 +929,15 @@ const SubjectDetail = () => {
           {/* 2–8. Flat sections */}
           {['pyq','model','textbook','lab','important','assignment','reference'].map(key => {
             const s = SECTIONS.find(x => x.key === key);
-            const items = data?.[key] || [];
+            const items = sections[key]?.resources || [];
             return (
-              <SectionCard key={key} section={s} count={items.length} defaultOpen={false}>
+              <SectionCard 
+                key={key} 
+                section={s} 
+                count={sectionCounts[key]} 
+                defaultOpen={false}
+                subjectId={subjectId}
+                onLoad={loadSection}>
                 <div className="space-y-0">
                   {items.map((r, i) => (
                     <FileRow key={r._id} resource={r} color={s.color} rgb={s.rgb} isLast={i === items.length - 1} />
@@ -926,7 +992,7 @@ const SubjectDetail = () => {
           )}
 
           {/* 9. COURSE HANDOUT — special card */}
-          <HandoutCard handout={data?.handout || null} section={SECTIONS.find(x => x.key === 'handout')} />
+          <HandoutCard handout={sections.handout?.handout || null} section={SECTIONS.find(x => x.key === 'handout')} />
 
         </div>
       )}

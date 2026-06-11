@@ -14,6 +14,39 @@ const VALID_TYPES = [
   'reference', 'handout', 'supplementary', 'question-bank', 'syllabus', 'other',
 ];
 
+// ── GET /api/subjects/:subjectId/counts ───────────────────────────────────────
+// Fast endpoint to get resource counts by type (for initial page load)
+router.get('/:subjectId/counts', async (req, res, next) => {
+  try {
+    const { subjectId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(subjectId)) {
+      return res.status(400).json({ success: false, message: 'Invalid subjectId' });
+    }
+
+    // Use MongoDB aggregation for fast counts
+    const counts = await Resource.aggregate([
+      { $match: { subjectId: mongoose.Types.ObjectId(subjectId) } },
+      { $group: { _id: '$type', count: { $sum: 1 } } },
+    ]);
+
+    const countMap = {};
+    VALID_TYPES.forEach(type => { countMap[type] = 0; });
+    counts.forEach(item => { countMap[item._id] = item.count; });
+
+    // Total count
+    const total = counts.reduce((sum, item) => sum + item.count, 0);
+
+    res.json({
+      success: true,
+      total,
+      counts: countMap,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── POST /api/resources/:resourceId/download ──────────────────────────────────
 router.post('/resources/:resourceId/download', async (req, res) => {
   try {
@@ -43,10 +76,11 @@ router.post('/resources/:resourceId/download', async (req, res) => {
 //   reference  → flat array
 //   handout  → single resource or null
 //   other    → flat array (supplementary, question-bank, syllabus, other)
+// PAGINATION: ?section=notes&page=1&limit=20
 router.get('/:subjectId/resources', async (req, res, next) => {
   try {
     const { subjectId } = req.params;
-    const { type, q, sort = 'newest' } = req.query;
+    const { type, q, sort = 'newest', section, page = 1, limit = 50 } = req.query;
 
     if (!mongoose.Types.ObjectId.isValid(subjectId)) {
       return res.status(400).json({ success: false, message: 'Invalid subjectId format' });
@@ -62,7 +96,13 @@ router.get('/:subjectId/resources', async (req, res, next) => {
 
     const filter = { subjectId };
 
-    if (type) {
+    // Section-specific loading (lazy load optimization)
+    if (section) {
+      if (!VALID_TYPES.includes(section)) {
+        return res.status(400).json({ success: false, message: `Invalid section. Must be one of: ${VALID_TYPES.join(', ')}` });
+      }
+      filter.type = section;
+    } else if (type) {
       if (!VALID_TYPES.includes(type)) {
         return res.status(400).json({ success: false, message: `Invalid type. Must be one of: ${VALID_TYPES.join(', ')}` });
       }
@@ -80,9 +120,20 @@ router.get('/:subjectId/resources', async (req, res, next) => {
     const sortMap = { newest: { createdAt: -1 }, oldest: { createdAt: 1 }, title: { title: 1 } };
     const sortOrder = sortMap[sort] || sortMap.newest;
 
+    // Pagination parameters
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 50));
+    const skip = (pageNum - 1) * limitNum;
+
+    // Get total count for pagination
+    const totalCount = await Resource.countDocuments(filter);
+
+    // Fetch paginated resources
     const resources = await Resource.find(filter)
       .select('title description type fileUrl tags moduleNumber unitTitle semesterNumber subjectName subjectCode branchName schemeName downloadCount createdAt')
       .sort(sortOrder)
+      .skip(skip)
+      .limit(limitNum)
       .lean();
 
     // ── Build structured response ─────────────────────────────────────────
@@ -128,11 +179,23 @@ router.get('/:subjectId/resources', async (req, res, next) => {
 
     const modules = noteModules; // alias for backward compat
 
+    // Pagination metadata
+    const pagination = {
+      page: pageNum,
+      limit: limitNum,
+      total: totalCount,
+      totalPages: Math.ceil(totalCount / limitNum),
+      hasNextPage: pageNum < Math.ceil(totalCount / limitNum),
+      hasPrevPage: pageNum > 1,
+    };
+
     res.json({
       success: true,
       subject: { _id: subject._id, name: subject.name, code: subject.code },
       total:     resources.length,
-      type:      type || 'all',
+      totalCount: totalCount,
+      type:      section || type || 'all',
+      pagination,
 
       // ── Structured sections ──────────────────────────────────────────────
       notes: {
@@ -151,7 +214,7 @@ router.get('/:subjectId/resources', async (req, res, next) => {
       other,
 
       // ── Backward-compat flat fields ──────────────────────────────────────
-      resources, // full flat list
+      resources, // paginated list
       modules,   // notes grouped by module (alias)
       general,   // notes without moduleNumber
     });

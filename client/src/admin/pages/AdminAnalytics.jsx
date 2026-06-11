@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, CartesianGrid, LineChart, Line,
-} from 'recharts';
+  LazyBarChart as BarChart,
+  LazyBar as Bar,
+  LazyLineChart as LineChart,
+  LazyLine as Line,
+  LazyPieChart as PieChart,
+  LazyPie as Pie,
+  LazyXAxis as XAxis,
+  LazyYAxis as YAxis,
+  LazyTooltip as Tooltip,
+  LazyLegend as Legend,
+  LazyResponsiveContainer as ResponsiveContainer,
+  LazyCartesianGrid as CartesianGrid,
+  LazyCell as Cell
+} from '../components/LazyCharts';
 import { adminApi } from '../useAdmin';
 import StatCard from '../components/StatCard';
 

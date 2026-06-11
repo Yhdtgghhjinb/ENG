@@ -1,5 +1,15 @@
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from 'recharts';
+import { 
+  LazyBarChart as BarChart,
+  LazyBar as Bar,
+  LazyLineChart as LineChart,
+  LazyLine as Line,
+  LazyXAxis as XAxis,
+  LazyYAxis as YAxis,
+  LazyTooltip as Tooltip,
+  LazyResponsiveContainer as ResponsiveContainer,
+  LazyCartesianGrid as CartesianGrid
+} from '../components/LazyCharts';
 import { adminApi } from '../useAdmin';
 import StatCard from '../components/StatCard';
 

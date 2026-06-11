@@ -17,7 +17,7 @@ export default defineConfig({
           // Split vendor libraries
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'framer-motion': ['framer-motion'],
-          'charts': ['recharts'],
+          // 'charts': ['recharts'], // REMOVED - now lazy loaded in admin pages
           'pdf': ['jspdf'],
           'ui-libs': ['react-hot-toast'],
         },
