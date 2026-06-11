@@ -397,7 +397,7 @@ const AIChatBot = () => {
       />
       
       <div 
-        className="flex flex-col h-[calc(100vh-200px)] transition-colors duration-300"
+        className="flex flex-col min-h-[600px] transition-colors duration-300"
         style={{
           background: theme === 'dark' 
             ? 'rgba(2,6,23,0.4)' 
@@ -551,7 +551,7 @@ const AIChatBot = () => {
         {/* Messages Area */}
         <div 
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto space-y-4 mb-4 px-2 sm:px-4 scrollbar-thin scrollbar-thumb-indigo-500 scrollbar-track-transparent">
+          className="space-y-3 mb-4 px-2 sm:px-4">
           <AnimatePresence mode="popLayout">
             {messages.map((msg, idx) => (
               <motion.div
@@ -703,7 +703,11 @@ const AIChatBot = () => {
         </div>
 
         {/* Input Area */}
-        <div className="flex-shrink-0 px-2 sm:px-4 pb-4">
+        <div className="px-2 sm:px-4 pb-2 pt-3 border-t"
+          style={{
+            borderColor: theme === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(203,213,225,0.3)',
+            background: theme === 'dark' ? 'rgba(2,6,23,0.6)' : 'rgba(248,250,252,0.95)'
+          }}>
           <form onSubmit={handleSubmit} className="flex gap-2 items-end">
             {/* Voice Input Button */}
             <motion.button

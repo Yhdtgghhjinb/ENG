@@ -119,7 +119,7 @@ body {
     rgba(4, 7, 20, 0.91);
   backdrop-filter: blur(40px) saturate(200%);
   -webkit-backdrop-filter: blur(40px) saturate(200%);
-  overflow: hidden;
+  /* No overflow properties - let parent handle scrolling */
 }
 
 /* Noise texture overlay on the shell */
@@ -282,14 +282,14 @@ body {
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: rgba(2,6,23,0.96); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(2,6,23,0.8); }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(99,102,241,0.4), rgba(139,92,246,0.3));
+  background: linear-gradient(180deg, rgba(99,102,241,0.5), rgba(139,92,246,0.4));
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(99,102,241,0.7), rgba(139,92,246,0.6));
+  background: linear-gradient(180deg, rgba(99,102,241,0.8), rgba(139,92,246,0.7));
 }
 
 /* ─── Nav ────────────────────────────────────────────────────────────────────── */
@@ -854,12 +854,6 @@ motion-div {
 
 /* Mobile: Fix content area to prevent scroll issues */
 @media (max-width: 1024px) {
-  /* Main content area should fit viewport properly */
-  main {
-    max-height: calc(100vh - 120px);
-    max-height: calc(100dvh - 120px); /* Dynamic viewport height */
-  }
-  
   /* Disable expensive animations on mobile */
   .bg-scene::before,
   .bg-scene::after,
@@ -902,13 +896,8 @@ motion-div {
   /* Reduce blur on mobile for performance */
   .glass-shell,
   .glass-card {
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-  }
-  
-  /* Compact padding on mobile */
-  .glass-shell > div {
-    padding: 1rem !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
   }
 }
 
@@ -925,7 +914,6 @@ motion-div {
 @media (max-width: 640px) {
   .glass-shell {
     border-radius: 1rem;
-    margin: 0.5rem;
   }
   
   /* Tighter grid gaps */
@@ -934,7 +922,10 @@ motion-div {
   }
   
   /* Smaller text on mobile */
-  .display-xl { font-size: clamp(1.75rem, 7vw, 2.5rem); }
+  .display-xl { font-size: clamp(2rem, 5vw, 2.8rem); }
+  .display-lg { font-size: clamp(1.75rem, 4vw, 2.2rem); }
+  .display-md { font-size: clamp(1.4rem, 3vw, 1.65rem); }
+}ont-size: clamp(1.75rem, 7vw, 2.5rem); }
   .display-lg { font-size: clamp(1.5rem, 6vw, 2rem); }
   .display-md { font-size: clamp(1.25rem, 5vw, 1.5rem); }
   

@@ -213,10 +213,9 @@ const Layout = () => {
         </header>
 
         {/* Content - Single Scroll Container */}
-        <main className="flex-1 overflow-y-auto px-2 py-2 pb-24 sm:px-4 sm:py-4 sm:pb-28 md:px-6 md:py-5 lg:pb-8"
+        <main className="flex-1 overflow-y-auto px-3 py-3 pb-20 sm:px-5 sm:py-4 sm:pb-24 lg:pb-6"
           style={{ 
-            WebkitOverflowScrolling: 'touch',
-            maxHeight: 'calc(100dvh - 60px - 72px)'
+            WebkitOverflowScrolling: 'touch'
           }}>
           <div className="mx-auto w-full max-w-7xl">
             <AnimatePresence mode="wait" initial={false}>
@@ -229,7 +228,7 @@ const Layout = () => {
                 className="glass-shell gradient-border rounded-xl sm:rounded-2xl"
                 style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.07)' }}
               >
-                <div className="p-3 sm:p-5 md:p-6 lg:p-8">
+                <div className="p-4 sm:p-6 md:p-7 lg:p-8">
                   <Outlet />
                 </div>
               </motion.div>
