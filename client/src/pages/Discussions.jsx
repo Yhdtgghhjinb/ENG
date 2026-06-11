@@ -54,9 +54,9 @@ const Discussions = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-2 py-4">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight">Discussion Forum</h1>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight">💬 Discussion Forum</h1>
         <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto px-2">
-          Ask questions, share knowledge, and connect with fellow VTU students
+          Ask questions, get answers, and connect with VTU students
         </p>
       </div>
 
