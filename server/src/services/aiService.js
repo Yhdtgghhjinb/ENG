@@ -1,8 +1,8 @@
-// Using Hugging Face Inference API - 100% FREE forever
+// Using Groq API - 100% FREE and FAST
 const axios = require('axios');
 
-const HF_API_URL = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
-const HF_API_KEY = process.env.HUGGINGFACE_API_KEY || '';
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
 // Enhanced VTU-specific system prompt
 const SYSTEM_PROMPT = `You are an expert VTU (Visvesvaraya Technological University) exam preparation assistant. You MUST provide EXACT answers that VTU board expects.
@@ -108,10 +108,10 @@ Be precise. Be VTU-aligned. Be exam-focused.`;
 async function getChatResponse(userMessage, conversationHistory = []) {
   try {
     // Check if API key is configured
-    if (!HF_API_KEY) {
+    if (!GROQ_API_KEY) {
       return {
         success: false,
-        response: '⚠️ AI service is not configured. Please add HUGGINGFACE_API_KEY to environment variables.\n\n✅ Get a FREE API key from Hugging Face:\n1. Visit: https://huggingface.co/settings/tokens\n2. Sign up (free forever)\n3. Create a new token\n4. Add to Railway environment variables\n\n100% Free - No credit card required - Unlimited usage!'
+        response: '⚠️ AI service is not configured. Please add GROQ_API_KEY to environment variables.\n\n✅ Get a FREE API key from Groq:\n1. Visit: https://console.groq.com/keys\n2. Sign up (free forever)\n3. Create a new API key\n4. Add to Railway environment variables\n\n100% Free - No credit card required - Super fast responses!'
       };
     }
 
@@ -119,62 +119,51 @@ async function getChatResponse(userMessage, conversationHistory = []) {
     const marksMatch = userMessage.match(/(\d+)\s*marks?/i);
     const marks = marksMatch ? parseInt(marksMatch[1]) : null;
 
-    // Build conversation context with VTU focus
-    let prompt = SYSTEM_PROMPT + '\n\n';
-    
-    if (marks) {
-      prompt += `🎯 IMPORTANT: Student is asking for a ${marks}-mark exam answer. Provide COMPLETE answer formatted for VTU exam paper.\n\n`;
-    }
-    
-    prompt += 'Conversation:\n';
-    
-    // Add recent history (last 4 exchanges for context)
+    // Build messages array for Groq
+    const messages = [
+      {
+        role: 'system',
+        content: SYSTEM_PROMPT
+      }
+    ];
+
+    // Add conversation history (last 4 exchanges)
     const recentHistory = conversationHistory.slice(-8);
     recentHistory.forEach(msg => {
-      if (msg.role === 'user') {
-        prompt += `Student: ${msg.content}\n`;
-      } else if (msg.role === 'assistant') {
-        prompt += `VTU Assistant: ${msg.content}\n`;
+      if (msg.role === 'user' || msg.role === 'assistant') {
+        messages.push({
+          role: msg.role,
+          content: msg.content
+        });
       }
     });
 
-    // Add current message
-    prompt += `Student: ${userMessage}\n`;
-    
+    // Add current user message with marks reminder if applicable
+    let userContent = userMessage;
     if (marks) {
-      prompt += `\n[REMINDER: This is a ${marks}-mark question. Provide answer in VTU exam format.]\n`;
+      userContent += `\n\n[IMPORTANT: This is a ${marks}-mark VTU exam question. Provide a complete answer in VTU exam format with appropriate length.]`;
     }
-    
-    prompt += `VTU Assistant:`;
 
-    // Call Hugging Face API
-    const response = await axios.post(HF_API_URL, {
-      inputs: prompt,
-      parameters: {
-        max_new_tokens: 1024,
-        temperature: 0.7,
-        top_p: 0.95,
-        return_full_text: false
-      }
+    messages.push({
+      role: 'user',
+      content: userContent
+    });
+
+    // Call Groq API
+    const response = await axios.post(GROQ_API_URL, {
+      model: 'llama3-8b-8192', // Fast and free
+      messages: messages,
+      temperature: 0.7,
+      max_tokens: 2048,
+      top_p: 0.95
     }, {
       headers: {
-        'Authorization': `Bearer ${HF_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       }
     });
 
-    const result = response.data;
-    
-    let text = '';
-    if (Array.isArray(result) && result[0]?.generated_text) {
-      text = result[0].generated_text;
-    } else if (result.generated_text) {
-      text = result.generated_text;
-    } else if (typeof result === 'string') {
-      text = result;
-    } else {
-      text = 'I apologize, but I received an unexpected response. Please try again.';
-    }
+    const text = response.data.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
 
     return {
       success: true,
@@ -191,40 +180,33 @@ async function getChatResponse(userMessage, conversationHistory = []) {
       const status = error.response.status;
       const errorData = error.response.data;
       
-      console.error(`HF API Error - Status: ${status}`, errorData);
+      console.error(`Groq API Error - Status: ${status}`, errorData);
       
       if (status === 401 || status === 403) {
         return {
           success: false,
-          response: '⚠️ Invalid or missing API key.\n\n✅ Hugging Face is 100% FREE forever!\n\nGet your free key:\n1. Visit: https://huggingface.co/settings/tokens\n2. Sign up with email (no credit card)\n3. Create a new token (Read role is enough)\n4. Add to Railway environment: HUGGINGFACE_API_KEY\n\nUnlimited requests - Perfect for students!'
-        };
-      }
-      
-      if (status === 503 || errorData?.error?.includes('loading')) {
-        return {
-          success: false,
-          response: '⏳ Model is loading... This is normal for the first request!\n\nThe free model was sleeping and is now waking up. Please wait 20-30 seconds and try again.\n\nThis only happens once - subsequent requests will be fast!\n\n100% free - just needs a moment to start.'
+          response: '⚠️ Invalid or missing API key.\n\n✅ Groq is 100% FREE forever!\n\nGet your free key:\n1. Visit: https://console.groq.com/keys\n2. Sign up with email (no credit card)\n3. Create a new API key\n4. Add to Railway environment: GROQ_API_KEY\n\nSuper fast - Perfect for students!'
         };
       }
       
       if (status === 429) {
         return {
           success: false,
-          response: '⏳ Rate limit reached. Please wait a moment and try again.\n\nThis is rare on the free tier. The API should be available again in a few seconds.'
+          response: '⏳ Rate limit reached. Please wait a moment and try again.\n\nGroq free tier has generous limits. Try again in a few seconds.'
         };
       }
     }
 
     return {
       success: false,
-      response: '❌ Sorry, I encountered an error. Please try again in a moment.\n\nIf this persists:\n1. Wait 20-30 seconds (model might be loading)\n2. Check your internet connection\n3. Verify API key is correctly set\n\nThe service is completely free and should work fine!'
+      response: '❌ Sorry, I encountered an error. Please try again in a moment.\n\nIf this persists:\n1. Check your internet connection\n2. Verify API key is correctly set\n3. Try asking the question differently\n\nThe service is completely free and should work fine!'
     };
   }
 }
 
 async function analyzeQuestionPaper(text, examDetails = {}) {
   try {
-    if (!HF_API_KEY) {
+    if (!GROQ_API_KEY) {
       return {
         success: false,
         message: 'AI service not configured'
@@ -246,29 +228,22 @@ Please provide:
 
 Provide a clear, structured analysis.`;
 
-    const response = await axios.post(HF_API_URL, {
-      inputs: prompt,
-      parameters: {
-        max_new_tokens: 512,
-        temperature: 0.5,
-      }
+    const response = await axios.post(GROQ_API_URL, {
+      model: 'llama3-8b-8192',
+      messages: [
+        { role: 'system', content: 'You are a VTU exam paper analyzer.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.5,
+      max_tokens: 1024
     }, {
       headers: {
-        'Authorization': `Bearer ${HF_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       }
     });
 
-    const result = response.data;
-    let analysisText = '';
-    
-    if (Array.isArray(result) && result[0]?.generated_text) {
-      analysisText = result[0].generated_text;
-    } else if (result.generated_text) {
-      analysisText = result.generated_text;
-    } else {
-      analysisText = 'Analysis completed. Please review the paper manually for detailed insights.';
-    }
+    const analysisText = response.data.choices[0]?.message?.content || 'Analysis completed.';
 
     return {
       success: true,
@@ -287,7 +262,7 @@ Provide a clear, structured analysis.`;
     console.error('Error details:', error.response?.data || error.message);
     return {
       success: false,
-      message: 'Failed to analyze question paper. Please try again. The model might be loading on first use.'
+      message: 'Failed to analyze question paper. Please try again.'
     };
   }
 }
