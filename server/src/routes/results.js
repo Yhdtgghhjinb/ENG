@@ -196,28 +196,54 @@ router.post('/fetch', async (req, res, next) => {
     // Parse the response
     const $ = cheerio.load(response.data);
     
-    // Check for error messages
+    // Debug: Log what we received
     const bodyText = $('body').text().toLowerCase();
+    const pageTitle = $('title').text().trim();
+    console.log(`  📄 Page title: ${pageTitle}`);
+    console.log(`  📝 Body text length: ${bodyText.length} chars`);
+    
+    // Check for error messages (improved detection)
     const errorKeywords = [
       'university seat number is not available',
       'invalid usn',
       'not found',
       'no record',
       'does not exist',
-      'enter valid usn'
+      'enter valid usn',
+      'please enter',
+      'invalid entry'
     ];
 
     for (const keyword of errorKeywords) {
       if (bodyText.includes(keyword)) {
-        console.log('  ❌ USN not found in VTU database');
+        console.log(`  ❌ USN not found in VTU database (keyword: ${keyword})`);
         return res.json({
           success: false,
-          message: `No results found for USN: ${cleanUSN}. Please verify your USN is correct and results are published for the selected exam session.`,
+          message: `No results found for USN: ${cleanUSN}. Please verify your USN is correct and results are published for the selected exam session (${schemeCode}).`,
           usn: cleanUSN,
           examCode: schemeCode,
-          suggestion: 'Try selecting a different exam session or check if your results are published on VTU website.'
+          suggestion: 'Make sure you are selecting the correct exam session for your batch. Try different exam sessions if this one shows no results.'
         });
       }
+    }
+
+    // Check if this is actually a result page
+    const hasResultIndicators = 
+      bodyText.includes('internal') || 
+      bodyText.includes('external') || 
+      bodyText.includes('marks') ||
+      bodyText.includes('sgpa') ||
+      bodyText.includes('result');
+    
+    if (!hasResultIndicators) {
+      console.log('  ⚠️ Page does not appear to contain result data');
+      return res.json({
+        success: false,
+        message: `The response from VTU does not contain result data for USN: ${cleanUSN}. Results may not be published for this exam session yet.`,
+        usn: cleanUSN,
+        examCode: schemeCode,
+        suggestion: 'Try a different exam session or check if results are actually published on VTU website.'
+      });
     }
 
     // Extract student name
@@ -361,16 +387,21 @@ router.post('/fetch', async (req, res, next) => {
       });
     }
 
-    // Got response but couldn't parse
+    // Got response but couldn't parse - provide helpful debug info
     console.log('  ⚠️ Response received but could not extract results');
+    console.log(`  🔍 Debug: studentName=${!!studentName}, subjects=${subjects.length}, sgpa=${sgpa}, cgpa=${cgpa}`);
+    
     return res.json({
       success: false,
-      message: 'Received response from VTU but unable to parse results. The page structure may have changed. Please try visiting results.vtu.ac.in directly.',
+      message: `Received response from VTU but unable to parse results for USN: ${cleanUSN}. This usually means results are not published for this exam session (${schemeCode}) yet, or the USN is incorrect.`,
       usn: cleanUSN,
+      examCode: schemeCode,
+      suggestion: 'Try a different exam session from the dropdown, or verify your USN is correct.',
       debugInfo: {
         responseLength: response.data.length,
         hasStudentName: !!studentName,
-        subjectCount: subjects.length
+        subjectCount: subjects.length,
+        pageHasResultData: bodyText.includes('internal') || bodyText.includes('marks')
       }
     });
 
