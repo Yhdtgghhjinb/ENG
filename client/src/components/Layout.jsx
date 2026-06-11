@@ -88,11 +88,7 @@ const Layout = () => {
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}>
-            <Logo size="md" animated={false} />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-            <p className="text-[13.5px] font-bold tracking-tight text-slate-100">VTU VAULT</p>
-            <p className="text-[10px] text-slate-600">Secure Repository</p>
+            <Logo size="md" animated={false} showText={true} />
           </motion.div>
         </div>
 
@@ -183,7 +179,7 @@ const Layout = () => {
         <header className="flex flex-shrink-0 items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5"
           style={{ background: 'rgba(2,6,23,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(99,102,241,0.08)' }}>
           <div className="lg:hidden">
-            <Logo size="sm" animated={false} />
+            <Logo size="sm" animated={false} showText={false} />
           </div>
 
           <div className="hidden items-center gap-2.5 lg:flex">
