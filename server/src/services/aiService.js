@@ -184,20 +184,35 @@ async function getChatResponse(userMessage, conversationHistory = []) {
 
   } catch (error) {
     console.error('AI Service Error:', error);
+    console.error('Error details:', error.response?.data || error.message);
     
-    // Handle specific errors
-    if (error.message?.includes('API') || error.message?.includes('token') || error.message?.includes('401')) {
-      return {
-        success: false,
-        response: '⚠️ Invalid or missing API key.\n\n✅ Hugging Face is 100% FREE forever!\n\nGet your free key:\n1. Visit: https://huggingface.co/settings/tokens\n2. Sign up with email (no credit card)\n3. Create a new token (Read role is enough)\n4. Add to Railway environment: HUGGINGFACE_API_KEY\n\nUnlimited requests - Perfect for students!'
-      };
-    }
-
-    if (error.message?.includes('quota') || error.message?.includes('rate limit') || error.message?.includes('503')) {
-      return {
-        success: false,
-        response: '⏳ Model is loading or temporarily busy. This happens when the free model hasn\'t been used recently.\n\nPlease wait 20-30 seconds and try again. The model will wake up automatically.\n\nStill 100% free - just needs a moment to start!'
-      };
+    // Handle axios errors
+    if (error.response) {
+      const status = error.response.status;
+      const errorData = error.response.data;
+      
+      console.error(`HF API Error - Status: ${status}`, errorData);
+      
+      if (status === 401 || status === 403) {
+        return {
+          success: false,
+          response: '⚠️ Invalid or missing API key.\n\n✅ Hugging Face is 100% FREE forever!\n\nGet your free key:\n1. Visit: https://huggingface.co/settings/tokens\n2. Sign up with email (no credit card)\n3. Create a new token (Read role is enough)\n4. Add to Railway environment: HUGGINGFACE_API_KEY\n\nUnlimited requests - Perfect for students!'
+        };
+      }
+      
+      if (status === 503 || errorData?.error?.includes('loading')) {
+        return {
+          success: false,
+          response: '⏳ Model is loading... This is normal for the first request!\n\nThe free model was sleeping and is now waking up. Please wait 20-30 seconds and try again.\n\nThis only happens once - subsequent requests will be fast!\n\n100% free - just needs a moment to start.'
+        };
+      }
+      
+      if (status === 429) {
+        return {
+          success: false,
+          response: '⏳ Rate limit reached. Please wait a moment and try again.\n\nThis is rare on the free tier. The API should be available again in a few seconds.'
+        };
+      }
     }
 
     return {
@@ -269,9 +284,10 @@ Provide a clear, structured analysis.`;
 
   } catch (error) {
     console.error('Question Paper Analysis Error:', error);
+    console.error('Error details:', error.response?.data || error.message);
     return {
       success: false,
-      message: 'Failed to analyze question paper. Please try again.'
+      message: 'Failed to analyze question paper. Please try again. The model might be loading on first use.'
     };
   }
 }
