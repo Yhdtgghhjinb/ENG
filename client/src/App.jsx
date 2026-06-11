@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { LanguageProvider } from './contexts/LanguageContext';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Landing from './pages/Landing';
@@ -6,6 +7,8 @@ import Calculator from './pages/Calculator';
 import ExamCalendar from './pages/ExamCalendar';
 import Notifications from './pages/Notifications';
 import ResourceRequests from './pages/ResourceRequests';
+import AIChatBot from './pages/AIChatBot';
+import QuestionPaperAnalyzer from './pages/QuestionPaperAnalyzer';
 import Resources from './pages/Resources';
 import Subjects from './pages/Subjects';
 import BranchSchemes from './pages/BranchSchemes';
@@ -30,18 +33,21 @@ import AdminAnalytics from './admin/pages/AdminAnalytics';
 
 const App = () => {
   return (
-    <Routes>
-      {/* Landing Page */}
-      <Route path="/" element={<Landing />} />
+    <LanguageProvider>
+      <Routes>
+        {/* Landing Page */}
+        <Route path="/" element={<Landing />} />
 
-      {/* Public site */}
-      <Route path="/home" element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="calculator" element={<Calculator />} />
-        <Route path="exam-calendar" element={<ExamCalendar />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="resource-requests" element={<ResourceRequests />} />
-        <Route path="resources" element={<Resources />} />
+        {/* Public site */}
+        <Route path="/home" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="calculator" element={<Calculator />} />
+          <Route path="exam-calendar" element={<ExamCalendar />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="resource-requests" element={<ResourceRequests />} />
+          <Route path="ai-assistant" element={<AIChatBot />} />
+          <Route path="qp-analyzer" element={<QuestionPaperAnalyzer />} />
+          <Route path="resources" element={<Resources />} />
         <Route path="branches/:branchId" element={<BranchSchemes />} />
         <Route path="branches/:branchId/schemes/:schemeId" element={<Semesters />} />
         <Route path="branches/:branchId/schemes/:schemeId/semesters/:semesterNumber" element={<SubjectsBySemester />} />
@@ -69,6 +75,7 @@ const App = () => {
       {/* Catch all - redirect to landing */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </LanguageProvider>
   );
 };
 
