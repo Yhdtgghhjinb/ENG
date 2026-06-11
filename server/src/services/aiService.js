@@ -1,4 +1,6 @@
 // Using Hugging Face Inference API - 100% FREE forever
+const axios = require('axios');
+
 const HF_API_URL = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
 const HF_API_KEY = process.env.HUGGINGFACE_API_KEY || '';
 
@@ -146,30 +148,22 @@ async function getChatResponse(userMessage, conversationHistory = []) {
     prompt += `VTU Assistant:`;
 
     // Call Hugging Face API
-    const response = await fetch(HF_API_URL, {
-      method: 'POST',
+    const response = await axios.post(HF_API_URL, {
+      inputs: prompt,
+      parameters: {
+        max_new_tokens: 1024,
+        temperature: 0.7,
+        top_p: 0.95,
+        return_full_text: false
+      }
+    }, {
       headers: {
         'Authorization': `Bearer ${HF_API_KEY}`,
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 1024,
-          temperature: 0.7,
-          top_p: 0.95,
-          return_full_text: false
-        }
-      })
+      }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('HF API Error:', errorText);
-      throw new Error(`API request failed: ${response.status}`);
-    }
-
-    const result = await response.json();
+    const result = response.data;
     
     let text = '';
     if (Array.isArray(result) && result[0]?.generated_text) {
@@ -237,26 +231,20 @@ Please provide:
 
 Provide a clear, structured analysis.`;
 
-    const response = await fetch(HF_API_URL, {
-      method: 'POST',
+    const response = await axios.post(HF_API_URL, {
+      inputs: prompt,
+      parameters: {
+        max_new_tokens: 512,
+        temperature: 0.5,
+      }
+    }, {
       headers: {
         'Authorization': `Bearer ${HF_API_KEY}`,
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 512,
-          temperature: 0.5,
-        }
-      })
+      }
     });
 
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status}`);
-    }
-
-    const result = await response.json();
+    const result = response.data;
     let analysisText = '';
     
     if (Array.isArray(result) && result[0]?.generated_text) {
