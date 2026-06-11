@@ -6,7 +6,30 @@ const AIChatBot = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: '🎓 Welcome! I\'m your VTU Exam Expert Assistant.\n\nI provide EXACT answers that VTU board expects:\n\n📝 Ask questions with marks: "Explain stack for 5 marks"\n📚 Get textbook-aligned answers\n✍️ Learn proper exam writing format\n🎯 Mark-based response length\n💯 VTU syllabus focused\n\nExamples:\n• "Define OS for 2 marks"\n• "Explain TCP/IP protocol for 10 marks"\n• "Write about DBMS normalization (16 marks)"\n\nWhat VTU exam question can I help you with?',
+      content: `🎓 Welcome! I'm your VTU Exam Expert Assistant.
+
+📖 HOW TO USE:
+
+1️⃣ **Mention Marks in Your Question**
+   Example: "Explain stack for 5 marks"
+   
+2️⃣ **Get VTU Board Format Answers**
+   • Definition → Key Points → Examples → Conclusion
+   • Textbook-aligned content
+   • Proper exam writing format
+   
+3️⃣ **Mark-Based Response Length**
+   • 2 marks = 2-3 lines (50-75 words)
+   • 5 marks = 1 paragraph (150-200 words)
+   • 10 marks = 2-3 paragraphs (400-500 words)
+   • 16 marks = Complete essay (800-1000 words)
+
+💡 **Examples:**
+• "Define operating system for 2 marks"
+• "Explain TCP/IP protocol for 10 marks"
+• "Write about DBMS normalization (16 marks)"
+
+❓ What VTU exam question can I help you with?`,
       timestamp: new Date()
     }
   ]);
@@ -21,13 +44,6 @@ const AIChatBot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const quickPrompts = [
-    { icon: '📖', text: 'Explain stack for 5 marks' },
-    { icon: '💡', text: 'Define operating system (2 marks)' },
-    { icon: '🎯', text: 'Write about TCP/IP for 10 marks' },
-    { icon: '📝', text: 'Study tips for VTU exams' },
-  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,10 +86,6 @@ const AIChatBot = () => {
     }
   };
 
-  const handleQuickPrompt = (text) => {
-    setInput(text);
-  };
-
   return (
     <div className="flex flex-col h-[calc(100vh-200px)]">
       {/* Header */}
@@ -85,29 +97,6 @@ const AIChatBot = () => {
           Get exact VTU board answers • Mark-based responses • Textbook-aligned • 100% Free
         </p>
       </div>
-
-      {/* Quick Prompts */}
-      {messages.length === 1 && (
-        <div className="flex-shrink-0 mb-4">
-          <p className="text-xs text-slate-500 mb-2 text-center">Quick questions:</p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {quickPrompts.map((prompt, i) => (
-              <button
-                key={i}
-                onClick={() => handleQuickPrompt(prompt.text)}
-                className="px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105"
-                style={{
-                  background: 'rgba(99,102,241,0.1)',
-                  border: '1px solid rgba(99,102,241,0.2)',
-                  color: '#a5b4fc',
-                }}>
-                <span className="mr-1">{prompt.icon}</span>
-                {prompt.text}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto space-y-4 mb-4 px-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
