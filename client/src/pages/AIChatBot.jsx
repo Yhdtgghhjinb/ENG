@@ -397,7 +397,7 @@ const AIChatBot = () => {
       />
       
       <div 
-        className="flex flex-col space-y-3"
+        className="flex flex-col transition-colors duration-300"
         style={{
           background: theme === 'dark' 
             ? 'rgba(2,6,23,0.4)' 
@@ -406,28 +406,27 @@ const AIChatBot = () => {
         }}>
         
         {/* Header with Actions */}
-        <div className="pb-3 border-b"
-          style={{ borderColor: theme === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(203,213,225,0.3)' }}>
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-lg sm:text-xl font-bold leading-tight"
+        <div className="flex-shrink-0 py-4 px-2 sm:px-4">
+          <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
+            <div className="flex-1 min-w-[200px]">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight"
                 style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }}>
-                🎓 VTU Exam Expert
+                🎓 VTU Exam Expert AI
               </h1>
-              <p className="text-xs mt-1"
+              <p className="text-xs sm:text-sm mt-1"
                 style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
-                Get VTU answers • Mark-based • Free
+                Get exact VTU board answers • Mark-based responses • 100% Free
               </p>
             </div>
             
-            {/* Action Buttons - Compact */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
               {/* Theme Toggle */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleTheme}
-                className="p-2 rounded-lg transition-all duration-200"
+                className="p-2.5 rounded-xl transition-all duration-200"
                 style={{
                   background: theme === 'dark' 
                     ? 'rgba(99,102,241,0.15)' 
@@ -436,7 +435,7 @@ const AIChatBot = () => {
                   color: theme === 'dark' ? '#a5b4fc' : '#6366f1'
                 }}
                 title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}>
-                <span className="text-base">{theme === 'dark' ? '☀️' : '🌙'}</span>
+                <span className="text-lg">{theme === 'dark' ? '☀️' : '🌙'}</span>
               </motion.button>
 
               {/* Export PDF */}
@@ -445,7 +444,7 @@ const AIChatBot = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={exportToPDF}
                 disabled={messages.length <= 1}
-                className="p-2 rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="p-2.5 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{
                   background: theme === 'dark' 
                     ? 'rgba(16,185,129,0.15)' 
@@ -454,7 +453,7 @@ const AIChatBot = () => {
                   color: theme === 'dark' ? '#6ee7b7' : '#059669'
                 }}
                 title="Export to PDF">
-                <span className="text-base">📄</span>
+                <span className="text-lg">📄</span>
               </motion.button>
 
               {/* Clear Chat */}
@@ -463,7 +462,7 @@ const AIChatBot = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={clearChat}
                 disabled={messages.length <= 1}
-                className="p-2 rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="p-2.5 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{
                   background: theme === 'dark' 
                     ? 'rgba(239,68,68,0.15)' 
@@ -472,14 +471,14 @@ const AIChatBot = () => {
                   color: theme === 'dark' ? '#fca5a5' : '#dc2626'
                 }}
                 title="Clear Chat">
-                <span className="text-base">🗑️</span>
+                <span className="text-lg">🗑️</span>
               </motion.button>
             </div>
           </div>
         </div>
 
-        {/* Messages Area - No Internal Scroll */}
-        <div className="space-y-2">
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto space-y-4 mb-4 px-2 sm:px-4 scrollbar-thin scrollbar-thumb-indigo-500 scrollbar-track-transparent">
           <AnimatePresence mode="popLayout">
             {messages.map((msg, idx) => (
               <motion.div
@@ -630,11 +629,8 @@ const AIChatBot = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area - Sticky */}
-        <div className="pt-3 border-t"
-          style={{
-            borderColor: theme === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(203,213,225,0.3)'
-          }}>
+        {/* Input Area */}
+        <div className="flex-shrink-0 px-2 sm:px-4 pb-4">
           <form onSubmit={handleSubmit} className="flex gap-2 items-end">
             {/* Voice Input Button */}
             <motion.button
@@ -643,7 +639,7 @@ const AIChatBot = () => {
               whileTap={{ scale: 0.95 }}
               onClick={handleVoiceInput}
               disabled={loading}
-              className={`flex-shrink-0 p-2.5 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`flex-shrink-0 p-3 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                 isListening ? 'animate-pulse' : ''
               }`}
               style={{
@@ -660,16 +656,16 @@ const AIChatBot = () => {
                 color: '#ffffff'
               }}
               title={isListening ? 'Stop listening' : 'Start voice input'}>
-              <span className="text-lg">{isListening ? '🔴' : '🎤'}</span>
+              <span className="text-xl">{isListening ? '🔴' : '🎤'}</span>
             </motion.button>
 
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Ask VTU question..."
+              placeholder="Ask any VTU exam question..."
               disabled={loading || isListening}
-              className="flex-1 px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all duration-200"
+              className="flex-1 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all duration-200"
               style={{
                 background: theme === 'dark' 
                   ? 'rgba(255,255,255,0.05)' 
