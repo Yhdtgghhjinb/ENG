@@ -160,7 +160,7 @@ async function getChatResponse(userMessage, conversationHistory = []) {
     
     // Call Groq API
     const response = await axios.post(GROQ_API_URL, {
-      model: 'llama3-8b-8192', // Fast and free
+      model: 'llama-3.1-8b-instant', // Updated model - fast and free
       messages: messages,
       temperature: 0.7,
       max_tokens: 2048,
@@ -265,7 +265,7 @@ Please provide:
 Provide a clear, structured analysis.`;
 
     const response = await axios.post(GROQ_API_URL, {
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
       messages: [
         { role: 'system', content: 'You are a VTU exam paper analyzer.' },
         { role: 'user', content: prompt }
