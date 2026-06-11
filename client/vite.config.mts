@@ -9,14 +9,5 @@ export default defineConfig({
       '/api': 'http://localhost:5000',
     },
   },
-  build: {
-    rollupOptions: {
-      output: {
-        entryFileNames: `assets/[name].${Date.now()}.js`,
-        chunkFileNames: `assets/[name].${Date.now()}.js`,
-        assetFileNames: `assets/[name].${Date.now()}.[ext]`
-      }
-    }
-  }
 });
 
