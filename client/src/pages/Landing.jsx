@@ -18,8 +18,8 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      {/* Animated Background Orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      {/* Animated Background Orbs - Disabled on mobile for performance */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none hidden sm:block">
         <motion.div 
           animate={{ 
             x: [0, 100, 0],
@@ -189,16 +189,16 @@ const Landing = () => {
                 </motion.div>
               </motion.div>
 
-              {/* Right: Visual */}
+              {/* Right: Visual - Desktop only for performance */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
                 className="relative hidden lg:block">
                 <div className="relative">
-                  {/* Floating Cards */}
+                  {/* Floating Cards - Reduced animation complexity */}
                   <motion.div
-                    animate={{ y: [0, -20, 0] }}
+                    animate={{ y: [0, -15, 0] }}
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                     className="absolute top-0 right-0 w-64 h-40 rounded-2xl p-6"
                     style={{
@@ -213,7 +213,7 @@ const Landing = () => {
                   </motion.div>
 
                   <motion.div
-                    animate={{ y: [0, 20, 0] }}
+                    animate={{ y: [0, 15, 0] }}
                     transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
                     className="absolute bottom-0 left-0 w-64 h-40 rounded-2xl p-6"
                     style={{
@@ -227,12 +227,7 @@ const Landing = () => {
                     <div className="text-xs text-slate-400 mt-1">Instant Answers</div>
                   </motion.div>
 
-                  <motion.div
-                    animate={{ 
-                      rotate: [0, 360],
-                      scale: [1, 1.1, 1],
-                    }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  <div
                     className="w-80 h-80 mx-auto rounded-3xl"
                     style={{
                       background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899)',

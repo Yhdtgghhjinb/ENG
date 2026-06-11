@@ -823,7 +823,7 @@ tr.row-hover:hover {
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   MOBILE OPTIMIZATIONS
+   MOBILE OPTIMIZATIONS & PERFORMANCE
 ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Prevent horizontal scroll */
@@ -833,14 +833,38 @@ html, body {
   position: relative;
 }
 
-/* Better tap targets for mobile */
+/* Performance: Hardware acceleration for animations */
+.glass-shell,
+.card-interactive,
+.btn-primary,
+.btn-ghost,
+motion-div {
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Reduce animations on mobile for better performance */
 @media (max-width: 1024px) {
+  /* Disable expensive animations on mobile */
+  .bg-scene::before,
+  .bg-scene::after,
+  .glass-shell::after {
+    animation: none !important;
+  }
+  
+  /* Simpler transitions on mobile */
+  * {
+    transition-duration: 0.2s !important;
+  }
+  
+  /* Better tap targets */
   button:not(.no-min-height), 
   a:not(.no-min-height), 
   input, 
   select, 
   textarea {
-    min-height: 44px; /* Apple's recommended minimum tap target */
+    min-height: 44px;
   }
   
   /* Prevent text size adjustment on orientation change */
@@ -851,14 +875,21 @@ html, body {
     text-size-adjust: 100%;
   }
   
-  /* Remove tap highlight color */
+  /* Remove tap highlight */
   * {
     -webkit-tap-highlight-color: transparent;
   }
   
-  /* Smooth scrolling on mobile */
+  /* Smooth scrolling */
   * {
     -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Reduce blur on mobile for performance */
+  .glass-shell,
+  .glass-card {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
   }
 }
 
@@ -874,7 +905,7 @@ html, body {
 /* Mobile-specific card spacing */
 @media (max-width: 640px) {
   .glass-shell {
-    border-radius: 1rem; /* Smaller radius on mobile */
+    border-radius: 1rem;
   }
   
   /* Tighter grid gaps */
@@ -913,7 +944,7 @@ html, body {
   input[type="search"],
   textarea,
   select {
-    font-size: 16px !important; /* Prevents iOS zoom */
+    font-size: 16px !important;
   }
 }
 
@@ -922,5 +953,23 @@ html, body {
   .btn-primary, .btn-ghost {
     padding: 0.75rem 1.25rem;
     font-size: 0.875rem;
+  }
+}
+
+/* Performance: Reduce motion for better mobile performance */
+@media (max-width: 768px) {
+  .animate-ping,
+  .animate-bounce,
+  .animate-spin {
+    animation-duration: 2s !important;
+  }
+  
+  /* Disable complex hover effects on touch devices */
+  .card-interactive:hover {
+    transform: none !important;
+  }
+  
+  .glow-hover:hover::after {
+    opacity: 0 !important;
   }
 }

@@ -212,8 +212,9 @@ const Layout = () => {
           </div>
         </header>
 
-        {/* Content - Optimized for Mobile */}
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-32 sm:px-5 sm:py-5 sm:pb-36 md:px-8 md:py-6 lg:pb-8">
+        {/* Content - Optimized for Mobile Performance */}
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-32 sm:px-5 sm:py-5 sm:pb-36 md:px-8 md:py-6 lg:pb-8"
+          style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="mx-auto max-w-7xl pb-6">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -221,7 +222,7 @@ const Layout = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
+                transition={{ duration: 0.1 }}
                 className="glass-shell gradient-border rounded-2xl sm:rounded-3xl"
                 style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.07)' }}
               >
