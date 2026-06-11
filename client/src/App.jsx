@@ -5,7 +5,9 @@ import Landing from './pages/Landing';
 import Calculator from './pages/Calculator';
 import ExamCalendar from './pages/ExamCalendar';
 import Discussions from './pages/Discussions';
+import DiscussionDetail from './pages/DiscussionDetail';
 import Notifications from './pages/Notifications';
+import ResourceRequests from './pages/ResourceRequests';
 import Resources from './pages/Resources';
 import Subjects from './pages/Subjects';
 import BranchSchemes from './pages/BranchSchemes';
@@ -40,7 +42,9 @@ const App = () => {
         <Route path="calculator" element={<Calculator />} />
         <Route path="exam-calendar" element={<ExamCalendar />} />
         <Route path="discussions" element={<Discussions />} />
+        <Route path="discussions/:id" element={<DiscussionDetail />} />
         <Route path="notifications" element={<Notifications />} />
+        <Route path="resource-requests" element={<ResourceRequests />} />
         <Route path="resources" element={<Resources />} />
         <Route path="branches/:branchId" element={<BranchSchemes />} />
         <Route path="branches/:branchId/schemes/:schemeId" element={<Semesters />} />
