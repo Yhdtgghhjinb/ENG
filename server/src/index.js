@@ -82,13 +82,17 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('combined')); // More detailed logs in production
 }
 
-// Response time header
+// Response time header - Fixed to set before response finishes
 app.use((req, res, next) => {
   const start = Date.now();
-  res.on('finish', () => {
+  const originalSend = res.send;
+  
+  res.send = function(data) {
     const duration = Date.now() - start;
     res.setHeader('X-Response-Time', `${duration}ms`);
-  });
+    originalSend.call(this, data);
+  };
+  
   next();
 });
 
