@@ -1,4 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#4f46e5"/>
-  <text x="32" y="39" text-anchor="middle" font-size="26" font-family="Arial, sans-serif" fill="#ffffff" font-weight="700">ER</text>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background -->
+  <rect width="512" height="512" fill="#0A0F1E"/>
+  
+  <!-- Top Arc -->
+  <path 
+    d="M 128 179 Q 256 51, 384 179" 
+    stroke="#8B7CFF" 
+    stroke-width="40" 
+    fill="none"
+    stroke-linecap="round"
+  />
+  
+  <!-- Bottom Arc -->
+  <path 
+    d="M 128 333 Q 256 461, 384 333" 
+    stroke="#8B7CFF" 
+    stroke-width="40" 
+    fill="none"
+    stroke-linecap="round"
+  />
+  
+  <!-- White V -->
+  <path 
+    d="M 102 205 L 179 358 L 230 256" 
+    stroke="white" 
+    stroke-width="51" 
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  
+  <!-- Purple V -->
+  <path 
+    d="M 282 256 L 333 358 L 410 205" 
+    stroke="#A78BFA" 
+    stroke-width="51" 
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 </svg>

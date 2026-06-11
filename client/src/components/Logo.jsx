@@ -10,96 +10,59 @@ const Logo = ({ size = 'md', showText = true, animated = true }) => {
 
   const LogoContainer = animated ? motion.div : 'div';
   const logoProps = animated ? {
-    whileHover: { rotate: 360, scale: 1.05 },
-    transition: { duration: 0.6, ease: "easeInOut" }
+    whileHover: { scale: 1.05 },
+    transition: { duration: 0.3, ease: "easeInOut" }
   } : {};
 
   return (
     <div className="flex items-center gap-3">
       <LogoContainer
         {...logoProps}
-        className={`${sizes[size].container} rounded-xl relative flex items-center justify-center overflow-hidden`}
-        style={{
-          background: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.1)',
-          border: '2px solid #64748b',
-        }}>
-        {/* Vault Door Design */}
+        className={`${sizes[size].container} relative flex items-center justify-center`}>
+        {/* New VV Logo */}
         <svg 
-          className="w-full h-full p-1.5" 
-          viewBox="0 0 64 64" 
+          className="w-full h-full" 
+          viewBox="0 0 100 100" 
           fill="none"
           xmlns="http://www.w3.org/2000/svg">
-          {/* Outer Circle */}
-          <circle 
-            cx="32" 
-            cy="32" 
-            r="24" 
-            stroke="#94a3b8" 
-            strokeWidth="2" 
+          {/* Top Arc */}
+          <path 
+            d="M 25 35 Q 50 10, 75 35" 
+            stroke="#8B7CFF" 
+            strokeWidth="8" 
             fill="none"
+            strokeLinecap="round"
           />
-          {/* Inner Circle */}
-          <circle 
-            cx="32" 
-            cy="32" 
-            r="18" 
-            stroke="#64748b" 
-            strokeWidth="1.5" 
+          
+          {/* Bottom Arc */}
+          <path 
+            d="M 25 65 Q 50 90, 75 65" 
+            stroke="#8B7CFF" 
+            strokeWidth="8" 
             fill="none"
+            strokeLinecap="round"
           />
-          {/* Center Knob with Gradient */}
-          <circle 
-            cx="32" 
-            cy="32" 
-            r="8" 
-            fill="url(#vaultGradient)" 
-            stroke="#cbd5e1" 
-            strokeWidth="1"
+          
+          {/* White V */}
+          <path 
+            d="M 20 40 L 35 70 L 45 50" 
+            stroke="white" 
+            strokeWidth="10" 
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
-          {/* Main Spokes (Cardinal Directions) */}
-          <line x1="32" y1="14" x2="32" y2="22" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round"/>
-          <line x1="50" y1="32" x2="42" y2="32" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round"/>
-          <line x1="32" y1="50" x2="32" y2="42" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round"/>
-          <line x1="14" y1="32" x2="22" y2="32" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round"/>
-          {/* Diagonal Spokes */}
-          <line x1="20" y1="20" x2="26" y2="26" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="44" y1="20" x2="38" y2="26" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="44" y1="44" x2="38" y2="38" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="20" y1="44" x2="26" y2="38" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-          {/* Center 'V' Letter */}
-          <text 
-            x="32" 
-            y="36" 
-            textAnchor="middle" 
-            fill="#1e293b" 
-            fontFamily="system-ui, sans-serif" 
-            fontSize="12" 
-            fontWeight="900">
-            V
-          </text>
-          {/* Gradient Definition */}
-          <defs>
-            <linearGradient id="vaultGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#6366f1" stopOpacity="1" />
-              <stop offset="50%" stopColor="#8b5cf6" stopOpacity="1" />
-              <stop offset="100%" stopColor="#a78bfa" stopOpacity="1" />
-            </linearGradient>
-          </defs>
+          
+          {/* Purple V */}
+          <path 
+            d="M 55 50 L 65 70 L 80 40" 
+            stroke="#A78BFA" 
+            strokeWidth="10" 
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-        
-        {/* Lock Indicator (Secure Badge) */}
-        <div 
-          className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, #10b981, #059669)',
-            boxShadow: '0 2px 8px rgba(16,185,129,0.6), 0 0 0 2px #1e293b',
-          }}>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-        </div>
       </LogoContainer>
 
       {showText && (
