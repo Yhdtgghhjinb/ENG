@@ -26,7 +26,7 @@ router.get('/:subjectId/counts', async (req, res, next) => {
 
     // Use MongoDB aggregation for fast counts
     const counts = await Resource.aggregate([
-      { $match: { subjectId: mongoose.Types.ObjectId(subjectId) } },
+      { $match: { subjectId: new mongoose.Types.ObjectId(subjectId) } },
       { $group: { _id: '$type', count: { $sum: 1 } } },
     ]);
 
