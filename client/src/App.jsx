@@ -8,6 +8,7 @@ import Discussions from './pages/Discussions';
 import DiscussionDetail from './pages/DiscussionDetail';
 import Notifications from './pages/Notifications';
 import ResourceRequests from './pages/ResourceRequests';
+import Leaderboard from './pages/Leaderboard';
 import Resources from './pages/Resources';
 import Subjects from './pages/Subjects';
 import BranchSchemes from './pages/BranchSchemes';
@@ -45,6 +46,7 @@ const App = () => {
         <Route path="discussions/:id" element={<DiscussionDetail />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="resource-requests" element={<ResourceRequests />} />
+        <Route path="leaderboard" element={<Leaderboard />} />
         <Route path="resources" element={<Resources />} />
         <Route path="branches/:branchId" element={<BranchSchemes />} />
         <Route path="branches/:branchId/schemes/:schemeId" element={<Semesters />} />

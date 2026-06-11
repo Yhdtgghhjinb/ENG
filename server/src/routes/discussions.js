@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Discussion = require('../models/Discussion');
+const { awardPoints } = require('../services/gamification');
 
 // Get all discussions
 router.get('/', async (req, res, next) => {
@@ -53,6 +54,12 @@ router.post('/', async (req, res, next) => {
   try {
     const discussion = new Discussion(req.body);
     await discussion.save();
+    
+    // Award points for starting discussion
+    if (discussion.author) {
+      await awardPoints(discussion.author, 'DISCUSSION_STARTED');
+    }
+    
     res.status(201).json(discussion);
   } catch (err) {
     next(err);
@@ -99,6 +106,12 @@ router.post('/:id/replies', async (req, res, next) => {
 
     discussion.replies.push(req.body);
     await discussion.save();
+    
+    // Award points for posting reply
+    if (req.body.author) {
+      await awardPoints(req.body.author, 'REPLY_POSTED');
+    }
+    
     res.status(201).json(discussion);
   } catch (err) {
     next(err);
@@ -120,6 +133,12 @@ router.post('/:id/replies/:replyId/upvote', async (req, res, next) => {
     
     reply.upvotes += 1;
     await discussion.save();
+    
+    // Award points to reply author for helpful vote
+    if (reply.author) {
+      await awardPoints(reply.author, 'HELPFUL_VOTE_RECEIVED');
+    }
+    
     res.json(reply);
   } catch (err) {
     next(err);
@@ -169,6 +188,12 @@ router.post('/:id/replies/:replyId/best', async (req, res, next) => {
     reply.isBestAnswer = true;
     discussion.isSolved = true;
     await discussion.save();
+    
+    // Award bonus points for best answer
+    if (reply.author) {
+      await awardPoints(reply.author, 'BEST_ANSWER');
+    }
+    
     res.json(discussion);
   } catch (err) {
     next(err);
