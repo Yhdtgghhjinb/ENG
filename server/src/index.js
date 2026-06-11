@@ -10,6 +10,7 @@ const subjectsRouter = require('./routes/subjects');
 const examsRouter = require('./routes/exams');
 const discussionsRouter = require('./routes/discussions');
 const notificationsRouter = require('./routes/notifications');
+const resourceRequestsRouter = require('./routes/resourceRequests');
 const errorHandler   = require('./middleware/errorHandler');
 const path = require('path');
 
@@ -54,6 +55,7 @@ app.use('/api/subjects',  subjectsRouter);
 app.use('/api/exams', examsRouter);
 app.use('/api/discussions', discussionsRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/resource-requests', resourceRequestsRouter);
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 

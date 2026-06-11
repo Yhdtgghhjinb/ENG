@@ -10,6 +10,7 @@ const Resource  = require('../models/Resource');
 const Exam = require('../models/Exam');
 const Discussion = require('../models/Discussion');
 const Notification = require('../models/Notification');
+const ResourceRequest = require('../models/ResourceRequest');
 const { syncVTUNotifications } = require('../services/vtuScraper');
 
 const router = express.Router();
@@ -393,6 +394,43 @@ router.post('/notifications/sync-vtu', async (req, res, next) => {
   try {
     const result = await syncVTUNotifications();
     res.json(result);
+  } catch (err) { next(err); }
+});
+
+// ── Resource Requests ─────────────────────────────────────────────────────────
+router.get('/resource-requests', async (req, res, next) => {
+  try {
+    const { status, page = 1, limit = 20 } = req.query;
+    const filter = {};
+    if (status) filter.status = status;
+
+    const total = await ResourceRequest.countDocuments(filter);
+    const requests = await ResourceRequest.find(filter)
+      .populate('fulfilledResourceId', 'title type')
+      .sort({ votes: -1, createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    res.json({ requests, total, page: Number(page), pages: Math.ceil(total / limit) });
+  } catch (err) { next(err); }
+});
+
+router.put('/resource-requests/:id', async (req, res, next) => {
+  try {
+    const request = await ResourceRequest.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!request) return res.status(404).json({ message: 'Not found' });
+    res.json(request);
+  } catch (err) { next(err); }
+});
+
+router.delete('/resource-requests/:id', async (req, res, next) => {
+  try {
+    await ResourceRequest.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
   } catch (err) { next(err); }
 });
 
