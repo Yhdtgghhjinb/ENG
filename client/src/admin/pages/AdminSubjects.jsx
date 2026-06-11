@@ -12,6 +12,7 @@ const EMPTY = {
   name: '', code: '', branchId: '', schemeId: '', semesterId: '',
   credits: '', lectureHours: '', tutorialHours: '', practicalHours: '', totalHours: '',
   syllabus: '', courseObjectives: '', courseOutcomes: '', referenceBooks: '', courseHandoutUrl: '',
+  youtubeVideos: '',
 };
 const LIMIT = 20;
 
@@ -63,6 +64,7 @@ const AdminSubjects = () => {
       courseOutcomes:    (row.courseOutcomes    || []).join('\n'),
       referenceBooks:    (row.referenceBooks    || []).join('\n'),
       courseHandoutUrl:  row.courseHandoutUrl   || '',
+      youtubeVideos: (row.youtubeVideos || []).map(v => `${v.title}|${v.videoId}|${v.module || ''}|${v.description || ''}`).join('\n'),
     });
     setModal(true);
   };
@@ -77,6 +79,10 @@ const AdminSubjects = () => {
         courseObjectives: form.courseObjectives ? form.courseObjectives.split('\n').map(s => s.trim()).filter(Boolean) : [],
         courseOutcomes:   form.courseOutcomes   ? form.courseOutcomes.split('\n').map(s => s.trim()).filter(Boolean)   : [],
         referenceBooks:   form.referenceBooks   ? form.referenceBooks.split('\n').map(s => s.trim()).filter(Boolean)   : [],
+        youtubeVideos: form.youtubeVideos ? form.youtubeVideos.split('\n').map(line => {
+          const [title, videoId, module, description] = line.split('|').map(s => s.trim());
+          return { title, videoId, module: module || '', description: description || '' };
+        }).filter(v => v.title && v.videoId) : [],
         credits:        form.credits        !== '' ? Number(form.credits)        : null,
         lectureHours:   form.lectureHours   !== '' ? Number(form.lectureHours)   : null,
         tutorialHours:  form.tutorialHours  !== '' ? Number(form.tutorialHours)  : null,
@@ -227,6 +233,20 @@ const AdminSubjects = () => {
                 placeholder="Module 1: Introduction to OS..."
                 rows={4}
               />
+            </FormField>
+
+            <FormField label="YouTube Videos" hint="Format: Title | Video ID | Module | Description (one per line)">
+              <Textarea
+                value={form.youtubeVideos}
+                onChange={e => setForm(f => ({ ...f, youtubeVideos: e.target.value }))}
+                placeholder="Introduction to Operating Systems | dQw4w9WgXcQ | 1 | Basic OS concepts&#10;Process Management | abc123xyz | 2 | Learn about processes"
+                rows={4}
+              />
+              <div className="mt-2 text-[10px] text-slate-500 space-y-1">
+                <p>📝 <strong>Format per line:</strong> Title | VideoID | Module | Description</p>
+                <p>🎥 <strong>Video ID:</strong> From youtube.com/watch?v=<span className="text-indigo-400">dQw4w9WgXcQ</span> (copy the part after v=)</p>
+                <p>💡 <strong>Example:</strong> OS Basics | dQw4w9WgXcQ | 1 | Introduction video</p>
+              </div>
             </FormField>
           </div>
 
