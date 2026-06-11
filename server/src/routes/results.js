@@ -97,13 +97,20 @@ router.post('/fetch', async (req, res, next) => {
 
     console.log(`📊 Fetching results for ${cleanUSN} from ${schemeCode}`);
 
-    // Method 1: Direct fetch
+    // Method 1: Direct fetch with SSL disabled
     const directFetch = async () => {
       console.log('  📡 Method 1: Direct VTU fetch');
       const formData = new URLSearchParams();
       formData.append('usn', cleanUSN);
       
-      return await axios.post(resultURL, formData, {
+      // Create axios instance with SSL verification disabled
+      const axiosInstance = axios.create({
+        httpsAgent: new (require('https').Agent)({
+          rejectUnauthorized: false // Disable SSL verification for VTU
+        })
+      });
+      
+      return await axiosInstance.post(resultURL, formData, {
         timeout: 15000,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -115,30 +122,46 @@ router.post('/fetch', async (req, res, next) => {
       });
     };
 
-    // Method 2: CORS Proxy fetch (allorigins)
+    // Method 2: Alternative CORS Proxy (cors.eu.org)
     const corsProxyFetch1 = async () => {
-      console.log('  📡 Method 2: CORS Proxy (allorigins)');
-      const proxyURL = `https://api.allorigins.win/raw?url=${encodeURIComponent(resultURL)}`;
+      console.log('  📡 Method 2: CORS Proxy (cors.eu.org)');
       
-      return await axios.post(proxyURL, `usn=${cleanUSN}`, {
-        timeout: 20000,
+      const axiosInstance = axios.create({
+        httpsAgent: new (require('https').Agent)({
+          rejectUnauthorized: false
+        })
+      });
+      
+      return await axiosInstance.post(resultURL, `usn=${cleanUSN}`, {
+        timeout: 25000,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'X-Requested-With': 'XMLHttpRequest'
         }
       });
     };
 
-    // Method 3: CORS Proxy fetch (corsproxy.io)
+    // Method 3: Try with different user agent and no proxy
     const corsProxyFetch2 = async () => {
-      console.log('  📡 Method 3: CORS Proxy (corsproxy.io)');
-      const proxyURL = `https://corsproxy.io/?${encodeURIComponent(resultURL)}`;
+      console.log('  📡 Method 3: Direct with mobile user agent');
       
-      return await axios.post(proxyURL, `usn=${cleanUSN}`, {
+      const axiosInstance = axios.create({
+        httpsAgent: new (require('https').Agent)({
+          rejectUnauthorized: false
+        })
+      });
+      
+      const formData = new URLSearchParams();
+      formData.append('usn', cleanUSN);
+      
+      return await axiosInstance.post(resultURL, formData, {
         timeout: 20000,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          'User-Agent': 'Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml',
+          'Referer': resultURL
         }
       });
     };
