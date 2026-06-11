@@ -35,6 +35,14 @@ const SubjectSchema = new mongoose.Schema(
     courseOutcomes:    [{ type: String, trim: true }],
     referenceBooks:    [{ type: String, trim: true }],
     courseHandoutUrl:  { type: String, default: '' },   // PDF link
+    
+    // ── YouTube Videos ──────────────────────────────────────────────────────
+    youtubeVideos: [{
+      title: { type: String, trim: true },
+      videoId: { type: String, trim: true },  // YouTube video ID
+      description: { type: String, trim: true },
+      module: { type: String, trim: true }  // Module number or topic
+    }],
   },
   { timestamps: true }
 );

@@ -409,6 +409,95 @@ const SectionCard = ({ section, count, children, defaultOpen = false }) => {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   YOUTUBE VIDEO CARD — Display YouTube videos
+───────────────────────────────────────────────────────────────────────────── */
+const YouTubeVideoCard = ({ video, index }) => {
+  const [playing, setPlaying] = useState(false);
+  const colors = MODULE_COLORS[index % MODULE_COLORS.length];
+  
+  return (
+    <div className="overflow-hidden rounded-2xl transition-all duration-200"
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: `1px solid rgba(${colors.rgb},0.2)`,
+      }}>
+      {!playing ? (
+        <div className="relative cursor-pointer group" onClick={() => setPlaying(true)}>
+          <img 
+            src={`https://img.youtube.com/vi/${video.videoId}/maxresdefault.jpg`}
+            alt={video.title}
+            className="w-full aspect-video object-cover"
+            onError={(e) => {
+              e.target.src = `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`;
+            }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.3), rgba(0,0,0,0.6))',
+            }}>
+            <div className="flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300 group-hover:scale-110"
+              style={{
+                background: 'rgba(255,0,0,0.9)',
+                boxShadow: '0 8px 32px rgba(255,0,0,0.4)',
+              }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <polygon points="8 5 19 12 8 19 8 5"/>
+              </svg>
+            </div>
+          </div>
+          {video.module && (
+            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-bold"
+              style={{
+                background: `rgba(${colors.rgb},0.9)`,
+                color: 'white',
+                backdropFilter: 'blur(10px)'
+              }}>
+              Module {video.module}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="aspect-video">
+          <iframe
+            width="100%"
+            height="100%"
+            src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1`}
+            title={video.title}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      )}
+      
+      <div className="p-4">
+        <h4 className="text-sm font-bold text-white mb-1 line-clamp-2">{video.title}</h4>
+        {video.description && (
+          <p className="text-xs text-slate-400 line-clamp-2">{video.description}</p>
+        )}
+        <div className="flex items-center gap-2 mt-3">
+          <a
+            href={`https://www.youtube.com/watch?v=${video.videoId}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all duration-200 hover:-translate-y-0.5"
+            style={{
+              background: 'rgba(255,0,0,0.15)',
+              border: '1px solid rgba(255,0,0,0.3)',
+            }}
+            onClick={(e) => e.stopPropagation()}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+            Watch on YouTube
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────────────────────────────────────────
    HANDOUT CARD — special highlighted card for course handout
 ───────────────────────────────────────────────────────────────────────────── */
 const HandoutCard = ({ handout, section }) => {
@@ -791,6 +880,50 @@ const SubjectDetail = () => {
               </SectionCard>
             );
           })}
+
+          {/* YouTube Videos Section */}
+          {subject?.youtubeVideos && subject.youtubeVideos.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="overflow-hidden rounded-3xl"
+              style={{
+                border: '1px solid rgba(255,0,0,0.2)',
+                background: 'linear-gradient(145deg, rgba(255,0,0,0.05) 0%, rgba(4,7,20,0.92) 100%)',
+                boxShadow: '0 8px 32px rgba(255,0,0,0.08)',
+              }}>
+              <div className="flex items-center gap-4 px-6 py-5"
+                style={{ background: 'rgba(255,0,0,0.05)', borderBottom: '1px solid rgba(255,0,0,0.15)' }}>
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl text-xl"
+                  style={{
+                    background: 'rgba(255,0,0,0.15)',
+                    border: '1px solid rgba(255,0,0,0.3)',
+                    boxShadow: '0 0 20px rgba(255,0,0,0.25)',
+                  }}>
+                  🎥
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2.5">
+                    <p className="text-[16px] font-bold text-white">Video Lectures</p>
+                    <span className="rounded-full px-2.5 py-0.5 text-[11px] font-bold"
+                      style={{
+                        background: 'rgba(255,0,0,0.2)',
+                        color: '#ff6b6b',
+                        border: '1px solid rgba(255,0,0,0.35)',
+                      }}>
+                      {subject.youtubeVideos.length}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[11px] text-slate-500">Watch video tutorials and lectures</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
+                {subject.youtubeVideos.map((video, index) => (
+                  <YouTubeVideoCard key={index} video={video} index={index} />
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* 9. COURSE HANDOUT — special card */}
           <HandoutCard handout={data?.handout || null} section={SECTIONS.find(x => x.key === 'handout')} />
