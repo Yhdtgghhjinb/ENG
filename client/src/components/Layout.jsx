@@ -1,6 +1,6 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Logo from './Logo';
 
 const NAV_ITEMS = [
@@ -67,6 +67,11 @@ const Layout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+
+  // Close More menu when route changes
+  useEffect(() => {
+    setShowMoreMenu(false);
+  }, [location.pathname]);
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#020617' }}>
@@ -208,8 +213,8 @@ const Layout = () => {
         </header>
 
         {/* Content - Optimized for Mobile */}
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-24 sm:px-5 sm:py-5 sm:pb-28 md:px-8 md:py-6 lg:pb-8">
-          <div className="mx-auto max-w-7xl">
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-28 sm:px-5 sm:py-5 sm:pb-32 md:px-8 md:py-6 lg:pb-8">
+          <div className="mx-auto max-w-7xl pb-4">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={location.pathname}
@@ -300,23 +305,23 @@ const Layout = () => {
                     border: '1px solid rgba(99,102,241,0.3)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
                   }}>
-                  {NAV_ITEMS.slice(5).map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      end={item.end}
-                      onClick={() => setShowMoreMenu(false)}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 transition-all duration-200 border-b border-white/5 last:border-0 ${
+                  {NAV_ITEMS.slice(5).map((item) => {
+                    const isActive = item.end ? location.pathname === item.to : location.pathname.startsWith(item.to);
+                    return (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setShowMoreMenu(false)}
+                        className={`flex items-center gap-3 px-4 py-3 transition-all duration-200 border-b border-white/5 last:border-0 ${
                           isActive ? 'text-indigo-300 bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10'
-                        }`
-                      }>
-                      <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                        {item.icon}
-                      </div>
-                      <span className="text-sm font-medium">{item.label}</span>
-                    </NavLink>
-                  ))}
+                        }`}>
+                        <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                          {item.icon}
+                        </div>
+                        <span className="text-sm font-medium">{item.label}</span>
+                      </Link>
+                    );
+                  })}
                 </motion.div>
               </>
             )}
