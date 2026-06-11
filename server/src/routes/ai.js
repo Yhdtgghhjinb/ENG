@@ -43,16 +43,31 @@ router.post('/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
+    console.log('Chat request received:', { message: message.substring(0, 50) });
+
     const result = await getChatResponse(message, history || []);
 
+    console.log('Chat result:', { success: result.success, hasResponse: !!result.response });
+
     if (result.success) {
-      res.json({ response: result.response });
+      res.json({ 
+        response: result.response,
+        marks: result.marks 
+      });
     } else {
-      res.status(500).json({ error: result.response });
+      // Return the error message as the response so user sees it
+      res.json({ 
+        response: result.response,
+        marks: null
+      });
     }
   } catch (error) {
     console.error('Chat API Error:', error);
-    res.status(500).json({ error: 'Failed to process message' });
+    console.error('Error stack:', error.stack);
+    res.json({ 
+      response: '❌ Sorry, an unexpected error occurred. Please try again.\n\nError: ' + error.message,
+      marks: null
+    });
   }
 });
 
