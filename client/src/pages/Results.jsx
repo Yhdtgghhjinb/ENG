@@ -38,19 +38,31 @@ const Results = () => {
     try {
       const response = await api.post('/api/results/fetch', {
         usn: usn.toUpperCase(),
-        examCode
+        examCode: examCode === 'latest' ? 'DJcbcs24' : examCode
       });
 
       if (response.data.success) {
         setResult(response.data);
-        if (response.data.isDemo) {
-          setError('Note: Displaying demo results. VTU portal may be unavailable.');
+        
+        // Show source information
+        if (response.data.source === 'VTU_OFFICIAL') {
+          // Real VTU data - no error
+          setError('');
         }
       } else {
+        // Failed to fetch
         setError(response.data.message || 'No results found for this USN');
+        
+        // Add additional context if available
+        if (response.data.error === 'TIMEOUT') {
+          setError('VTU portal is taking too long to respond. Please try again in a few minutes.');
+        } else if (response.data.isVTUChecked) {
+          setError(`${response.data.message}\n\nVerify your USN or try a different exam session.`);
+        }
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch results. Please try again.');
+      console.error('Fetch error:', err);
+      setError(err.response?.data?.message || 'Failed to fetch results. Please check your internet connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -141,12 +153,20 @@ const Results = () => {
                   outline: 'none',
                 }}
               >
-                <option value="latest">Latest Results</option>
-                {availableExams.map(exam => (
-                  <option key={exam.examCode} value={exam.examCode}>
-                    {exam.examName}
-                  </option>
-                ))}
+                {availableExams.length > 0 ? (
+                  availableExams.map(exam => (
+                    <option key={exam.examCode} value={exam.examCode}>
+                      {exam.examName}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="DJcbcs24">June 2024 CBCS Results (Latest)</option>
+                    <option value="JAcbcs24">All Results - CBCS Scheme</option>
+                    <option value="FDcbcs23">December 2023 CBCS Results</option>
+                    <option value="DJcbcs23">June 2023 CBCS Results</option>
+                  </>
+                )}
               </select>
               <p className="text-xs text-slate-500 mt-1">
                 Choose the exam session
@@ -301,8 +321,17 @@ const Results = () => {
             {result.source && (
               <div className="text-center">
                 <p className="text-xs text-slate-500">
-                  Source: {result.source === 'VTU_OFFICIAL' ? '🌐 VTU Official Results Portal' : '🎯 Demo Data'}
-                  {result.isDemo && ' • Live results will be fetched when VTU portal is available'}
+                  {result.source === 'VTU_OFFICIAL' ? (
+                    <>
+                      ✅ <span className="text-green-400 font-semibold">Live data from VTU Official Results Portal</span>
+                      <br />
+                      Fetched at: {new Date(result.fetchedAt).toLocaleString()}
+                    </>
+                  ) : (
+                    <>
+                      ⚠️ <span className="text-yellow-400">Demo Data</span> • Live results will be fetched when VTU portal is available
+                    </>
+                  )}
                 </p>
               </div>
             )}
@@ -331,11 +360,14 @@ const Results = () => {
           </div>
           <h3 className="text-lg font-semibold text-white mb-2">How to Use</h3>
           <div className="text-sm text-slate-400 space-y-2 max-w-2xl mx-auto text-left">
-            <p>• Enter your 10-character USN (e.g., 1AB20CS001)</p>
-            <p>• Select the exam session you want to check</p>
-            <p>• Click "Get Results" to fetch your scores</p>
-            <p>• Results are fetched directly from VTU's official portal</p>
-            <p>• View your subject-wise marks, SGPA, and CGPA</p>
+            <p><strong className="text-slate-300">📝 Step 1:</strong> Enter your 10-character USN (e.g., 1AB20CS001)</p>
+            <p><strong className="text-slate-300">📅 Step 2:</strong> Select the exam session (June/December/Specific year)</p>
+            <p><strong className="text-slate-300">🔍 Step 3:</strong> Click "Get Results" to fetch from VTU portal</p>
+            <p><strong className="text-slate-300">📊 Step 4:</strong> View your real marks, SGPA, and CGPA</p>
+            <p className="pt-2 text-xs text-slate-500">
+              💡 <strong>Note:</strong> Results are fetched directly from VTU's official results portal (results.vtu.ac.in). 
+              Make sure your USN is correct and results are published for the selected session.
+            </p>
           </div>
         </div>
       )}

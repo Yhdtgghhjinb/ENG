@@ -3,10 +3,11 @@ const router = express.Router();
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-// VTU Results API endpoints
+// VTU Results API endpoints - Updated for actual VTU structure
 const VTU_RESULTS_URLS = {
-  main: 'https://results.vtu.ac.in/index.php',
-  results: 'https://results.vtu.ac.in/resultpage.php'
+  main: 'https://results.vtu.ac.in',
+  directResult: 'https://results.vtu.ac.in/DJcbcs24/index.php', // Latest scheme
+  allResults: 'https://results.vtu.ac.in/JAcbcs24/index.php' // All results page
 };
 
 /**
@@ -14,56 +15,90 @@ const VTU_RESULTS_URLS = {
  */
 router.get('/available', async (req, res, next) => {
   try {
+    console.log('🔍 Fetching available VTU result schemes...');
+    
+    // Try to fetch from VTU main results page
     const response = await axios.get(VTU_RESULTS_URLS.main, {
-      timeout: 10000,
+      timeout: 15000,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       }
     });
 
     const $ = cheerio.load(response.data);
     const availableResults = [];
 
-    // Try to extract available result options from select dropdown
-    $('select[name="exam"] option, select option').each((i, elem) => {
-      const value = $(elem).attr('value');
+    // Extract result links from the page
+    $('a[href*="index.php"], a[href*="results"]').each((i, elem) => {
+      const href = $(elem).attr('href');
       const text = $(elem).text().trim();
       
-      if (value && text && value !== '' && text.toLowerCase() !== 'select') {
-        availableResults.push({
-          examCode: value,
-          examName: text
-        });
+      if (href && text && text.length > 5) {
+        // Extract scheme code from URL (e.g., DJcbcs24, JAcbcs24)
+        const schemeMatch = href.match(/\/([A-Z]{2}[a-z]+\d+)\//);
+        const examCode = schemeMatch ? schemeMatch[1] : href;
+        
+        if (!availableResults.find(r => r.examCode === examCode)) {
+          availableResults.push({
+            examCode: examCode,
+            examName: text,
+            url: href.startsWith('http') ? href : `${VTU_RESULTS_URLS.main}${href}`
+          });
+        }
       }
     });
 
+    console.log(`✅ Found ${availableResults.length} result schemes`);
+
+    // If we found results, return them
+    if (availableResults.length > 0) {
+      return res.json({
+        success: true,
+        available: availableResults,
+        message: 'Available results fetched successfully'
+      });
+    }
+
+    // Fallback to known schemes
+    throw new Error('No results found on main page');
+
+  } catch (error) {
+    console.error('⚠️ Error fetching available results:', error.message);
+    
+    // Return known VTU result schemes as fallback
     res.json({
       success: true,
-      available: availableResults,
-      message: availableResults.length > 0 
-        ? 'Available results fetched successfully' 
-        : 'No results currently available on VTU portal'
-    });
-  } catch (error) {
-    console.error('Error fetching available results:', error.message);
-    
-    // Return fallback data if scraping fails
-    res.json({
-      success: false,
       available: [
-        { examCode: 'latest', examName: 'Latest Results - June 2026' },
-        { examCode: 'dec2025', examName: 'December 2025 Results' },
-        { examCode: 'june2025', examName: 'June 2025 Results' },
-        { examCode: 'dec2024', examName: 'December 2024 Results' },
+        { 
+          examCode: 'DJcbcs24', 
+          examName: 'June 2024 CBCS Scheme Results',
+          url: 'https://results.vtu.ac.in/DJcbcs24/index.php'
+        },
+        { 
+          examCode: 'JAcbcs24', 
+          examName: 'All Results - CBCS Scheme',
+          url: 'https://results.vtu.ac.in/JAcbcs24/index.php'
+        },
+        { 
+          examCode: 'FDcbcs23', 
+          examName: 'December 2023 CBCS Results',
+          url: 'https://results.vtu.ac.in/FDcbcs23/index.php'
+        },
+        { 
+          examCode: 'DJcbcs23', 
+          examName: 'June 2023 CBCS Results',
+          url: 'https://results.vtu.ac.in/DJcbcs23/index.php'
+        }
       ],
-      message: 'Using fallback data. VTU portal may be unavailable.',
-      isDemo: true
+      message: 'Using known VTU result schemes',
+      isKnownSchemes: true
     });
   }
 });
 
 /**
- * Fetch student result by USN
+ * Fetch student result by USN - Real VTU scraping
  */
 router.post('/fetch', async (req, res, next) => {
   try {
@@ -85,117 +120,224 @@ router.post('/fetch', async (req, res, next) => {
       });
     }
 
-    console.log(`📊 Fetching results for USN: ${usn}, Exam: ${examCode || 'latest'}`);
+    const cleanUSN = usn.toUpperCase().trim();
+    console.log(`📊 Fetching VTU results for USN: ${cleanUSN}, Scheme: ${examCode || 'DJcbcs24'}`);
 
-    // Try to fetch from VTU results website
+    // Determine which VTU URL to use based on examCode
+    let resultURL = VTU_RESULTS_URLS.directResult;
+    if (examCode && examCode !== 'latest' && examCode !== 'DJcbcs24') {
+      resultURL = `https://results.vtu.ac.in/${examCode}/index.php`;
+    }
+
     try {
+      // Step 1: Try direct result fetch with POST
+      console.log(`  → Trying ${resultURL}`);
+      
       const formData = new URLSearchParams();
-      formData.append('usn', usn.toUpperCase());
-      if (examCode && examCode !== 'latest') {
-        formData.append('exam', examCode);
-      }
+      formData.append('usn', cleanUSN);
+      formData.append('rid', 'R01'); // Regular results
 
-      const response = await axios.post(VTU_RESULTS_URLS.results, formData, {
-        timeout: 15000,
+      const response = await axios.post(resultURL, formData, {
+        timeout: 20000,
+        maxRedirects: 5,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Referer': VTU_RESULTS_URLS.main
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Referer': resultURL,
+          'Origin': 'https://results.vtu.ac.in'
         }
       });
 
       const $ = cheerio.load(response.data);
       
-      // Check if results found
-      const noResultMsg = $('body').text().toLowerCase();
-      if (noResultMsg.includes('no records') || 
-          noResultMsg.includes('not found') || 
-          noResultMsg.includes('invalid usn')) {
+      // Check for error messages
+      const errorText = $('body').text().toLowerCase();
+      if (errorText.includes('university seat number is not available') || 
+          errorText.includes('invalid usn') ||
+          errorText.includes('not found') ||
+          errorText.includes('no record')) {
+        
+        console.log('  ❌ USN not found in VTU records');
         return res.json({
           success: false,
-          message: 'No results found for this USN. Please check your USN or the results may not be published yet.',
-          usn: usn.toUpperCase()
+          message: `No results found for USN: ${cleanUSN}. Please verify your USN or results may not be published yet.`,
+          usn: cleanUSN,
+          isVTUChecked: true
         });
       }
 
-      // Extract student info
-      const studentName = $('td:contains("Name")').next().text().trim() || 
-                         $('td b:contains("Name")').parent().next().text().trim();
+      // Extract student information
+      let studentName = '';
+      let fatherName = '';
       
+      // Try multiple patterns for name extraction
+      const namePatterns = [
+        $('td:contains("Name"), td:contains("name")').next().text().trim(),
+        $('div.name, span.name, p.name').text().trim(),
+        $('b:contains("Name:")').parent().text().replace('Name:', '').trim(),
+        $('.student-name').text().trim()
+      ];
+      
+      for (const pattern of namePatterns) {
+        if (pattern && pattern.length > 2 && !pattern.toLowerCase().includes('father')) {
+          studentName = pattern;
+          break;
+        }
+      }
+
       // Extract subjects and marks
       const subjects = [];
-      $('table tr').each((i, row) => {
-        const cells = $(row).find('td');
-        if (cells.length >= 4) {
-          const subCode = $(cells[0]).text().trim();
-          const subName = $(cells[1]).text().trim();
-          const internal = $(cells[2]).text().trim();
-          const external = $(cells[3]).text().trim();
-          const total = $(cells[4]).text().trim();
-          const result = $(cells[5]).text().trim();
+      let sgpa = 'N/A';
+      let cgpa = 'N/A';
 
-          if (subCode && !subCode.toLowerCase().includes('code')) {
+      // Try different table structures VTU uses
+      $('table').each((tableIdx, table) => {
+        $(table).find('tr').each((i, row) => {
+          const cells = $(row).find('td');
+          
+          // VTU usually has 6-8 columns: SubCode, SubName, IA, External, Total, Result, Grade
+          if (cells.length >= 6) {
+            const subCode = $(cells[0]).text().trim();
+            const subName = $(cells[1]).text().trim();
+            
+            // Skip header rows
+            if (subCode.toLowerCase().includes('code') || 
+                subCode.toLowerCase().includes('subject') ||
+                !subCode) {
+              return;
+            }
+
+            // Extract marks (VTU format varies)
+            let internal = 'N/A';
+            let external = 'N/A';
+            let total = 'N/A';
+            let result = 'N/A';
+            let grade = '';
+
+            // Parse based on number of columns
+            if (cells.length === 6) {
+              // Format: Code, Name, IA, Ext, Total, Result
+              internal = $(cells[2]).text().trim();
+              external = $(cells[3]).text().trim();
+              total = $(cells[4]).text().trim();
+              result = $(cells[5]).text().trim();
+            } else if (cells.length === 7) {
+              // Format: Code, Name, IA, Ext, Total, Result, Grade
+              internal = $(cells[2]).text().trim();
+              external = $(cells[3]).text().trim();
+              total = $(cells[4]).text().trim();
+              result = $(cells[5]).text().trim();
+              grade = $(cells[6]).text().trim();
+            } else if (cells.length === 8) {
+              // Format: Code, Name, Credits, IA, Ext, Total, Result, Grade
+              internal = $(cells[3]).text().trim();
+              external = $(cells[4]).text().trim();
+              total = $(cells[5]).text().trim();
+              result = $(cells[6]).text().trim();
+              grade = $(cells[7]).text().trim();
+            }
+
             subjects.push({
               code: subCode,
               name: subName,
               internal: internal || 'N/A',
               external: external || 'N/A',
               total: total || 'N/A',
-              result: result || 'N/A'
+              result: result || 'N/A',
+              grade: grade || ''
             });
           }
-        }
+        });
       });
 
-      // Extract SGPA/CGPA
-      const sgpa = $('td:contains("SGPA"), td:contains("sgpa")').next().text().trim() || 'N/A';
-      const cgpa = $('td:contains("CGPA"), td:contains("cgpa")').next().text().trim() || 'N/A';
+      // Extract SGPA/CGPA - VTU shows these at bottom of result
+      const sgpaPatterns = [
+        $('td:contains("SGPA"), td:contains("sgpa")').next().text().trim(),
+        $('b:contains("SGPA:")').parent().text().replace(/SGPA:/gi, '').trim(),
+        $('.sgpa').text().trim()
+      ];
+      
+      const cgpaPatterns = [
+        $('td:contains("CGPA"), td:contains("cgpa")').next().text().trim(),
+        $('b:contains("CGPA:")').parent().text().replace(/CGPA:/gi, '').trim(),
+        $('.cgpa').text().trim()
+      ];
 
+      for (const pattern of sgpaPatterns) {
+        if (pattern && pattern.match(/\d+\.\d+/)) {
+          sgpa = pattern.match(/\d+\.\d+/)[0];
+          break;
+        }
+      }
+
+      for (const pattern of cgpaPatterns) {
+        if (pattern && pattern.match(/\d+\.\d+/)) {
+          cgpa = pattern.match(/\d+\.\d+/)[0];
+          break;
+        }
+      }
+
+      // If we got valid data, return it
       if (subjects.length > 0 || studentName) {
+        console.log(`  ✅ Results fetched successfully for ${studentName || cleanUSN}`);
+        console.log(`  📝 Found ${subjects.length} subjects`);
+        
         return res.json({
           success: true,
-          usn: usn.toUpperCase(),
-          studentName: studentName || 'N/A',
+          usn: cleanUSN,
+          studentName: studentName || 'Student',
           subjects,
-          sgpa,
-          cgpa,
-          examName: examCode || 'Latest',
+          sgpa: sgpa || 'N/A',
+          cgpa: cgpa || 'N/A',
+          examName: examCode || 'Latest Results',
           source: 'VTU_OFFICIAL',
-          message: 'Results fetched successfully from VTU portal'
+          message: 'Results fetched successfully from VTU portal',
+          fetchedAt: new Date().toISOString()
         });
       }
 
-      // If no data extracted, return demo data
-      throw new Error('Unable to parse result data');
-
-    } catch (fetchError) {
-      console.error('VTU fetch error:', fetchError.message);
+      // If no meaningful data extracted, log the response for debugging
+      console.log('  ⚠️ Could not extract result data from VTU response');
+      console.log('  📄 Response length:', response.data.length);
       
-      // Return demo/sample data for testing
+      // Return info that scraping failed but USN might be valid
       return res.json({
-        success: true,
-        usn: usn.toUpperCase(),
-        studentName: 'Demo Student',
-        subjects: [
-          { code: '18CS51', name: 'Management and Entrepreneurship', internal: '20', external: '56', total: '76', result: 'P' },
-          { code: '18CS52', name: 'Computer Networks', internal: '19', external: '64', total: '83', result: 'P' },
-          { code: '18CS53', name: 'Database Management System', internal: '20', external: '70', total: '90', result: 'P' },
-          { code: '18CS54', name: 'Automata Theory', internal: '18', external: '58', total: '76', result: 'P' },
-          { code: '18CS55', name: 'Application Development', internal: '20', external: '66', total: '86', result: 'P' },
-          { code: '18CSL56', name: 'DBMS Lab', internal: '40', external: '60', total: '100', result: 'P' },
-          { code: '18CSL57', name: 'CN Lab', internal: '38', external: '60', total: '98', result: 'P' },
-        ],
-        sgpa: '8.45',
-        cgpa: '8.23',
-        examName: examCode || 'Latest',
-        source: 'DEMO',
-        isDemo: true,
-        message: 'Demo results displayed. VTU portal may be unavailable. Enter your actual USN when VTU results are published.'
+        success: false,
+        message: 'Unable to fetch results from VTU portal. The portal structure may have changed or results are not published yet.',
+        usn: cleanUSN,
+        debugInfo: {
+          responseLength: response.data.length,
+          hasStudentName: !!studentName,
+          subjectCount: subjects.length
+        }
+      });
+
+    } catch (vtuError) {
+      console.error('  ❌ VTU fetch error:', vtuError.message);
+      
+      // If it's a network/timeout error
+      if (vtuError.code === 'ECONNABORTED' || vtuError.code === 'ETIMEDOUT') {
+        return res.json({
+          success: false,
+          message: 'VTU results portal is not responding. Please try again later.',
+          usn: cleanUSN,
+          error: 'TIMEOUT'
+        });
+      }
+
+      // Return error info
+      return res.json({
+        success: false,
+        message: 'Could not connect to VTU results portal. The portal may be down or under maintenance.',
+        usn: cleanUSN,
+        error: vtuError.message
       });
     }
 
   } catch (error) {
-    console.error('Results fetch error:', error);
+    console.error('❌ Results fetch error:', error);
     next(error);
   }
 });
