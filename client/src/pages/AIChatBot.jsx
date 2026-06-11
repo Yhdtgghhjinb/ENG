@@ -699,25 +699,8 @@ const AIChatBot = () => {
                   : '0 2px 10px rgba(99,102,241,0.2)'
               }}>
               {loading ? '...' : 'Send'}
-            </motion.button>rim() || loading || isListening}
-              className="flex-shrink-0 px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: theme === 'dark'
-                  ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
-                  : 'linear-gradient(135deg, #818cf8, #a78bfa)',
-                boxShadow: input.trim() && !loading && !isListening
-                  ? theme === 'dark'
-                    ? '0 4px 20px rgba(99,102,241,0.3)'
-                    : '0 2px 10px rgba(99,102,241,0.2)'
-                  : 'none',
-              }}>
-              Send
             </motion.button>
           </form>
-          <p className="text-[10px] text-center mt-2"
-            style={{ color: theme === 'dark' ? '#64748b' : '#94a3b8' }}>
-            💡 Tip: Use voice input (🎤) • Export to PDF (📄) • Share answers (📤) • Toggle theme ({theme === 'dark' ? '☀️' : '🌙'})
-          </p>
         </div>
       </div>
     </>
