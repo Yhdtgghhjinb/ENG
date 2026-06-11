@@ -130,18 +130,40 @@ async function createSampleVTUNotifications() {
   const samples = [
     {
       title: 'VTU Examination Timetable - Even Semester 2024',
-      message: 'The examination timetable for even semester 2024 has been released. Students are advised to check the official VTU website for detailed schedule.',
+      message: 'The examination timetable for Even Semester 2024 (February-March 2024) has been released. Students are advised to download the timetable from the official VTU website and check their exam dates carefully. All exams will be conducted in offline mode at designated examination centers.',
       type: 'exam',
       category: 'VTU Official',
-      link: 'https://vtu.ac.in/',
+      link: 'https://vtu.ac.in/en/exam-time-table/',
       priority: 'high',
       isActive: true,
       source: 'VTU_OFFICIAL',
       scrapedAt: new Date(),
     },
     {
-      title: 'VTU Revaluation Results - December 2023',
-      message: 'Revaluation results for December 2023 examinations are now available. Students can check their results on the official portal.',
+      title: 'VTU Revaluation & Photocopy Results - December 2023',
+      message: 'Revaluation and photocopy results for December 2023 examinations are now available on the VTU results portal. Students who applied for revaluation can check their updated marks and grades. Login with your USN and date of birth to view results.',
+      type: 'announcement',
+      category: 'VTU Official',
+      link: 'https://results.vtu.ac.in/',
+      priority: 'high',
+      isActive: true,
+      source: 'VTU_OFFICIAL',
+      scrapedAt: new Date(),
+    },
+    {
+      title: 'VTU Academic Calendar 2024-25 Released',
+      message: 'VTU has released the academic calendar for the year 2024-25. Important dates include: Odd semester starts - August 2024, Mid-term exams - October 2024, Final exams - December 2024. Students and faculty are requested to note these dates for planning purposes.',
+      type: 'update',
+      category: 'VTU Official',
+      link: 'https://vtu.ac.in/en/academic-calendar/',
+      priority: 'medium',
+      isActive: true,
+      source: 'VTU_OFFICIAL',
+      scrapedAt: new Date(),
+    },
+    {
+      title: 'Important: Changes in Internship Guidelines',
+      message: 'VTU has updated the internship and project guidelines for all engineering programs. New requirements include: Minimum 6 weeks internship duration, Company letter mandatory, Weekly progress reports. All students must review the updated guidelines before starting their internships.',
       type: 'announcement',
       category: 'VTU Official',
       link: 'https://vtu.ac.in/',
@@ -151,9 +173,9 @@ async function createSampleVTUNotifications() {
       scrapedAt: new Date(),
     },
     {
-      title: 'VTU Circular - Internship Guidelines Updated',
-      message: 'New guidelines for internships and industrial training have been released. All students must review the updated requirements.',
-      type: 'update',
+      title: 'VTU Scholarship & Fee Reimbursement Notice',
+      message: 'Applications are now open for VTU merit scholarships and state government fee reimbursement schemes. Eligible students can apply online through the NSP portal. Last date for application: January 31, 2024. Required documents: Income certificate, Caste certificate (if applicable), Previous semester marks cards.',
+      type: 'announcement',
       category: 'VTU Official',
       link: 'https://vtu.ac.in/',
       priority: 'medium',
@@ -173,6 +195,7 @@ async function createSampleVTUNotifications() {
     if (!existing) {
       await Notification.create(sample);
       added++;
+      console.log(`✅ Added: ${sample.title}`);
     }
   }
 

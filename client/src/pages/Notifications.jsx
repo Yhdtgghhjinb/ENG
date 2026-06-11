@@ -198,6 +198,7 @@ const Notifications = () => {
                           href={notification.link}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => !notification.read && markAsRead(notification._id)}
                           className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:scale-105"
                           style={{ 
                             background: `linear-gradient(135deg, ${type.color}, ${type.color}dd)`,
@@ -211,25 +212,6 @@ const Notifications = () => {
                           </svg>
                           View on VTU Website
                         </a>
-                      )}
-                      
-                      {!notification.read && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            markAsRead(notification._id);
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:scale-105"
-                          style={{ 
-                            background: 'rgba(255,255,255,0.05)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            color: '#94a3b8'
-                          }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                          </svg>
-                          Mark as Read
-                        </button>
                       )}
                     </div>
                   </div>
