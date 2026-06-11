@@ -118,12 +118,12 @@ const ResourceRequests = () => {
       {/* Request Form Modal */}
       {showForm && (
         <div 
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[9999] flex items-start justify-center p-4 overflow-y-auto"
           style={{ background: 'rgba(0,0,0,0.8)' }}
           onClick={() => setShowForm(false)}
         >
           <div 
-            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6" 
+            className="w-full max-w-2xl my-8 rounded-2xl p-6" 
             style={{
               background: 'linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.95))',
               border: '1px solid rgba(99,102,241,0.2)',
