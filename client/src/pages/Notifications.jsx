@@ -6,7 +6,6 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, unread, read
-  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     // Load notifications from API
@@ -114,7 +113,6 @@ const Notifications = () => {
         <div className="space-y-3">
           {filteredNotifications.map((notification, idx) => {
             const type = notificationTypes[notification.type] || notificationTypes.announcement;
-            const isExpanded = expandedId === notification._id;
             
             return (
               <motion.div
@@ -122,66 +120,118 @@ const Notifications = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="rounded-2xl p-4 transition-all duration-200 hover:scale-[1.01] cursor-pointer relative"
+                className="rounded-2xl p-5 transition-all duration-200 relative"
                 style={{
                   background: notification.read 
                     ? 'rgba(255,255,255,0.02)' 
                     : type.bg,
                   border: `1px solid ${notification.read ? 'rgba(255,255,255,0.05)' : type.color + '40'}`,
-                  opacity: notification.read ? 0.7 : 1,
-                }}
-                onClick={() => {
-                  if (!notification.read) markAsRead(notification._id);
-                  setExpandedId(isExpanded ? null : notification._id);
+                  opacity: notification.read ? 0.6 : 1,
                 }}
               >
                 {!notification.read && (
-                  <div className="absolute top-4 right-4 w-2 h-2 rounded-full"
-                    style={{ background: type.color, boxShadow: `0 0 10px ${type.color}` }}
-                  />
+                  <div className="absolute top-5 right-5 flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full animate-pulse"
+                      style={{ background: type.color, boxShadow: `0 0 10px ${type.color}` }}
+                    />
+                    <span className="text-[10px] font-bold uppercase tracking-wider"
+                      style={{ color: type.color }}>
+                      New
+                    </span>
+                  </div>
                 )}
                 
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 text-2xl">{type.icon}</div>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                    style={{ background: `${type.color}20`, border: `1px solid ${type.color}40` }}>
+                    {type.icon}
+                  </div>
+                  
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-white mb-1">{notification.title}</h3>
-                    <p className={`text-xs text-slate-400 mb-2 ${isExpanded ? '' : 'line-clamp-2'}`}>
+                    {/* Title */}
+                    <h3 className="text-base font-bold text-white mb-2 leading-tight">
+                      {notification.title}
+                    </h3>
+                    
+                    {/* Full Message */}
+                    <p className="text-sm text-slate-300 mb-4 leading-relaxed">
                       {notification.message}
                     </p>
-                    <div className="flex items-center gap-3 text-[10px] text-slate-500">
-                      <span>{new Date(notification.createdAt).toLocaleDateString()}</span>
+                    
+                    {/* Meta Info */}
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        {new Date(notification.createdAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric', 
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                      
                       {notification.category && (
-                        <span className="px-2 py-0.5 rounded-full"
-                          style={{ background: `${type.color}20`, color: type.color }}>
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold"
+                          style={{ background: `${type.color}25`, color: type.color }}>
                           {notification.category}
                         </span>
                       )}
+                      
+                      {notification.priority && (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold"
+                          style={{ 
+                            background: notification.priority === 'high' ? 'rgba(239,68,68,0.15)' : 'rgba(99,102,241,0.15)',
+                            color: notification.priority === 'high' ? '#ef4444' : '#818cf8'
+                          }}>
+                          {notification.priority === 'high' ? '🔴 High Priority' : 'Priority: ' + notification.priority}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
                       {notification.link && (
                         <a
                           href={notification.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 px-2 py-0.5 rounded-full hover:scale-105 transition-all"
-                          style={{ background: `${type.color}30`, color: type.color }}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:scale-105"
+                          style={{ 
+                            background: `linear-gradient(135deg, ${type.color}, ${type.color}dd)`,
+                            color: 'white',
+                            boxShadow: `0 4px 12px ${type.color}40`
+                          }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
                           </svg>
-                          View More
+                          View on VTU Website
                         </a>
                       )}
+                      
+                      {!notification.read && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markAsRead(notification._id);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:scale-105"
+                          style={{ 
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            color: '#94a3b8'
+                          }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                          Mark as Read
+                        </button>
+                      )}
                     </div>
-                    {isExpanded && (
-                      <button
-                        className="mt-2 text-[10px] text-slate-500 hover:text-slate-400"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setExpandedId(null);
-                        }}>
-                        Show less ▲
-                      </button>
-                    )}
                   </div>
                 </div>
               </motion.div>
