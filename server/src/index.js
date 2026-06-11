@@ -8,10 +8,8 @@ const vtuRouter      = require('./routes/vtu');
 const adminRouter    = require('./routes/admin');
 const subjectsRouter = require('./routes/subjects');
 const examsRouter = require('./routes/exams');
-const discussionsRouter = require('./routes/discussions');
 const notificationsRouter = require('./routes/notifications');
 const resourceRequestsRouter = require('./routes/resourceRequests');
-const gamificationRouter = require('./routes/gamification');
 const errorHandler   = require('./middleware/errorHandler');
 const path = require('path');
 
@@ -54,10 +52,8 @@ app.use('/api/vtu',       vtuRouter);
 app.use('/api/admin',     adminRouter);
 app.use('/api/subjects',  subjectsRouter);
 app.use('/api/exams', examsRouter);
-app.use('/api/discussions', discussionsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/resource-requests', resourceRequestsRouter);
-app.use('/api/gamification', gamificationRouter);
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
