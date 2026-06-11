@@ -1,0 +1,42 @@
+{
+  "name": "VTU VAULT - Engineering Study Resources",
+  "short_name": "VTU VAULT",
+  "description": "Access 1000+ VTU study resources, question papers, notes, and lab programs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "shortcuts": [
+    {
+      "name": "AI Assistant",
+      "short_name": "AI",
+      "description": "Open AI Study Assistant",
+      "url": "/home/ai-assistant",
+      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Calculator",
+      "short_name": "SGPA",
+      "description": "SGPA/CGPA Calculator",
+      "url": "/home/calculator",
+      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Resources",
+      "short_name": "Resources",
+      "description": "Browse Study Materials",
+      "url": "/home/resources",
+      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+    }
+  ]
+}

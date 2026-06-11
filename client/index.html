@@ -2,13 +2,91 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>VTU VAULT - Engineering Study Resources</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>VTU VAULT - Engineering Study Resources, Notes & Question Papers</title>
+    <meta name="title" content="VTU VAULT - Engineering Study Resources, Notes & Question Papers">
+    <meta name="description" content="Access 1000+ VTU study resources, previous year question papers, notes, and lab programs. Free for all engineering students. No sign-up required.">
+    <meta name="keywords" content="VTU, engineering, study materials, question papers, notes, lab programs, VTU resources, engineering notes">
+    <meta name="author" content="VTU VAULT">
+    
+    <!-- Mobile Optimization -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VTU VAULT">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#6366f1">
+    <meta name="msapplication-TileColor" content="#6366f1">
+    <meta name="msapplication-navbutton-color" content="#6366f1">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://eng-dusky.vercel.app/">
+    <meta property="og:title" content="VTU VAULT - Engineering Study Resources">
+    <meta property="og:description" content="Access 1000+ VTU study resources, question papers, notes, and lab programs. Free for all engineering students.">
+    <meta property="og:image" content="https://eng-dusky.vercel.app/og-image.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://eng-dusky.vercel.app/">
+    <meta property="twitter:title" content="VTU VAULT - Engineering Study Resources">
+    <meta property="twitter:description" content="Access 1000+ VTU study resources, question papers, notes, and lab programs. Free for all engineering students.">
+    <meta property="twitter:image" content="https://eng-dusky.vercel.app/og-image.png">
+    
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
+    
+    <!-- Preconnect to external domains for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- DNS Prefetch for API -->
+    <link rel="dns-prefetch" href="https://eng-production-384a.up.railway.app">
+    
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Prevent indexing of admin routes -->
+    <meta name="robots" content="index, follow">
   </head>
   <body class="bg-slate-950 text-slate-100">
+    <!-- Loading Screen -->
+    <div id="loading-screen" style="position: fixed; inset: 0; background: linear-gradient(135deg, #020617, #0f172a); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+      <div style="text-align: center;">
+        <div style="display: inline-flex; gap: 8px; margin-bottom: 16px;">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #6366f1; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.32s;"></div>
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #8b5cf6; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.16s;"></div>
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #ec4899; animation: bounce 1.4s infinite ease-in-out both;"></div>
+        </div>
+        <div style="font-size: 14px; font-weight: 600; color: #94a3b8; font-family: system-ui, -apple-system, sans-serif;">Loading VTU VAULT...</div>
+      </div>
+    </div>
+    <style>
+      @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+        40% { transform: scale(1); opacity: 1; }
+      }
+      #loading-screen { transition: opacity 0.3s ease-out; }
+    </style>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Hide loading screen once app loads -->
+    <script>
+      window.addEventListener('load', () => {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          loadingScreen.style.opacity = '0';
+          setTimeout(() => loadingScreen.remove(), 300);
+        }
+      });
+    </script>
   </body>
 </html>
 

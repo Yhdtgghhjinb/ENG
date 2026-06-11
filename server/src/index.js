@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const compression = require('compression');
+const helmet = require('helmet');
 const connectDB = require('./config/db');
 const resourcesRouter = require('./routes/resources');
 const vtuRouter      = require('./routes/vtu');
@@ -27,6 +29,35 @@ const allowedOrigins = (process.env.CLIENT_ORIGIN || process.env.CORS_ORIGIN || 
 
 connectDB(MONGODB_URI);
 
+// ============================================
+// PERFORMANCE & SECURITY MIDDLEWARE
+// ============================================
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable for API
+  crossOriginEmbedderPolicy: false,
+}));
+
+// Gzip compression for responses
+app.use(compression({
+  level: 6, // Balance between speed and compression
+  threshold: 1024, // Only compress responses larger than 1KB
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  }
+}));
+
+// Trust proxy (important for Railway/Heroku)
+app.set('trust proxy', 1);
+
+// Increase JSON payload limit for file uploads
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 // CORS configuration to support multiple origins
 app.use(cors({ 
   origin: (origin, callback) => {
@@ -39,14 +70,58 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
-app.use(express.json());
-app.use(morgan('dev'));
+
+// Conditional logging (only in development)
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined')); // More detailed logs in production
+}
+
+// Response time header
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    res.setHeader('X-Response-Time', `${duration}ms`);
+  });
+  next();
+});
+
+// Cache control headers for static assets
+app.use('/uploads', (req, res, next) => {
+  // Cache uploaded files for 1 year
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  next();
+}, express.static(path.join(__dirname, '../uploads')));
+
+// ============================================
+// API ROUTES
+// ============================================
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', env: process.env.NODE_ENV || 'development' });
+  res.json({ 
+    status: 'ok', 
+    env: process.env.NODE_ENV || 'development',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
 });
+
+// Add cache headers for frequently accessed routes
+const cacheMiddleware = (duration) => (req, res, next) => {
+  res.setHeader('Cache-Control', `public, max-age=${duration}`);
+  next();
+};
+
+// Cache branches/schemes/semesters for 1 hour (they don't change often)
+app.use('/api/vtu/branches', cacheMiddleware(3600));
+app.use('/api/vtu/schemes', cacheMiddleware(3600));
+app.use('/api/vtu/semesters', cacheMiddleware(3600));
 
 app.use('/api/resources', resourcesRouter);
 app.use('/api/vtu',       vtuRouter);
@@ -57,10 +132,27 @@ app.use('/api/notifications', notificationsRouter);
 app.use('/api/resource-requests', resourceRequestsRouter);
 app.use('/api/ai', aiRouter);
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// ============================================
+// ERROR HANDLING
+// ============================================
 
 app.use(errorHandler);
 
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Not Found', 
+    message: `Route ${req.originalUrl} not found`,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ============================================
+// SERVER START
+// ============================================
+
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`✅ Server listening on port ${PORT}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔐 CORS Origins: ${allowedOrigins.join(', ')}`);
 });
