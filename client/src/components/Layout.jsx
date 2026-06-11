@@ -66,6 +66,7 @@ const NAV_ITEMS = [
 const Layout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#020617' }}>
@@ -203,7 +204,7 @@ const Layout = () => {
         </header>
 
         {/* Content - Optimized for Mobile */}
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-24 sm:px-5 sm:py-5 md:px-8 md:py-6 lg:pb-8">
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-20 sm:px-5 sm:py-5 sm:pb-24 md:px-8 md:py-6 lg:pb-8">
           <div className="mx-auto max-w-7xl">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -223,29 +224,91 @@ const Layout = () => {
           </div>
         </main>
 
-        {/* Mobile Bottom Navigation - Enhanced */}
-        <nav className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-around px-3 py-3 lg:hidden"
+        {/* Mobile Bottom Navigation - Optimized with 5 items max */}
+        <nav className="fixed inset-x-0 bottom-0 z-50 lg:hidden safe-area-inset-bottom"
           style={{ 
             background: 'rgba(2,6,23,0.98)', 
-            backdropFilter: 'blur(20px)', 
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
             borderTop: '1px solid rgba(99,102,241,0.15)',
-            boxShadow: '0 -2px 10px rgba(0,0,0,0.3)'
+            boxShadow: '0 -4px 16px rgba(0,0,0,0.4)',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           }}>
-          {NAV_ITEMS.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end}
-              className={({ isActive }) =>
-                `flex flex-col items-center gap-1 rounded-xl px-5 py-2.5 text-xs font-semibold transition-all duration-200 ${
-                  isActive ? 'text-indigo-300 scale-105' : 'text-slate-500 active:scale-95'
-                }`
-              }
-              style={({ isActive }) => isActive ? {
-                background: 'rgba(99,102,241,0.2)',
-                boxShadow: '0 0 15px rgba(99,102,241,0.4)'
-              } : {}}>
-              {item.icon}
-              <span className="text-[10px]">{item.label}</span>
-            </NavLink>
-          ))}
+          <div className="flex items-center justify-around px-2 py-2">
+            {/* Show only first 5 navigation items on mobile */}
+            {NAV_ITEMS.slice(0, 5).map((item) => (
+              <NavLink key={item.to} to={item.to} end={item.end}
+                className={({ isActive }) =>
+                  `flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-200 min-w-0 ${
+                    isActive ? 'text-indigo-300 scale-105' : 'text-slate-500 active:scale-95'
+                  }`
+                }
+                style={({ isActive }) => isActive ? {
+                  background: 'rgba(99,102,241,0.2)',
+                  boxShadow: '0 0 15px rgba(99,102,241,0.4)'
+                } : {}}>
+                <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                  {item.icon}
+                </div>
+                <span className="text-[9px] leading-tight text-center truncate max-w-[60px]">
+                  {item.label === 'Notifications' ? 'Alerts' : 
+                   item.label === 'Calculator' ? 'Calc' : 
+                   item.label}
+                </span>
+              </NavLink>
+            ))}
+            
+            {/* More Menu Button */}
+            <button
+              onClick={() => setShowMoreMenu(!showMoreMenu)}
+              className={`flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-200 min-w-0 ${
+                showMoreMenu ? 'text-indigo-300 scale-105 bg-indigo-500/20' : 'text-slate-500 active:scale-95'
+              }`}>
+              <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+                </svg>
+              </div>
+              <span className="text-[9px] leading-tight text-center">More</span>
+            </button>
+          </div>
+          
+          {/* More Menu Popup */}
+          <AnimatePresence>
+            {showMoreMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute bottom-full right-4 mb-2 w-48 rounded-2xl overflow-hidden z-50"
+                  style={{
+                    background: 'rgba(10,16,36,0.98)',
+                    backdropFilter: 'blur(24px)',
+                    border: '1px solid rgba(99,102,241,0.2)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+                  }}>
+                  {NAV_ITEMS.slice(5).map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setShowMoreMenu(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-3 transition-all duration-200 ${
+                          isActive ? 'text-indigo-300 bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        }`
+                      }>
+                      <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                        {item.icon}
+                      </div>
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </NavLink>
+                  ))}
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </nav>
       </div>
     </div>
