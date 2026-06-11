@@ -12,7 +12,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@google/generative-ai": "^0.2.1",
     "@pinecone-database/pinecone": "^3.0.3",
     "axios": "^1.7.2",
     "cheerio": "^1.0.0-rc.12",

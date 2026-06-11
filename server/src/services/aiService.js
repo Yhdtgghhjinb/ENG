@@ -1,7 +1,6 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
-// Initialize Gemini AI (free tier available)
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// Using Hugging Face Inference API - 100% FREE forever
+const HF_API_URL = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
+const HF_API_KEY = process.env.HUGGINGFACE_API_KEY || '';
 
 // Enhanced VTU-specific system prompt
 const SYSTEM_PROMPT = `You are an expert VTU (Visvesvaraya Technological University) exam preparation assistant. You MUST provide EXACT answers that VTU board expects.
@@ -109,22 +108,12 @@ Be precise. Be VTU-aligned. Be exam-focused.`;
 async function getChatResponse(userMessage, conversationHistory = []) {
   try {
     // Check if API key is configured
-    if (!process.env.GEMINI_API_KEY) {
+    if (!HF_API_KEY) {
       return {
         success: false,
-        response: '⚠️ AI service is not configured. Please add GEMINI_API_KEY to environment variables.\n\nGet a FREE API key from: https://makersuite.google.com/app/apikey\n\nGemini API is completely free with 60 requests per minute - perfect for students!'
+        response: '⚠️ AI service is not configured. Please add HUGGINGFACE_API_KEY to environment variables.\n\n✅ Get a FREE API key from Hugging Face:\n1. Visit: https://huggingface.co/settings/tokens\n2. Sign up (free forever)\n3. Create a new token\n4. Add to Railway environment variables\n\n100% Free - No credit card required - Unlimited usage!'
       };
     }
-
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-pro',
-      generationConfig: {
-        temperature: 0.7, // Balanced creativity
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048, // Longer responses for detailed answers
-      },
-    });
 
     // Detect if question mentions marks
     const marksMatch = userMessage.match(/(\d+)\s*marks?/i);
@@ -139,8 +128,8 @@ async function getChatResponse(userMessage, conversationHistory = []) {
     
     prompt += 'Conversation:\n';
     
-    // Add recent history (last 6 exchanges for context)
-    const recentHistory = conversationHistory.slice(-12);
+    // Add recent history (last 4 exchanges for context)
+    const recentHistory = conversationHistory.slice(-8);
     recentHistory.forEach(msg => {
       if (msg.role === 'user') {
         prompt += `Student: ${msg.content}\n`;
@@ -149,110 +138,154 @@ async function getChatResponse(userMessage, conversationHistory = []) {
       }
     });
 
-    // Add current message with special handling
+    // Add current message
     prompt += `Student: ${userMessage}\n`;
     
-    // Add mark-specific instruction if detected
     if (marks) {
-      prompt += `\n[REMINDER: This is a ${marks}-mark question. Provide answer in VTU exam format with proper length and structure.]\n`;
+      prompt += `\n[REMINDER: This is a ${marks}-mark question. Provide answer in VTU exam format.]\n`;
     }
     
     prompt += `VTU Assistant:`;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
+    // Call Hugging Face API
+    const response = await fetch(HF_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${HF_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 1024,
+          temperature: 0.7,
+          top_p: 0.95,
+          return_full_text: false
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('HF API Error:', errorText);
+      throw new Error(`API request failed: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    let text = '';
+    if (Array.isArray(result) && result[0]?.generated_text) {
+      text = result[0].generated_text;
+    } else if (result.generated_text) {
+      text = result.generated_text;
+    } else if (typeof result === 'string') {
+      text = result;
+    } else {
+      text = 'I apologize, but I received an unexpected response. Please try again.';
+    }
 
     return {
       success: true,
       response: text.trim(),
-      marks: marks // Return detected marks for UI enhancement
+      marks: marks
     };
 
   } catch (error) {
     console.error('AI Service Error:', error);
     
     // Handle specific errors
-    if (error.message?.includes('API_KEY') || error.message?.includes('API key')) {
+    if (error.message?.includes('API') || error.message?.includes('token') || error.message?.includes('401')) {
       return {
         success: false,
-        response: '⚠️ Invalid or missing API key.\n\n✅ Good News: Gemini API is 100% FREE!\n\nGet your free key:\n1. Visit: https://makersuite.google.com/app/apikey\n2. Sign in with Google\n3. Click "Get API Key"\n4. Add to Railway environment variables\n\nFree tier includes 60 requests/minute - more than enough for students!'
+        response: '⚠️ Invalid or missing API key.\n\n✅ Hugging Face is 100% FREE forever!\n\nGet your free key:\n1. Visit: https://huggingface.co/settings/tokens\n2. Sign up with email (no credit card)\n3. Create a new token (Read role is enough)\n4. Add to Railway environment: HUGGINGFACE_API_KEY\n\nUnlimited requests - Perfect for students!'
       };
     }
 
-    if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
+    if (error.message?.includes('quota') || error.message?.includes('rate limit') || error.message?.includes('503')) {
       return {
         success: false,
-        response: '⏳ API rate limit reached. Please wait a moment and try again.\n\nThe free tier allows 60 requests per minute, which should be plenty. If you\'re hitting this often, consider:\n• Waiting 1-2 minutes between complex questions\n• The API resets every minute\n\nDon\'t worry - it\'s still completely free!'
+        response: '⏳ Model is loading or temporarily busy. This happens when the free model hasn\'t been used recently.\n\nPlease wait 20-30 seconds and try again. The model will wake up automatically.\n\nStill 100% free - just needs a moment to start!'
       };
     }
 
     return {
       success: false,
-      response: '❌ Sorry, I encountered an error. Please try again.\n\nIf this persists:\n1. Check your internet connection\n2. Verify API key is correctly set\n3. Try asking the question differently\n\nThe service is working fine for others, so it should work for you too!'
+      response: '❌ Sorry, I encountered an error. Please try again in a moment.\n\nIf this persists:\n1. Wait 20-30 seconds (model might be loading)\n2. Check your internet connection\n3. Verify API key is correctly set\n\nThe service is completely free and should work fine!'
     };
   }
 }
 
 async function analyzeQuestionPaper(text, examDetails = {}) {
   try {
-    if (!process.env.GEMINI_API_KEY) {
+    if (!HF_API_KEY) {
       return {
         success: false,
         message: 'AI service not configured'
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
     const prompt = `Analyze this VTU question paper and extract important information:
 
-${text}
+${text.substring(0, 2000)} ${text.length > 2000 ? '...(truncated)' : ''}
 
 Exam Details: ${JSON.stringify(examDetails)}
 
 Please provide:
-1. **Important Topics**: List the main topics covered (as a comma-separated list)
-2. **Question Types**: Types of questions (MCQ, descriptive, numerical, etc.)
-3. **Difficulty Level**: Overall difficulty (Easy/Medium/Hard)
-4. **Repeated Questions**: Any topics that appear multiple times
-5. **Study Recommendations**: Top 5 topics students should focus on
+1. Important Topics: List main topics (comma-separated)
+2. Question Types: Types of questions
+3. Difficulty Level: Easy/Medium/Hard
+4. Repeated Topics: Topics appearing multiple times
+5. Study Recommendations: Top 5 focus areas
 
-Format your response as JSON with keys: topics, questionTypes, difficulty, repeatedTopics, recommendations`;
+Provide a clear, structured analysis.`;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-
-    // Try to parse JSON response
-    try {
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const analysis = JSON.parse(jsonMatch[0]);
-        return {
-          success: true,
-          analysis
-        };
-      }
-    } catch (e) {
-      // If JSON parsing fails, return raw text
-      return {
-        success: true,
-        analysis: {
-          summary: responseText,
-          topics: [],
-          questionTypes: [],
-          difficulty: 'Medium',
-          repeatedTopics: [],
-          recommendations: []
+    const response = await fetch(HF_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${HF_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 512,
+          temperature: 0.5,
         }
-      };
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status}`);
     }
+
+    const result = await response.json();
+    let analysisText = '';
+    
+    if (Array.isArray(result) && result[0]?.generated_text) {
+      analysisText = result[0].generated_text;
+    } else if (result.generated_text) {
+      analysisText = result.generated_text;
+    } else {
+      analysisText = 'Analysis completed. Please review the paper manually for detailed insights.';
+    }
+
+    return {
+      success: true,
+      analysis: {
+        summary: analysisText,
+        topics: [],
+        questionTypes: [],
+        difficulty: 'Medium',
+        repeatedTopics: [],
+        recommendations: []
+      }
+    };
 
   } catch (error) {
     console.error('Question Paper Analysis Error:', error);
     return {
       success: false,
-      message: 'Failed to analyze question paper'
+      message: 'Failed to analyze question paper. Please try again.'
     };
   }
 }
