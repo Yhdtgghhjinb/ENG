@@ -6,14 +6,36 @@ const Discussions = () => {
   const [discussions, setDiscussions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTopic, setSelectedTopic] = useState('all');
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title: '', content: '', topic: 'general', author: '' });
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    // Load discussions from API
+  const loadDiscussions = () => {
+    setLoading(true);
     api.get('/api/discussions')
       .then(res => setDiscussions(res.data || []))
       .catch(() => setDiscussions([]))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadDiscussions();
   }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await api.post('/api/discussions', form);
+      setShowForm(false);
+      setForm({ title: '', content: '', topic: 'general', author: '' });
+      loadDiscussions();
+    } catch (err) {
+      alert('Failed to post discussion. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const topics = [
     { id: 'all', name: 'All Topics', icon: '📚', color: '#6366f1' },
@@ -74,7 +96,9 @@ const Discussions = () => {
           </div>
           <h3 className="text-lg font-semibold text-white mb-2">No Discussions Yet</h3>
           <p className="text-sm text-slate-500 mb-4">Be the first to start a discussion!</p>
-          <button className="px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 hover:scale-105"
+          <button 
+            onClick={() => setShowForm(true)}
+            className="px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 hover:scale-105"
             style={{
               background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
               boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
@@ -83,7 +107,122 @@ const Discussions = () => {
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <>
+          {/* Add Discussion Button */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => setShowForm(true)}
+              className="px-5 py-2.5 rounded-xl font-semibold text-white transition-all duration-200 hover:scale-105 flex items-center gap-2"
+              style={{
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+              }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              New Discussion
+            </button>
+          </div>
+
+          {/* Discussion Form Modal */}
+          {showForm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
+              <div className="w-full max-w-2xl rounded-2xl p-6" style={{
+                background: 'linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.95))',
+                border: '1px solid rgba(99,102,241,0.2)',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+              }}>
+                <h3 className="text-xl font-bold text-white mb-4">Start a Discussion</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Your Name</label>
+                    <input
+                      type="text"
+                      value={form.author}
+                      onChange={e => setForm(f => ({ ...f, author: e.target.value }))}
+                      required
+                      placeholder="Enter your name"
+                      className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Topic</label>
+                    <select
+                      value={form.topic}
+                      onChange={e => setForm(f => ({ ...f, topic: e.target.value }))}
+                      className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                      }}>
+                      <option value="general">General</option>
+                      <option value="doubt">Doubts</option>
+                      <option value="study">Study Tips</option>
+                      <option value="exam">Exam Prep</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Title</label>
+                    <input
+                      type="text"
+                      value={form.title}
+                      onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                      required
+                      placeholder="What's your question or topic?"
+                      className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Description</label>
+                    <textarea
+                      value={form.content}
+                      onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
+                      required
+                      rows="4"
+                      placeholder="Explain your question or share your thoughts..."
+                      className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                      }}
+                    />
+                  </div>
+                  <div className="flex gap-3 justify-end pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowForm(false)}
+                      className="px-5 py-2.5 rounded-xl font-semibold text-slate-400 transition-all"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                      }}>
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="px-5 py-2.5 rounded-xl font-semibold text-white transition-all"
+                      style={{
+                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                        opacity: submitting ? 0.6 : 1,
+                      }}>
+                      {submitting ? 'Posting...' : 'Post Discussion'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-4">
           {filteredDiscussions.map((discussion, idx) => (
             <motion.div
               key={discussion._id}
@@ -141,6 +280,7 @@ const Discussions = () => {
             </motion.div>
           ))}
         </div>
+        </>
       )}
 
     </div>

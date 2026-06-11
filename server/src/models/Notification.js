@@ -18,6 +18,12 @@ const NotificationSchema = new mongoose.Schema(
     },
     isActive: { type: Boolean, default: true },
     expiresAt: { type: Date }, // Optional: auto-hide after date
+    source: { 
+      type: String, 
+      enum: ['MANUAL', 'VTU_OFFICIAL'],
+      default: 'MANUAL'
+    }, // Track if notification is from VTU or manually created
+    scrapedAt: { type: Date }, // When it was scraped from VTU
   },
   { timestamps: true }
 );

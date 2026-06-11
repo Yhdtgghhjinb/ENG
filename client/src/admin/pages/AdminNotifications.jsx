@@ -28,6 +28,7 @@ const AdminNotifications = () => {
   const [saving, setSaving] = useState(false);
   const [confirm, setConfirm] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -75,9 +76,43 @@ const AdminNotifications = () => {
     }
   };
 
+  const syncVTU = async () => {
+    setSyncing(true);
+    toast.loading('Syncing VTU notifications...', { id: 'vtu-sync' });
+    try {
+      const response = await adminApi.post('/notifications/sync-vtu');
+      if (response.data.success) {
+        toast.success(`✅ Synced! Added ${response.data.new} new notifications`, { id: 'vtu-sync' });
+        load();
+      } else {
+        toast.error(response.data.message || 'No new notifications found', { id: 'vtu-sync' });
+      }
+    } catch (err) {
+      toast.error('Failed to sync VTU notifications', { id: 'vtu-sync' });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Notifications" subtitle="Send announcements to students" onAdd={openAdd} />
+      <div className="flex items-center justify-between">
+        <PageHeader title="Notifications" subtitle="Send announcements to students" onAdd={openAdd} />
+        <button
+          onClick={syncVTU}
+          disabled={syncing}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+          style={{
+            background: syncing ? 'rgba(16,185,129,0.2)' : 'linear-gradient(135deg, #10b981, #059669)',
+            color: 'white',
+            opacity: syncing ? 0.6 : 1,
+          }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          {syncing ? 'Syncing...' : 'Sync VTU Updates'}
+        </button>
+      </div>
 
       <AdminTable
         columns={[

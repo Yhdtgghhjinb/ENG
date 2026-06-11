@@ -10,6 +10,7 @@ const Resource  = require('../models/Resource');
 const Exam = require('../models/Exam');
 const Discussion = require('../models/Discussion');
 const Notification = require('../models/Notification');
+const { syncVTUNotifications } = require('../services/vtuScraper');
 
 const router = express.Router();
 
@@ -385,6 +386,14 @@ router.put('/notifications/:id', async (req, res, next) => {
 });
 router.delete('/notifications/:id', async (req, res, next) => {
   try { await Notification.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (err) { next(err); }
+});
+
+// ── VTU Auto-Sync ─────────────────────────────────────────────────────────────
+router.post('/notifications/sync-vtu', async (req, res, next) => {
+  try {
+    const result = await syncVTUNotifications();
+    res.json(result);
+  } catch (err) { next(err); }
 });
 
 module.exports = router;
