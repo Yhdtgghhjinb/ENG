@@ -8,6 +8,7 @@ import Landing from './pages/Landing';
 
 // Lazy load all other pages for better performance
 const Home = lazy(() => import('./pages/Home'));
+const Results = lazy(() => import('./pages/Results'));
 const Calculator = lazy(() => import('./pages/Calculator'));
 const ExamCalendar = lazy(() => import('./pages/ExamCalendar'));
 const Notifications = lazy(() => import('./pages/Notifications'));
@@ -67,6 +68,7 @@ const App = () => {
           {/* Public site */}
           <Route path="/home" element={<Layout />}>
             <Route index element={<Home />} />
+            <Route path="results" element={<Results />} />
             <Route path="calculator" element={<Calculator />} />
             <Route path="exam-calendar" element={<ExamCalendar />} />
             <Route path="notifications" element={<Notifications />} />

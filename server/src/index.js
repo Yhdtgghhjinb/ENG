@@ -12,6 +12,7 @@ const subjectsRouter = require('./routes/subjects');
 const examsRouter = require('./routes/exams');
 const notificationsRouter = require('./routes/notifications');
 const resourceRequestsRouter = require('./routes/resourceRequests');
+const resultsRouter = require('./routes/results');
 const aiRouter = require('./routes/ai');
 const errorHandler   = require('./middleware/errorHandler');
 const { syncVTUNotifications } = require('./services/vtuScraper');
@@ -135,6 +136,7 @@ app.use('/api/subjects',  subjectsRouter);
 app.use('/api/exams', examsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/resource-requests', resourceRequestsRouter);
+app.use('/api/results', resultsRouter);
 app.use('/api/ai', aiRouter);
 
 // ============================================
