@@ -41,7 +41,8 @@ const AIChatBot = () => {
 ✓ 100% Free
 
 ❓ Start by asking any VTU exam question!`,
-        timestamp: new Date()
+        timestamp: new Date(),
+        isWelcome: true // Mark this as welcome message
       }
     ];
   });
@@ -171,8 +172,8 @@ const AIChatBot = () => {
                     <div className="text-sm text-white whitespace-pre-wrap leading-relaxed">
                       {msg.content}
                     </div>
-                    {/* Copy button for AI responses */}
-                    {msg.role === 'assistant' && !msg.isError && (
+                    {/* Copy button for AI responses (except welcome message) */}
+                    {msg.role === 'assistant' && !msg.isError && !msg.isWelcome && (
                       <button
                         onClick={() => copyToClipboard(msg.content)}
                         className="mt-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105"
