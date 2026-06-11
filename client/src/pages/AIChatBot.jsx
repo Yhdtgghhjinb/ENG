@@ -397,7 +397,7 @@ const AIChatBot = () => {
       />
       
       <div 
-        className="flex flex-col min-h-[600px] transition-colors duration-300"
+        className="flex flex-col space-y-3"
         style={{
           background: theme === 'dark' 
             ? 'rgba(2,6,23,0.4)' 
@@ -406,27 +406,28 @@ const AIChatBot = () => {
         }}>
         
         {/* Header with Actions */}
-        <div className="flex-shrink-0 py-4 px-2 sm:px-4">
-          <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
-            <div className="flex-1 min-w-[200px]">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight"
+        <div className="pb-3 border-b"
+          style={{ borderColor: theme === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(203,213,225,0.3)' }}>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-xl font-bold leading-tight"
                 style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }}>
-                🎓 VTU Exam Expert AI
+                🎓 VTU Exam Expert
               </h1>
-              <p className="text-xs sm:text-sm mt-1"
+              <p className="text-xs mt-1"
                 style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
-                Get exact VTU board answers • Mark-based responses • 100% Free
+                Get VTU answers • Mark-based • Free
               </p>
             </div>
             
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2 flex-wrap">
+            {/* Action Buttons - Compact */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               {/* Theme Toggle */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleTheme}
-                className="p-2.5 rounded-xl transition-all duration-200"
+                className="p-2 rounded-lg transition-all duration-200"
                 style={{
                   background: theme === 'dark' 
                     ? 'rgba(99,102,241,0.15)' 
@@ -435,7 +436,7 @@ const AIChatBot = () => {
                   color: theme === 'dark' ? '#a5b4fc' : '#6366f1'
                 }}
                 title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}>
-                <span className="text-lg">{theme === 'dark' ? '☀️' : '🌙'}</span>
+                <span className="text-base">{theme === 'dark' ? '☀️' : '🌙'}</span>
               </motion.button>
 
               {/* Export PDF */}
@@ -444,7 +445,7 @@ const AIChatBot = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={exportToPDF}
                 disabled={messages.length <= 1}
-                className="p-2.5 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="p-2 rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{
                   background: theme === 'dark' 
                     ? 'rgba(16,185,129,0.15)' 
@@ -453,79 +454,8 @@ const AIChatBot = () => {
                   color: theme === 'dark' ? '#6ee7b7' : '#059669'
                 }}
                 title="Export to PDF">
-                <span className="text-lg">📄</span>
+                <span className="text-base">📄</span>
               </motion.button>
-
-              {/* Share Menu */}
-              <div className="relative">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowShareMenu(!showShareMenu)}
-                  disabled={messages.filter(m => m.role === 'assistant' && !m.isWelcome).length === 0}
-                  className="p-2.5 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{
-                    background: theme === 'dark' 
-                      ? 'rgba(34,211,238,0.15)' 
-                      : 'rgba(34,211,238,0.1)',
-                    border: `1px solid ${theme === 'dark' ? 'rgba(34,211,238,0.3)' : 'rgba(34,211,238,0.4)'}`,
-                    color: theme === 'dark' ? '#5eead4' : '#0891b2'
-                  }}
-                  title="Share Answer">
-                  <span className="text-lg">📤</span>
-                </motion.button>
-
-                {/* Share Dropdown */}
-                <AnimatePresence>
-                  {showShareMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-48 rounded-xl shadow-2xl overflow-hidden z-50"
-                      style={{
-                        background: theme === 'dark' 
-                          ? 'rgba(17,24,39,0.98)' 
-                          : 'rgba(255,255,255,0.98)',
-                        border: `1px solid ${theme === 'dark' ? 'rgba(99,102,241,0.3)' : 'rgba(99,102,241,0.2)'}`,
-                        backdropFilter: 'blur(12px)'
-                      }}>
-                      {[
-                        { icon: '🔗', label: 'Copy Link', action: 'copy' },
-                        { icon: '💬', label: 'WhatsApp', action: 'whatsapp' },
-                        { icon: '✈️', label: 'Telegram', action: 'telegram' },
-                        { icon: '🐦', label: 'Twitter', action: 'twitter' },
-                        { icon: '📧', label: 'Email', action: 'email' }
-                      ].map((item) => (
-                        <button
-                          key={item.action}
-                          onClick={() => handleShare(item.action)}
-                          className="w-full px-4 py-2.5 text-left text-sm font-medium transition-all duration-150 flex items-center gap-2"
-                          style={{
-                            color: theme === 'dark' ? '#e2e8f0' : '#1e293b',
-                            ':hover': {
-                              background: theme === 'dark' 
-                                ? 'rgba(99,102,241,0.15)' 
-                                : 'rgba(99,102,241,0.1)'
-                            }
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = theme === 'dark' 
-                              ? 'rgba(99,102,241,0.15)' 
-                              : 'rgba(99,102,241,0.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                          }}>
-                          <span>{item.icon}</span>
-                          <span>{item.label}</span>
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
 
               {/* Clear Chat */}
               <motion.button
@@ -533,7 +463,7 @@ const AIChatBot = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={clearChat}
                 disabled={messages.length <= 1}
-                className="p-2.5 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="p-2 rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{
                   background: theme === 'dark' 
                     ? 'rgba(239,68,68,0.15)' 
@@ -542,16 +472,14 @@ const AIChatBot = () => {
                   color: theme === 'dark' ? '#fca5a5' : '#dc2626'
                 }}
                 title="Clear Chat">
-                <span className="text-lg">🗑️</span>
+                <span className="text-base">🗑️</span>
               </motion.button>
             </div>
           </div>
         </div>
 
-        {/* Messages Area */}
-        <div 
-          ref={chatContainerRef}
-          className="space-y-3 mb-4 px-2 sm:px-4">
+        {/* Messages Area - No Internal Scroll */}
+        <div className="space-y-2">
           <AnimatePresence mode="popLayout">
             {messages.map((msg, idx) => (
               <motion.div
@@ -702,11 +630,10 @@ const AIChatBot = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className="px-2 sm:px-4 pb-2 pt-3 border-t"
+        {/* Input Area - Sticky */}
+        <div className="pt-3 border-t"
           style={{
-            borderColor: theme === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(203,213,225,0.3)',
-            background: theme === 'dark' ? 'rgba(2,6,23,0.6)' : 'rgba(248,250,252,0.95)'
+            borderColor: theme === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(203,213,225,0.3)'
           }}>
           <form onSubmit={handleSubmit} className="flex gap-2 items-end">
             {/* Voice Input Button */}
@@ -716,7 +643,7 @@ const AIChatBot = () => {
               whileTap={{ scale: 0.95 }}
               onClick={handleVoiceInput}
               disabled={loading}
-              className={`flex-shrink-0 p-3 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`flex-shrink-0 p-2.5 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                 isListening ? 'animate-pulse' : ''
               }`}
               style={{
@@ -733,16 +660,16 @@ const AIChatBot = () => {
                 color: '#ffffff'
               }}
               title={isListening ? 'Stop listening' : 'Start voice input'}>
-              <span className="text-xl">{isListening ? '🔴' : '🎤'}</span>
+              <span className="text-lg">{isListening ? '🔴' : '🎤'}</span>
             </motion.button>
 
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Ask any VTU exam question..."
+              placeholder="Ask VTU question..."
               disabled={loading || isListening}
-              className="flex-1 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all duration-200"
+              className="flex-1 px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all duration-200"
               style={{
                 background: theme === 'dark' 
                   ? 'rgba(255,255,255,0.05)' 
@@ -758,7 +685,21 @@ const AIChatBot = () => {
               type="submit"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              disabled={!input.trim() || loading || isListening}
+              disabled={!input.trim() || loading}
+              className="flex-shrink-0 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: theme === 'dark'
+                  ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
+                  : 'linear-gradient(135deg, #818cf8, #a78bfa)',
+                color: '#ffffff',
+                boxShadow: !input.trim() || loading
+                  ? 'none'
+                  : theme === 'dark'
+                  ? '0 4px 20px rgba(99,102,241,0.3)'
+                  : '0 2px 10px rgba(99,102,241,0.2)'
+              }}>
+              {loading ? '...' : 'Send'}
+            </motion.button>rim() || loading || isListening}
               className="flex-shrink-0 px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: theme === 'dark'

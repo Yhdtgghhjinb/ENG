@@ -117,9 +117,8 @@ body {
     radial-gradient(circle at 92%  8%,  rgba(139,92,246,0.10), transparent 38%),
     radial-gradient(circle at 8%   92%, rgba(14,165,233,0.08), transparent 38%),
     rgba(4, 7, 20, 0.91);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
-  /* No overflow properties - let parent handle scrolling */
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 /* Noise texture overlay on the shell */

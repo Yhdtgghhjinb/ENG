@@ -74,12 +74,12 @@ const Layout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#020617' }}>
+    <div className="flex h-screen overflow-hidden fixed inset-0" style={{ background: '#020617' }}>
       <div className="bg-scene" />
 
       {/* ── Sidebar ──────────────────────────────────────────────────────────── */}
       <aside
-        className="sticky top-0 hidden h-screen w-64 flex-shrink-0 flex-col lg:flex"
+        className="sticky top-0 hidden h-screen w-64 flex-shrink-0 flex-col overflow-y-auto lg:flex"
         style={{
           background: 'rgba(3, 5, 18, 0.96)',
           backdropFilter: 'blur(48px) saturate(220%)',
@@ -179,11 +179,16 @@ const Layout = () => {
       </aside>
 
       {/* ── Main ─────────────────────────────────────────────────────────────── */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden h-screen">
 
         {/* Header - Mobile Optimized */}
-        <header className="flex flex-shrink-0 items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5"
-          style={{ background: 'rgba(2,6,23,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(99,102,241,0.08)' }}>
+        <header className="flex-shrink-0 flex items-center justify-between px-4 py-3"
+          style={{ 
+            background: 'rgba(2,6,23,0.95)', 
+            backdropFilter: 'blur(20px)', 
+            borderBottom: '1px solid rgba(99,102,241,0.08)',
+            height: '56px'
+          }}>
           <div className="flex items-center gap-3 lg:hidden">
             <Logo size="sm" animated={false} showText={false} />
             <div className="flex flex-col">
@@ -197,8 +202,8 @@ const Layout = () => {
             <span className="text-xs text-slate-600">Live · Always free</span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] sm:text-[11px] font-semibold text-slate-400"
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold text-slate-400"
               style={{ background: 'rgba(99,102,241,0.09)', border: '1px solid rgba(99,102,241,0.18)' }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="5"/>
@@ -212,24 +217,31 @@ const Layout = () => {
           </div>
         </header>
 
-        {/* Content - Single Scroll Container */}
-        <main className="flex-1 overflow-y-auto px-3 py-3 pb-20 sm:px-5 sm:py-4 sm:pb-24 lg:pb-6"
+        {/* Content - SINGLE SCROLL ONLY */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden"
           style={{ 
-            WebkitOverflowScrolling: 'touch'
+            WebkitOverflowScrolling: 'touch',
+            height: 'calc(100vh - 56px - 64px)' // viewport - header - bottom nav
           }}>
-          <div className="mx-auto w-full max-w-7xl">
+          <div className="h-full px-3 py-3 lg:px-6 lg:py-5">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={location.pathname}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.1 }}
-                className="glass-shell gradient-border rounded-xl sm:rounded-2xl"
-                style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.07)' }}
+                transition={{ duration: 0.15 }}
+                className="h-full"
               >
-                <div className="p-4 sm:p-6 md:p-7 lg:p-8">
-                  <Outlet />
+                <div className="glass-shell rounded-xl h-full overflow-hidden"
+                  style={{ 
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.07)',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}>
+                  <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+                    <Outlet />
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -237,22 +249,23 @@ const Layout = () => {
         </main>
 
         {/* Mobile Bottom Navigation - Optimized with 5 items max */}
-        <nav className="fixed inset-x-0 bottom-0 z-50 lg:hidden safe-area-inset-bottom"
+        <nav className="fixed inset-x-0 bottom-0 z-50 lg:hidden"
           style={{ 
             background: 'rgba(2,6,23,0.98)', 
             backdropFilter: 'blur(24px) saturate(180%)',
             WebkitBackdropFilter: 'blur(24px) saturate(180%)',
             borderTop: '1px solid rgba(99,102,241,0.15)',
             boxShadow: '0 -4px 16px rgba(0,0,0,0.4)',
+            height: '64px',
             paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           }}>
-          <div className="flex items-center justify-around px-2 py-2">
+          <div className="flex items-center justify-around h-full px-2">
             {/* Show only first 5 navigation items on mobile */}
             {NAV_ITEMS.slice(0, 5).map((item) => (
               <NavLink key={item.to} to={item.to} end={item.end}
                 className={({ isActive }) =>
-                  `flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-200 min-w-0 ${
-                    isActive ? 'text-indigo-300 scale-105' : 'text-slate-500 active:scale-95'
+                  `flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all duration-200 ${
+                    isActive ? 'text-indigo-300' : 'text-slate-500'
                   }`
                 }
                 style={({ isActive }) => isActive ? {
@@ -262,7 +275,7 @@ const Layout = () => {
                 <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
                   {item.icon}
                 </div>
-                <span className="text-[9px] leading-tight text-center truncate max-w-[60px]">
+                <span className="text-[10px] leading-tight text-center">
                   {item.label === 'Notifications' ? 'Alerts' : 
                    item.label === 'Calculator' ? 'Calc' : 
                    item.label}
@@ -273,15 +286,15 @@ const Layout = () => {
             {/* More Menu Button */}
             <button
               onClick={() => setShowMoreMenu(!showMoreMenu)}
-              className={`flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-200 min-w-0 ${
-                showMoreMenu ? 'text-indigo-300 scale-105 bg-indigo-500/20' : 'text-slate-500 active:scale-95'
+              className={`flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all duration-200 ${
+                showMoreMenu ? 'text-indigo-300 bg-indigo-500/20' : 'text-slate-500'
               }`}>
               <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
                 </svg>
               </div>
-              <span className="text-[9px] leading-tight text-center">More</span>
+              <span className="text-[10px] leading-tight text-center">More</span>
             </button>
           </div>
           
