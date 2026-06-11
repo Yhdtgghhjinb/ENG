@@ -166,7 +166,7 @@ const Layout = () => {
 
                   {/* Badge */}
                   {item.badge && (
-                    <span className="relative z-10 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
+                    <span className="relative z-10 flex-shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide"
                       style={{
                         background: isActive ? 'rgba(99,102,241,0.35)' : 'rgba(99,102,241,0.15)',
                         color: isActive ? '#c7d2fe' : '#6366f1',

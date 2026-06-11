@@ -53,15 +53,13 @@ const Discussions = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center space-y-2 py-4">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight">💬 Discussion Forum</h1>
-        <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto px-2">
-          Ask questions, get answers, and connect with VTU students
-        </p>
-      </div>
-
-      {/* Add Discussion Button */}
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex-1">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight mb-2">💬 Discussion Forum</h1>
+          <p className="text-xs sm:text-sm text-slate-400">
+            Ask questions, get answers, and connect with VTU students
+          </p>
+        </div>
         <button
           onClick={() => setShowForm(true)}
           className="px-5 py-2.5 rounded-xl font-semibold text-white transition-all duration-200 hover:scale-105 flex items-center gap-2"
@@ -72,7 +70,8 @@ const Discussions = () => {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Start Discussion
+          <span className="hidden sm:inline">Start Discussion</span>
+          <span className="sm:hidden">New</span>
         </button>
       </div>
 
