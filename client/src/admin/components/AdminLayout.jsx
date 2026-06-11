@@ -9,6 +9,8 @@ const NAV = [
   { to: '/admin/semesters',             label: 'Semesters',  icon: '📅' },
   { to: '/admin/subjects',              label: 'Subjects',   icon: '📘' },
   { to: '/admin/resources',             label: 'Resources',  icon: '📄' },
+  { to: '/admin/exams',                 label: 'Exams',      icon: '🎯' },
+  { to: '/admin/notifications',         label: 'Notifications', icon: '🔔' },
   { to: '/admin/analytics',             label: 'Analytics',  icon: '📈' },
 ];
 

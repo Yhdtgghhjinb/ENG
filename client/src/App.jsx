@@ -24,6 +24,8 @@ import AdminSchemes from './admin/pages/AdminSchemes';
 import AdminSemesters from './admin/pages/AdminSemesters';
 import AdminSubjects from './admin/pages/AdminSubjects';
 import AdminResources from './admin/pages/AdminResources';
+import AdminExams from './admin/pages/AdminExams';
+import AdminNotifications from './admin/pages/AdminNotifications';
 import AdminAnalytics from './admin/pages/AdminAnalytics';
 
 const App = () => {
@@ -59,6 +61,8 @@ const App = () => {
         <Route path="semesters" element={<AdminSemesters />} />
         <Route path="subjects"  element={<AdminSubjects />} />
         <Route path="resources" element={<AdminResources />} />
+        <Route path="exams" element={<AdminExams />} />
+        <Route path="notifications" element={<AdminNotifications />} />
         <Route path="analytics" element={<AdminAnalytics />} />
       </Route>
 

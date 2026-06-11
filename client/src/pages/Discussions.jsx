@@ -143,17 +143,6 @@ const Discussions = () => {
         </div>
       )}
 
-      {/* Coming Soon Notice */}
-      <div className="rounded-2xl p-6 text-center"
-        style={{
-          background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05))',
-          border: '1px solid rgba(99,102,241,0.2)',
-        }}>
-        <p className="text-sm font-semibold text-indigo-300 mb-2">🚧 Discussion Forum Coming Soon!</p>
-        <p className="text-xs text-slate-400">
-          This feature is under development. Soon you'll be able to post questions, share tips, and help each other!
-        </p>
-      </div>
     </div>
   );
 };

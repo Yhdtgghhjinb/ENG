@@ -1,4 +1,4 @@
-# ✅ Deployment Checklist - StudyHub VTU
+# ✅ Deployment Checklist - VTU VAULT
 
 ## 📋 Pre-Deployment
 
@@ -15,59 +15,49 @@
 - [ ] Database user created (username + password)
 - [ ] Network access configured (0.0.0.0/0)
 - [ ] Connection string copied
-- [ ] Database name: `studyhub` or your choice
+- [x] Database name: `vtu-vault` (configured)
 
 ## 📤 GitHub Setup
 
 - [ ] GitHub account ready
-- [ ] Repository created: `studyhub-vtu`
-- [ ] Code committed and pushed
+- [x] Repository created and deployed
+- [x] Code committed and pushed
 ```bash
 git init
 git add .
 git commit -m "Initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/studyhub-vtu.git
+git remote add origin https://github.com/YOUR_USERNAME/vtu-vault.git
 git push -u origin main
 ```
 
-## 🔧 Backend Deployment (Render)
+## 🔧 Backend Deployment (Railway)
 
-- [ ] Render account created
-- [ ] New Web Service created
-- [ ] GitHub repo connected
-- [ ] Configuration:
-  - Root Directory: `server`
-  - Build Command: `npm install`
-  - Start Command: `npm start`
-  - Instance: Free
-- [ ] Environment variables added:
-  - [ ] `MONGODB_URI`
-  - [ ] `PORT=5000`
-  - [ ] `CORS_ORIGIN=*` (update later)
-  - [ ] `NODE_ENV=production`
-- [ ] Service deployed successfully
-- [ ] Backend URL copied: `https://______.onrender.com`
-- [ ] Test API: `https://YOUR-BACKEND.onrender.com/api/vtu/branches`
+- [x] Railway account created
+- [x] New service deployed
+- [x] GitHub repo connected
+- [x] Configuration completed
+- [x] Environment variables configured
+- [x] Service deployed successfully
+- [x] Backend URL: `https://eng-production-384a.up.railway.app`
+- [x] API endpoints working
 
 ## 🎨 Frontend Deployment (Vercel)
 
-- [ ] Vercel account created
-- [ ] Update `client/.env.production`:
+- [x] Vercel account created
+- [x] Backend URL configured in `.env.production`:
   ```
-  VITE_API_URL=https://YOUR-BACKEND.onrender.com
+  VITE_API_URL=https://eng-production-384a.up.railway.app
   ```
-- [ ] Commit and push changes
-- [ ] New project created on Vercel
-- [ ] GitHub repo imported
-- [ ] Configuration:
+- [x] New project created on Vercel
+- [x] GitHub repo deployed
+- [x] Configuration:
   - Framework: Vite
   - Root Directory: `client`
   - Build Command: `npm run build`
   - Output Directory: `dist`
-- [ ] Environment variable added:
-  - [ ] `VITE_API_URL=https://YOUR-BACKEND.onrender.com`
-- [ ] Project deployed
-- [ ] Frontend URL: `https://______.vercel.app`
+- [x] Environment variable configured
+- [x] Project deployed
+- [x] Frontend URL: `https://eng-dusky.vercel.app`
 
 ## 🔄 Post-Deployment
 
@@ -101,15 +91,15 @@ git push -u origin main
 - [ ] SEO metadata updated
 - [ ] Favicon updated
 
-## 📝 Save These URLs
+## 📝 Production URLs
 
-**Frontend:** https://__________________.vercel.app
+**Frontend:** https://eng-dusky.vercel.app
 
-**Backend:** https://__________________.onrender.com
+**Backend:** https://eng-production-384a.up.railway.app
 
-**Admin:** https://__________________.vercel.app/admin/login
+**Admin:** https://eng-dusky.vercel.app/admin/login
 
-**MongoDB:** mongodb+srv://____________
+**MongoDB Atlas:** Configured and connected
 
 ## 🎉 Launch
 
