@@ -3,39 +3,56 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../config/api';
 
 const AIChatBot = () => {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: `🎓 Welcome! I'm your VTU Exam Expert Assistant.
-
-📖 HOW TO USE:
-
-1️⃣ **Mention Marks in Your Question**
-   Example: "Explain stack for 5 marks"
-   
-2️⃣ **Get VTU Board Format Answers**
-   • Definition → Key Points → Examples → Conclusion
-   • Textbook-aligned content
-   • Proper exam writing format
-   
-3️⃣ **Mark-Based Response Length**
-   • 2 marks = 2-3 lines (50-75 words)
-   • 5 marks = 1 paragraph (150-200 words)
-   • 10 marks = 2-3 paragraphs (400-500 words)
-   • 16 marks = Complete essay (800-1000 words)
-
-💡 **Examples:**
-• "Define operating system for 2 marks"
-• "Explain TCP/IP protocol for 10 marks"
-• "Write about DBMS normalization (16 marks)"
-
-❓ What VTU exam question can I help you with?`,
-      timestamp: new Date()
+  // Load chat history from sessionStorage on component mount
+  const [messages, setMessages] = useState(() => {
+    const savedMessages = sessionStorage.getItem('vtu-chat-history');
+    if (savedMessages) {
+      try {
+        return JSON.parse(savedMessages);
+      } catch (e) {
+        console.error('Error loading chat history:', e);
+      }
     }
-  ]);
+    return [
+      {
+        role: 'assistant',
+        content: `🎓 Welcome! I'm your VTU Exam Expert Assistant.
+
+📖 **HOW TO USE:**
+
+1️⃣ **Ask Any VTU Question**
+   Simply type your question and mention marks if needed
+   
+2️⃣ **Get Perfect VTU Answers**
+   • Textbook-aligned format
+   • Proper exam structure
+   • Ready to copy and use
+   
+3️⃣ **Mark-Based Responses**
+   • 2 marks = Brief answer (70-90 words)
+   • 5 marks = Detailed answer (220-260 words)
+   • 10 marks = Complete answer (550-650 words)
+   • 16 marks = Full explanation (1100-1300 words)
+
+💡 **Features:**
+✓ Copy any response with one click
+✓ Your chat history is saved
+✓ Exam-ready answers
+✓ 100% Free
+
+❓ Start by asking any VTU exam question!`,
+        timestamp: new Date()
+      }
+    ];
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Save messages to sessionStorage whenever they change
+  useEffect(() => {
+    sessionStorage.setItem('vtu-chat-history', JSON.stringify(messages));
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -84,6 +101,15 @@ const AIChatBot = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Copy message content to clipboard
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      // Show a brief success indicator (you could add a toast notification here)
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+    });
   };
 
   return (
@@ -145,6 +171,20 @@ const AIChatBot = () => {
                     <div className="text-sm text-white whitespace-pre-wrap leading-relaxed">
                       {msg.content}
                     </div>
+                    {/* Copy button for AI responses */}
+                    {msg.role === 'assistant' && !msg.isError && (
+                      <button
+                        onClick={() => copyToClipboard(msg.content)}
+                        className="mt-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105"
+                        style={{
+                          background: 'rgba(99,102,241,0.15)',
+                          border: '1px solid rgba(99,102,241,0.3)',
+                          color: '#a5b4fc'
+                        }}
+                        title="Copy answer">
+                        📋 Copy Answer
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -184,7 +224,7 @@ const AIChatBot = () => {
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="Ask VTU exam questions (e.g., 'Explain stack for 5 marks')..."
+            placeholder="Ask any VTU exam question..."
             disabled={loading}
             className="flex-1 px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             style={{
@@ -204,7 +244,7 @@ const AIChatBot = () => {
           </button>
         </form>
         <p className="text-[10px] text-slate-600 text-center mt-2">
-          💡 Tip: Mention marks in your question for exam-formatted answers (e.g., "5 marks", "10 marks")
+          💡 Tip: Your chat history is saved until you close this tab
         </p>
       </div>
     </div>
