@@ -91,9 +91,29 @@ const ResourceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Compound indexes for efficient filtering
 ResourceSchema.index({ branchId: 1, schemeId: 1, semesterId: 1, subjectId: 1 });
 ResourceSchema.index({ subjectId: 1, type: 1 });
 ResourceSchema.index({ subjectId: 1, moduleNumber: 1 });
 ResourceSchema.index({ downloadCount: -1 });
+
+// Text index for fast full-text search (replaces regex queries)
+ResourceSchema.index(
+  { 
+    title: 'text', 
+    description: 'text',
+    subjectName: 'text',
+    tags: 'text'
+  },
+  {
+    weights: {
+      title: 10,        // Title matches are most important
+      subjectName: 5,   // Subject name matches are important
+      tags: 3,          // Tag matches are moderately important
+      description: 1    // Description matches are least important
+    },
+    name: 'resource_text_search'
+  }
+);
 
 module.exports = mongoose.model('Resource', ResourceSchema);
