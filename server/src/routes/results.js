@@ -202,9 +202,19 @@ router.post('/fetch', async (req, res, next) => {
     console.log(`  📄 Page title: ${pageTitle}`);
     console.log(`  📝 Body text length: ${bodyText.length} chars`);
     
+    // Save first 500 chars of response for debugging
+    console.log(`  📋 Response preview: ${response.data.substring(0, 500)}`);
+    
+    // Check for specific VTU error messages
+    if (bodyText.includes('university seat number is not available or') || 
+        bodyText.includes('results are not published')) {
+      console.log(`  ℹ️ VTU message: Results not yet published for this USN/exam session`);
+    }
+    
     // Check for error messages (improved detection)
     const errorKeywords = [
       'university seat number is not available',
+      'results are not published',
       'invalid usn',
       'not found',
       'no record',
@@ -216,13 +226,28 @@ router.post('/fetch', async (req, res, next) => {
 
     for (const keyword of errorKeywords) {
       if (bodyText.includes(keyword)) {
-        console.log(`  ❌ USN not found in VTU database (keyword: ${keyword})`);
+        console.log(`  ❌ VTU message detected: ${keyword}`);
+        
+        // Specific message based on error type
+        let userMessage = '';
+        if (keyword.includes('not available') || keyword.includes('not published')) {
+          userMessage = `Results are not yet published for USN: ${cleanUSN} in exam session ${schemeCode}. This is normal if your exams were recent or VTU hasn't released results yet.`;
+        } else {
+          userMessage = `No results found for USN: ${cleanUSN}. Please verify your USN is correct and try different exam sessions.`;
+        }
+        
         return res.json({
           success: false,
-          message: `No results found for USN: ${cleanUSN}. Please verify your USN is correct and results are published for the selected exam session (${schemeCode}).`,
+          message: userMessage,
           usn: cleanUSN,
           examCode: schemeCode,
-          suggestion: 'Make sure you are selecting the correct exam session for your batch. Try different exam sessions if this one shows no results.'
+          suggestion: 'Try selecting a different exam session from the dropdown menu. Each exam session corresponds to a specific semester/year.',
+          tips: [
+            'DJcbcs24 = June 2024 exam results',
+            'FDcbcs23 = December 2023 exam results', 
+            'DJcbcs23 = June 2023 exam results',
+            'JAcbcs24 = All available results'
+          ]
         });
       }
     }
@@ -235,14 +260,21 @@ router.post('/fetch', async (req, res, next) => {
       bodyText.includes('sgpa') ||
       bodyText.includes('result');
     
-    if (!hasResultIndicators) {
-      console.log('  ⚠️ Page does not appear to contain result data');
+    if (!hasResultIndicators && bodyText.length < 2000) {
+      console.log('  ⚠️ Page appears to be the input form, not results page');
+      console.log('  💡 This means: Either USN is wrong, or results not published for this session');
       return res.json({
         success: false,
-        message: `The response from VTU does not contain result data for USN: ${cleanUSN}. Results may not be published for this exam session yet.`,
+        message: `VTU returned the search form instead of results for USN: ${cleanUSN}. This typically means results haven't been published for this exam session (${schemeCode}) yet, or your USN might have a typo.`,
         usn: cleanUSN,
         examCode: schemeCode,
-        suggestion: 'Try a different exam session or check if results are actually published on VTU website.'
+        suggestion: '✅ Your USN format is correct. Try these steps:',
+        tips: [
+          '1️⃣ Try a different exam session from the dropdown',
+          '2️⃣ Check VTU website directly at results.vtu.ac.in',
+          '3️⃣ Verify with your college when results will be published',
+          '4️⃣ If you recently wrote exams, results may not be out yet'
+        ]
       });
     }
 

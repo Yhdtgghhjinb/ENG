@@ -50,15 +50,20 @@ const Results = () => {
           setError('');
         }
       } else {
-        // Failed to fetch
-        setError(response.data.message || 'No results found for this USN');
+        // Failed to fetch - construct detailed error message
+        let errorMessage = response.data.message || 'No results found for this USN';
         
-        // Add additional context if available
-        if (response.data.error === 'TIMEOUT') {
-          setError('VTU portal is taking too long to respond. Please try again in a few minutes.');
-        } else if (response.data.isVTUChecked) {
-          setError(`${response.data.message}\n\nVerify your USN or try a different exam session.`);
+        // Add suggestion if available
+        if (response.data.suggestion) {
+          errorMessage += '\n\n' + response.data.suggestion;
         }
+        
+        // Add tips if available
+        if (response.data.tips && Array.isArray(response.data.tips)) {
+          errorMessage += '\n\n' + response.data.tips.join('\n');
+        }
+        
+        setError(errorMessage);
       }
     } catch (err) {
       console.error('Fetch error:', err);
@@ -213,7 +218,7 @@ const Results = () => {
               border: `1px solid ${error.includes('demo') || error.includes('Note') ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)'}`,
             }}
           >
-            <p className="text-sm" style={{ color: error.includes('demo') || error.includes('Note') ? '#fbbf24' : '#ef4444' }}>
+            <p className="text-sm whitespace-pre-line" style={{ color: error.includes('demo') || error.includes('Note') ? '#fbbf24' : '#ef4444' }}>
               {error}
             </p>
           </motion.div>
