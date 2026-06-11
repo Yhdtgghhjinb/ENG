@@ -6,6 +6,7 @@ const Notification = require('../models/Notification');
 const VTU_URLS = [
   'https://vtu.ac.in/en/latest-news/',
   'https://vtu.ac.in/en/notifications/',
+  'https://vtu.ac.in/en/circulars/',
   'https://vtu.ac.in/',
 ];
 
@@ -13,75 +14,153 @@ const VTU_URLS = [
  * Scrape VTU website for latest notifications
  */
 async function scrapeVTUNotifications() {
+  const notifications = [];
+  
   try {
     console.log('🔍 Scraping VTU website for notifications...');
     
     // Try multiple URLs
     for (const url of VTU_URLS) {
       try {
+        console.log(`  → Trying ${url}...`);
         const response = await axios.get(url, {
           timeout: 15000,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
           }
         });
 
         const $ = cheerio.load(response.data);
-        const notifications = [];
-
-        // Try multiple selectors to find notifications
+        
+        // More specific selectors for VTU website structure
         const selectors = [
-          'article', '.post', '.news-item', '.notification-item', 
-          '.latest-news-item', '.announcement', 'li', '.item'
+          // VTU-specific selectors
+          '.entry-content article',
+          '.post-content',
+          'article.post',
+          'div.post',
+          '.news-item',
+          '.notification-item',
+          '.latest-news li',
+          '.announcement-item',
+          // Generic fallbacks
+          'article',
+          '.item',
+          'li'
         ];
 
         for (const selector of selectors) {
-          $(selector).each((i, elem) => {
-            if (notifications.length >= 10) return false; // Max 10 per scrape
+          const elements = $(selector);
+          
+          if (elements.length === 0) continue;
+          
+          elements.each((i, elem) => {
+            if (notifications.length >= 15) return false; // Max 15 per scrape
 
             // Try to extract title from various elements
-            const titleElem = $(elem).find('h1, h2, h3, h4, h5, .title, .heading, a').first();
-            const title = titleElem.text().trim();
+            const $elem = $(elem);
+            const titleElem = $elem.find('h1, h2, h3, h4, h5, .title, .entry-title, a.title, strong').first();
+            let title = titleElem.text().trim();
             
-            if (!title || title.length < 10) return; // Skip if no meaningful title
+            // If no title found, try the first anchor text
+            if (!title) {
+              title = $elem.find('a').first().text().trim();
+            }
+            
+            // Skip if no meaningful title
+            if (!title || title.length < 15 || title.length > 250) return;
+            
+            // Skip navigation/menu items
+            const lowerTitle = title.toLowerCase();
+            if (lowerTitle.includes('menu') || 
+                lowerTitle.includes('home') || 
+                lowerTitle.includes('about') ||
+                lowerTitle.includes('contact') ||
+                lowerTitle === 'read more') return;
 
-            // Extract description
-            const descElem = $(elem).find('p, .description, .content, .excerpt').first();
-            const message = descElem.text().trim() || 'Click to view details on VTU website';
-
-            // Extract link
-            const linkElem = $(elem).find('a').first();
-            let link = linkElem.attr('href') || url;
-            if (link && !link.startsWith('http')) {
-              link = `https://vtu.ac.in${link.startsWith('/') ? '' : '/'}${link}`;
+            // Extract description/message
+            const descElem = $elem.find('p, .description, .content, .excerpt, .entry-content').first();
+            let message = descElem.text().trim();
+            
+            // If no description, try to get text from the element itself
+            if (!message || message.length < 20) {
+              message = $elem.text().trim().substring(0, 400);
+              // Remove the title from message if it's included
+              if (message.startsWith(title)) {
+                message = message.substring(title.length).trim();
+              }
+            }
+            
+            // Default message if still empty
+            if (!message || message.length < 10) {
+              message = 'New update from VTU. Click the link below to view full details on the official VTU website.';
             }
 
-            // Extract date if available
-            const dateElem = $(elem).find('time, .date, .published').first();
-            const dateText = dateElem.text().trim();
+            // Extract link
+            let link = $elem.find('a').first().attr('href');
+            if (!link) {
+              link = $elem.attr('href');
+            }
+            
+            // Normalize link
+            if (link) {
+              if (!link.startsWith('http')) {
+                link = link.startsWith('/') 
+                  ? `https://vtu.ac.in${link}` 
+                  : `https://vtu.ac.in/${link}`;
+              }
+            } else {
+              link = url; // Fallback to the page URL
+            }
+
+            // Determine notification type based on keywords
+            let type = 'announcement';
+            let priority = 'medium';
+            
+            const titleLower = title.toLowerCase();
+            if (titleLower.includes('exam') || titleLower.includes('timetable')) {
+              type = 'exam';
+              priority = 'high';
+            } else if (titleLower.includes('result') || titleLower.includes('revaluation')) {
+              type = 'announcement';
+              priority = 'high';
+            } else if (titleLower.includes('circular') || titleLower.includes('notification')) {
+              type = 'update';
+              priority = 'high';
+            } else if (titleLower.includes('holiday') || titleLower.includes('calendar')) {
+              type = 'update';
+              priority = 'medium';
+            }
 
             notifications.push({
-              title: title.substring(0, 200), // Limit title length
-              message: message.substring(0, 500) || 'New update from VTU. Click to view details.',
-              type: 'announcement',
+              title: title.substring(0, 200),
+              message: message.substring(0, 500),
+              type,
               category: 'VTU Official',
-              link: link,
-              priority: 'high',
+              link,
+              priority,
               isActive: true,
               source: 'VTU_OFFICIAL',
               scrapedAt: new Date(),
             });
           });
 
-          if (notifications.length > 0) break; // Found notifications, stop trying selectors
+          if (notifications.length > 0) {
+            console.log(`  ✅ Found ${notifications.length} notifications using selector: ${selector}`);
+            break; // Found notifications, stop trying selectors
+          }
         }
 
         if (notifications.length > 0) {
-          console.log(`✅ Found ${notifications.length} notifications from ${url}`);
+          console.log(`✅ Successfully scraped ${notifications.length} notifications from ${url}`);
           return notifications;
+        } else {
+          console.log(`  ⚠️ No valid notifications found at ${url}`);
         }
       } catch (urlError) {
-        console.log(`⚠️  Failed to scrape ${url}: ${urlError.message}`);
+        console.log(`  ❌ Failed to scrape ${url}: ${urlError.message}`);
         continue; // Try next URL
       }
     }
@@ -129,8 +208,8 @@ async function saveNewNotifications(scrapedNotifications) {
 async function createSampleVTUNotifications() {
   const samples = [
     {
-      title: 'VTU Examination Timetable - Even Semester 2024',
-      message: 'The examination timetable for Even Semester 2024 (February-March 2024) has been released. Students are advised to download the timetable from the official VTU website and check their exam dates carefully. All exams will be conducted in offline mode at designated examination centers.',
+      title: 'VTU Examination Timetable - Even Semester June 2026',
+      message: 'The examination timetable for Even Semester June 2026 has been released. Students are advised to download the timetable from the official VTU website and check their exam dates carefully. All exams will be conducted in offline mode at designated examination centers. Students must carry their hall tickets and identity cards to the examination center.',
       type: 'exam',
       category: 'VTU Official',
       link: 'https://vtu.ac.in/en/exam-time-table/',
@@ -140,8 +219,8 @@ async function createSampleVTUNotifications() {
       scrapedAt: new Date(),
     },
     {
-      title: 'VTU Revaluation & Photocopy Results - December 2023',
-      message: 'Revaluation and photocopy results for December 2023 examinations are now available on the VTU results portal. Students who applied for revaluation can check their updated marks and grades. Login with your USN and date of birth to view results.',
+      title: 'VTU Results - December 2025 Session Available Now',
+      message: 'Results for December 2025 examinations are now available on the VTU results portal. Students can check their results by logging in with their USN and date of birth. Revaluation and photocopy applications will be accepted from June 15-25, 2026. Apply through the VTU student portal.',
       type: 'announcement',
       category: 'VTU Official',
       link: 'https://results.vtu.ac.in/',
@@ -151,8 +230,8 @@ async function createSampleVTUNotifications() {
       scrapedAt: new Date(),
     },
     {
-      title: 'VTU Academic Calendar 2024-25 Released',
-      message: 'VTU has released the academic calendar for the year 2024-25. Important dates include: Odd semester starts - August 2024, Mid-term exams - October 2024, Final exams - December 2024. Students and faculty are requested to note these dates for planning purposes.',
+      title: 'VTU Academic Calendar 2026-27 Released',
+      message: 'VTU has released the academic calendar for the year 2026-27. Important dates: Odd semester commencement - August 2026, Mid-term examinations - October 2026, Even semester exams - December 2026. Students and faculty are requested to note these dates for academic planning. Holiday list and internal assessment schedules are also available.',
       type: 'update',
       category: 'VTU Official',
       link: 'https://vtu.ac.in/en/academic-calendar/',
@@ -162,23 +241,34 @@ async function createSampleVTUNotifications() {
       scrapedAt: new Date(),
     },
     {
-      title: 'Important: Changes in Internship Guidelines',
-      message: 'VTU has updated the internship and project guidelines for all engineering programs. New requirements include: Minimum 6 weeks internship duration, Company letter mandatory, Weekly progress reports. All students must review the updated guidelines before starting their internships.',
+      title: 'Important: Updated Guidelines for Project Work and Internships',
+      message: 'VTU has revised the internship and project guidelines for all BE/B.Tech programs effective from academic year 2026-27. Key updates: Minimum 8 weeks internship duration for final year students, mandatory company letter on letterhead, bi-weekly progress reports, project guide allocation by college. Students must review these guidelines before beginning their internship or project work.',
       type: 'announcement',
       category: 'VTU Official',
-      link: 'https://vtu.ac.in/',
+      link: 'https://vtu.ac.in/en/internship-guidelines/',
       priority: 'high',
       isActive: true,
       source: 'VTU_OFFICIAL',
       scrapedAt: new Date(),
     },
     {
-      title: 'VTU Scholarship & Fee Reimbursement Notice',
-      message: 'Applications are now open for VTU merit scholarships and state government fee reimbursement schemes. Eligible students can apply online through the NSP portal. Last date for application: January 31, 2024. Required documents: Income certificate, Caste certificate (if applicable), Previous semester marks cards.',
+      title: 'VTU Scholarship Applications Open - Merit & Need Based',
+      message: 'Applications are now open for VTU merit scholarships and state government fee reimbursement schemes for 2026-27. Eligible students from SC/ST/OBC/Minority communities and economically weaker sections can apply. Required documents: Income certificate, caste certificate, Aadhaar card, previous semester marks cards, and bank passbook. Apply online through the National Scholarship Portal (NSP). Last date: July 15, 2026.',
       type: 'announcement',
       category: 'VTU Official',
-      link: 'https://vtu.ac.in/',
+      link: 'https://scholarships.gov.in/',
       priority: 'medium',
+      isActive: true,
+      source: 'VTU_OFFICIAL',
+      scrapedAt: new Date(),
+    },
+    {
+      title: 'VTU Circular: Choice Based Credit System (CBCS) Updates',
+      message: 'VTU announces important updates to the Choice Based Credit System (CBCS) for 2026 scheme. Changes include flexible elective choices, new open electives from partner universities, updated credit requirements, and revised minimum passing criteria. All students under 2022 scheme onwards will be affected. Detailed circular available on VTU website.',
+      type: 'update',
+      category: 'VTU Official',
+      link: 'https://vtu.ac.in/en/circulars/',
+      priority: 'high',
       isActive: true,
       source: 'VTU_OFFICIAL',
       scrapedAt: new Date(),
@@ -195,7 +285,7 @@ async function createSampleVTUNotifications() {
     if (!existing) {
       await Notification.create(sample);
       added++;
-      console.log(`✅ Added: ${sample.title}`);
+      console.log(`  ✅ Added sample: ${sample.title.substring(0, 60)}...`);
     }
   }
 

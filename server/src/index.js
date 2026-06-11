@@ -14,6 +14,7 @@ const notificationsRouter = require('./routes/notifications');
 const resourceRequestsRouter = require('./routes/resourceRequests');
 const aiRouter = require('./routes/ai');
 const errorHandler   = require('./middleware/errorHandler');
+const { syncVTUNotifications } = require('./services/vtuScraper');
 const path = require('path');
 
 const app = express();
@@ -159,4 +160,31 @@ app.listen(PORT, () => {
   console.log(`✅ Server listening on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔐 CORS Origins: ${allowedOrigins.join(', ')}`);
+  
+  // Sync VTU notifications on startup
+  setTimeout(() => {
+    console.log('🔄 Initiating VTU notifications sync on startup...');
+    syncVTUNotifications()
+      .then(result => {
+        console.log('✅ Startup VTU sync:', result.message);
+      })
+      .catch(err => {
+        console.error('❌ Startup VTU sync failed:', err.message);
+      });
+  }, 3000); // Wait 3 seconds for DB to be fully ready
+
+  // Schedule periodic VTU sync every 6 hours
+  const SYNC_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+  setInterval(() => {
+    console.log('🔄 Running scheduled VTU notifications sync...');
+    syncVTUNotifications()
+      .then(result => {
+        console.log('✅ Scheduled VTU sync:', result.message);
+      })
+      .catch(err => {
+        console.error('❌ Scheduled VTU sync failed:', err.message);
+      });
+  }, SYNC_INTERVAL);
+  
+  console.log(`⏰ VTU sync scheduled every 6 hours`);
 });
