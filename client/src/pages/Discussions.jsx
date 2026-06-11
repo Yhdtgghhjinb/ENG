@@ -314,5 +314,3 @@ const Discussions = () => {
 };
 
 export default Discussions;
-
-export default Discussions;
