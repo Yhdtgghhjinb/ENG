@@ -44,6 +44,33 @@ const FileRow = memo(({ resource, color, rgb, isLast }) => {
     if (resource._id) fetch(`/api/resources/${resource._id}/download`, { method: 'POST' }).catch(() => {});
   };
 
+  const handleDownload = async (e) => {
+    e.stopPropagation();
+    trackDownload();
+    
+    try {
+      // For Cloudinary or cross-origin files, we need to fetch and download
+      const response = await fetch(resource.fileUrl);
+      const blob = await response.blob();
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = resource.title?.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf' || 'download.pdf';
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      // Fallback: open in new tab if fetch fails (CORS issue)
+      console.error('Download failed, opening in new tab:', error);
+      window.open(resource.fileUrl, '_blank');
+    }
+  };
+
   const handleShare = async (platform) => {
     const shareUrl = window.location.origin + window.location.pathname + '#' + resource._id;
     const shareText = `Check out this resource: ${resource.title || 'Study Material'}`;
@@ -160,7 +187,7 @@ const FileRow = memo(({ resource, color, rgb, isLast }) => {
               Open
             </a>
           )}
-          <a href={resource.fileUrl} download onClick={e => { e.stopPropagation(); trackDownload(); }}
+          <button type="button" onClick={handleDownload}
             className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-medium transition-all duration-200 hover:-translate-y-0.5"
             style={{
               background: hovered ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)',
@@ -169,7 +196,7 @@ const FileRow = memo(({ resource, color, rgb, isLast }) => {
             }}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Save
-          </a>
+          </button>
           {/* Share Button */}
           <div className="relative">
             <button type="button" onClick={e => { e.stopPropagation(); setShowShareMenu(v => !v); }}
