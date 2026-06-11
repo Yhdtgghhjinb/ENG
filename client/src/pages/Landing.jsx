@@ -117,33 +117,52 @@ const Landing = () => {
                   </motion.p>
                 </div>
 
-                {/* CTAs */}
+                {/* CTA - Premium Button */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                  className="flex justify-center lg:justify-start">
                   <Link
                     to="/home"
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
+                    className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-bold text-lg text-white transition-all duration-500 hover:scale-[1.02] active:scale-95 overflow-hidden"
                     style={{
-                      background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                      boxShadow: '0 20px 60px rgba(99,102,241,0.4)',
+                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                      boxShadow: '0 25px 50px -12px rgba(99,102,241,0.5), 0 10px 40px rgba(139,92,246,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                      border: '1px solid rgba(255,255,255,0.1)',
                     }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    {/* Animated shine effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                      animate={{
+                        x: ['-200%', '200%'],
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        repeatDelay: 1,
+                        ease: 'easeInOut',
+                      }}
+                    />
+                    
+                    {/* Button content */}
+                    <svg className="relative z-10" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
-                    Get Started Free
-                    <svg className="transition-transform group-hover:translate-x-1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <span className="relative z-10 tracking-wide">Get Started Free</span>
+                    <svg className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
+                    
+                    {/* Glow effect on hover */}
+                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                        filter: 'blur(20px)',
+                        transform: 'scale(1.1)',
+                      }}
+                    />
                   </Link>
-                  
-                  <a
-                    href="#features"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-semibold text-lg text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300">
-                    Explore Features
-                  </a>
                 </motion.div>
 
                 {/* Trust Badges */}
