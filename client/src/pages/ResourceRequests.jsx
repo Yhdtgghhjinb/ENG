@@ -123,7 +123,7 @@ const ResourceRequests = () => {
           onClick={() => setShowForm(false)}
         >
           <div 
-            className="w-full max-w-2xl rounded-2xl p-6 max-h-[90vh] overflow-y-auto" 
+            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6" 
             style={{
               background: 'linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.95))',
               border: '1px solid rgba(99,102,241,0.2)',
@@ -131,8 +131,8 @@ const ResourceRequests = () => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-xl font-bold text-white mb-4">Request a Resource</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <h3 className="text-xl font-bold text-white mb-6">Request a Resource</h3>
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-slate-300 mb-2">Your Name *</label>
                 <input
@@ -141,7 +141,7 @@ const ResourceRequests = () => {
                   onChange={e => setForm(f => ({ ...f, requestedBy: e.target.value }))}
                   required
                   placeholder="Enter your name"
-                  className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                  className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   style={{
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,255,255,0.1)',
@@ -154,7 +154,7 @@ const ResourceRequests = () => {
                 <select
                   value={form.resourceType}
                   onChange={e => setForm(f => ({ ...f, resourceType: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                  className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   style={{
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,255,255,0.1)',
@@ -173,7 +173,7 @@ const ResourceRequests = () => {
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                   required
                   placeholder="e.g., Data Structures Module 3 Notes"
-                  className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                  className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   style={{
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,255,255,0.1)',
@@ -187,9 +187,9 @@ const ResourceRequests = () => {
                   value={form.description}
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   required
-                  rows="3"
+                  rows="4"
                   placeholder="Describe what you need in detail..."
-                  className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                  className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   style={{
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,255,255,0.1)',
@@ -197,7 +197,7 @@ const ResourceRequests = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-slate-300 mb-2">Subject Name</label>
                   <input
@@ -205,7 +205,7 @@ const ResourceRequests = () => {
                     value={form.subjectName}
                     onChange={e => setForm(f => ({ ...f, subjectName: e.target.value }))}
                     placeholder="e.g., Data Structures"
-                    className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                    className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     style={{
                       background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.1)',
@@ -220,7 +220,7 @@ const ResourceRequests = () => {
                     value={form.branchName}
                     onChange={e => setForm(f => ({ ...f, branchName: e.target.value }))}
                     placeholder="e.g., Computer Science"
-                    className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                    className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     style={{
                       background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.1)',
@@ -229,13 +229,13 @@ const ResourceRequests = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-slate-300 mb-2">Semester</label>
                   <select
                     value={form.semester}
                     onChange={e => setForm(f => ({ ...f, semester: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                    className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     style={{
                       background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.1)',
@@ -252,7 +252,7 @@ const ResourceRequests = () => {
                   <select
                     value={form.moduleNumber}
                     onChange={e => setForm(f => ({ ...f, moduleNumber: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl text-white text-sm"
+                    className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     style={{
                       background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.1)',
@@ -265,11 +265,11 @@ const ResourceRequests = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 justify-end pt-2">
+              <div className="flex gap-3 justify-end pt-4 border-t border-slate-700">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-5 py-2.5 rounded-xl font-semibold text-slate-400 transition-all"
+                  className="px-6 py-3 rounded-xl font-semibold text-slate-400 transition-all hover:bg-slate-800"
                   style={{
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,255,255,0.1)',
@@ -279,7 +279,7 @@ const ResourceRequests = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2.5 rounded-xl font-semibold text-white transition-all"
+                  className="px-6 py-3 rounded-xl font-semibold text-white transition-all hover:scale-105"
                   style={{
                     background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
                     opacity: submitting ? 0.6 : 1,
