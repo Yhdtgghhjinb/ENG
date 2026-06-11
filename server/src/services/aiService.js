@@ -107,8 +107,14 @@ Be precise. Be VTU-aligned. Be exam-focused.`;
 
 async function getChatResponse(userMessage, conversationHistory = []) {
   try {
+    console.log('=== AI Service Called ===');
+    console.log('Message:', userMessage.substring(0, 100));
+    console.log('API Key present:', !!GROQ_API_KEY);
+    console.log('API Key length:', GROQ_API_KEY ? GROQ_API_KEY.length : 0);
+    
     // Check if API key is configured
     if (!GROQ_API_KEY) {
+      console.log('ERROR: No API key found');
       return {
         success: false,
         response: '⚠️ AI service is not configured. Please add GROQ_API_KEY to environment variables.\n\n✅ Get a FREE API key from Groq:\n1. Visit: https://console.groq.com/keys\n2. Sign up (free forever)\n3. Create a new API key\n4. Add to Railway environment variables\n\n100% Free - No credit card required - Super fast responses!'
@@ -118,6 +124,7 @@ async function getChatResponse(userMessage, conversationHistory = []) {
     // Detect if question mentions marks
     const marksMatch = userMessage.match(/(\d+)\s*marks?/i);
     const marks = marksMatch ? parseInt(marksMatch[1]) : null;
+    console.log('Detected marks:', marks);
 
     // Build messages array for Groq
     const messages = [
@@ -149,6 +156,8 @@ async function getChatResponse(userMessage, conversationHistory = []) {
       content: userContent
     });
 
+    console.log('Calling Groq API...');
+    
     // Call Groq API
     const response = await axios.post(GROQ_API_URL, {
       model: 'llama3-8b-8192', // Fast and free
@@ -160,10 +169,15 @@ async function getChatResponse(userMessage, conversationHistory = []) {
       headers: {
         'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
-      }
+      },
+      timeout: 30000 // 30 second timeout
     });
 
+    console.log('Groq API response received');
+    console.log('Status:', response.status);
+
     const text = response.data.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
+    console.log('Response length:', text.length);
 
     return {
       success: true,
@@ -172,15 +186,23 @@ async function getChatResponse(userMessage, conversationHistory = []) {
     };
 
   } catch (error) {
-    console.error('AI Service Error:', error);
-    console.error('Error details:', error.response?.data || error.message);
+    console.error('=== AI Service Error ===');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    
+    if (error.code) {
+      console.error('Error code:', error.code);
+    }
+    
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+    }
     
     // Handle axios errors
     if (error.response) {
       const status = error.response.status;
       const errorData = error.response.data;
-      
-      console.error(`Groq API Error - Status: ${status}`, errorData);
       
       if (status === 401 || status === 403) {
         return {
@@ -195,11 +217,25 @@ async function getChatResponse(userMessage, conversationHistory = []) {
           response: '⏳ Rate limit reached. Please wait a moment and try again.\n\nGroq free tier has generous limits. Try again in a few seconds.'
         };
       }
+      
+      if (status === 400) {
+        return {
+          success: false,
+          response: '⚠️ Bad request to AI service.\n\nError: ' + (errorData.error?.message || 'Invalid request format')
+        };
+      }
+    }
+    
+    if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+      return {
+        success: false,
+        response: '⏳ Request timed out. The AI service is taking too long to respond.\n\nPlease try again with a shorter question.'
+      };
     }
 
     return {
       success: false,
-      response: '❌ Sorry, I encountered an error. Please try again in a moment.\n\nIf this persists:\n1. Check your internet connection\n2. Verify API key is correctly set\n3. Try asking the question differently\n\nThe service is completely free and should work fine!'
+      response: '❌ Sorry, I encountered an error connecting to the AI service.\n\nError: ' + error.message + '\n\nPlease try again in a moment.'
     };
   }
 }
