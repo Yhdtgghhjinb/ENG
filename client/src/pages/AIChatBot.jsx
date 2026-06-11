@@ -6,7 +6,7 @@ const AIChatBot = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: '👋 Hi! I\'m your VTU Study Assistant. I can help you with:\n\n📚 Explain concepts and topics\n🎯 Suggest study strategies\n📝 Recommend resources\n❓ Answer VTU-related questions\n\nWhat would you like to know?',
+      content: '🎓 Welcome! I\'m your VTU Exam Expert Assistant.\n\nI provide EXACT answers that VTU board expects:\n\n📝 Ask questions with marks: "Explain stack for 5 marks"\n📚 Get textbook-aligned answers\n✍️ Learn proper exam writing format\n🎯 Mark-based response length\n💯 VTU syllabus focused\n\nExamples:\n• "Define OS for 2 marks"\n• "Explain TCP/IP protocol for 10 marks"\n• "Write about DBMS normalization (16 marks)"\n\nWhat VTU exam question can I help you with?',
       timestamp: new Date()
     }
   ]);
@@ -23,10 +23,10 @@ const AIChatBot = () => {
   }, [messages]);
 
   const quickPrompts = [
-    { icon: '📖', text: 'Explain Data Structures' },
-    { icon: '🎯', text: 'Study tips for exams' },
-    { icon: '💡', text: 'Recommend resources' },
-    { icon: '🔍', text: 'VTU syllabus help' },
+    { icon: '📖', text: 'Explain stack for 5 marks' },
+    { icon: '💡', text: 'Define operating system (2 marks)' },
+    { icon: '🎯', text: 'Write about TCP/IP for 10 marks' },
+    { icon: '📝', text: 'Study tips for VTU exams' },
   ];
 
   const handleSubmit = async (e) => {
@@ -52,7 +52,8 @@ const AIChatBot = () => {
       const aiMessage = {
         role: 'assistant',
         content: res.data.response,
-        timestamp: new Date()
+        timestamp: new Date(),
+        marks: res.data.marks // Track if it was a marks-based question
       };
 
       setMessages(prev => [...prev, aiMessage]);
@@ -78,10 +79,10 @@ const AIChatBot = () => {
       {/* Header */}
       <div className="text-center space-y-2 py-4 flex-shrink-0">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight">
-          🤖 AI Study Assistant
+          🎓 VTU Exam Expert AI
         </h1>
         <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto px-2">
-          Your 24/7 VTU study companion powered by AI
+          Get exact VTU board answers • Mark-based responses • Textbook-aligned • 100% Free
         </p>
       </div>
 
@@ -133,13 +134,25 @@ const AIChatBot = () => {
                   border: msg.isError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.1)',
                 }}>
                 <div className="flex items-start gap-2 mb-1">
-                  <span className="text-lg">
-                    {msg.role === 'user' ? '👤' : '🤖'}
+                  <span className="text-lg flex-shrink-0">
+                    {msg.role === 'user' ? '👤' : '🎓'}
                   </span>
                   <div className="flex-1">
-                    <p className="text-xs text-slate-400 mb-1">
-                      {msg.role === 'user' ? 'You' : 'AI Assistant'} • {new Date(msg.timestamp).toLocaleTimeString()}
-                    </p>
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <p className="text-xs text-slate-400">
+                        {msg.role === 'user' ? 'You' : 'VTU Expert'} • {new Date(msg.timestamp).toLocaleTimeString()}
+                      </p>
+                      {msg.marks && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                          style={{ 
+                            background: 'rgba(245,158,11,0.2)', 
+                            color: '#fbbf24',
+                            border: '1px solid rgba(245,158,11,0.3)'
+                          }}>
+                          📝 {msg.marks} Marks Answer
+                        </span>
+                      )}
+                    </div>
                     <div className="text-sm text-white whitespace-pre-wrap leading-relaxed">
                       {msg.content}
                     </div>
@@ -182,7 +195,7 @@ const AIChatBot = () => {
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="Ask me anything about VTU, studies, or concepts..."
+            placeholder="Ask VTU exam questions (e.g., 'Explain stack for 5 marks')..."
             disabled={loading}
             className="flex-1 px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             style={{
@@ -202,7 +215,7 @@ const AIChatBot = () => {
           </button>
         </form>
         <p className="text-[10px] text-slate-600 text-center mt-2">
-          AI responses may not always be accurate. Verify important information.
+          💡 Tip: Mention marks in your question for exam-formatted answers (e.g., "5 marks", "10 marks")
         </p>
       </div>
     </div>

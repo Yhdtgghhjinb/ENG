@@ -1,11 +1,74 @@
-# AI Features Setup Guide
+# VTU Exam Expert AI - Setup Guide
 
-This guide explains how to set up the AI-powered features in VTU Vault.
+This guide explains how to set up the VTU-focused AI features that provide **exact exam answers**.
+
+## 🎯 What Makes This AI Special
+
+Unlike generic AI assistants, this AI is specifically trained to:
+
+1. **Provide VTU Board Expected Answers** - Answers formatted exactly as VTU evaluators expect
+2. **Mark-Based Response Length** - Knows how much to write for 2/5/10/16 mark questions
+3. **Textbook-Aligned Content** - Follows VTU prescribed textbooks and syllabus
+4. **Exam Writing Format** - Proper structure with definitions, points, examples, diagrams
+5. **Subject-Specific Guidelines** - Different approach for DS, OS, DBMS, Networks, etc.
+6. **100% FREE** - Uses Gemini API's generous free tier (60 requests/min)
+
+## 💡 How to Use the AI
+
+### For Best Results:
+
+**❌ Wrong Way:**
+- "Tell me about stacks"
+- "What is operating system"
+
+**✅ Right Way:**
+- "Explain stack for 5 marks"
+- "Define operating system (2 marks)"
+- "Write about TCP/IP protocol for 10 marks"
+- "Explain DBMS normalization (16 marks)"
+
+### Why Mention Marks?
+
+When you mention marks, the AI:
+- Provides **complete exam-formatted answer**
+- Uses **proper length** for that mark allocation
+- Includes **diagrams/examples** where needed
+- Adds **exam writing tips**
+- Formats answer as it should appear on **answer sheet**
+
+## 📝 Response Examples
+
+### 2 Marks Question:
+**Input:** "Define stack (2 marks)"
+**Output:** 
+- 2-3 lines
+- Definition + key characteristic
+- 50-75 words
+- Exam tip included
+
+### 5 Marks Question:
+**Input:** "Explain stack for 5 marks"
+**Output:**
+- 1 paragraph
+- Definition + Operations + Applications + Example
+- 150-200 words
+- Diagram description
+- Exam tip included
+
+### 10 Marks Question:
+**Input:** "Write about operating system for 10 marks"
+**Output:**
+- 2-3 paragraphs
+- Complete topic coverage
+- Multiple sections with examples
+- 400-500 words
+- Detailed explanations
+- Exam tip included
 
 ## Features
 
-1. **AI Study Assistant ChatBot** - 24/7 AI-powered study companion
-2. **Question Paper Analyzer** - Analyze PYQs to identify patterns and get study recommendations
+1. **VTU Exam Expert AI** - 24/7 AI that provides exact VTU board answers
+2. **Question Paper Analyzer** - Analyze PYQs to identify patterns
 3. **Multi-language Support** - English, Kannada (ಕನ್ನಡ), Hindi (हिंदी)
 
 ## Setup Instructions
