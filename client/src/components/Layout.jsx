@@ -44,7 +44,7 @@ const NAV_ITEMS = [
     ),
   },
   {
-    to: '/home/resource-requests', end: false, label: 'Requests', badge: 'NEW',
+    to: '/home/resource-requests', end: false, label: 'Requests', badge: null,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -163,18 +163,6 @@ const Layout = () => {
                   </span>
 
                   <span className="relative z-10 flex-1">{item.label}</span>
-
-                  {/* Badge */}
-                  {item.badge && (
-                    <span className="relative z-10 flex-shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide"
-                      style={{
-                        background: isActive ? 'rgba(99,102,241,0.35)' : 'rgba(99,102,241,0.15)',
-                        color: isActive ? '#c7d2fe' : '#6366f1',
-                        border: '1px solid rgba(99,102,241,0.3)',
-                      }}>
-                      {item.badge}
-                    </span>
-                  )}
                 </>
               )}
             </NavLink>
