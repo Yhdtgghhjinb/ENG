@@ -860,13 +860,6 @@ motion-div {
     max-height: calc(100dvh - 120px); /* Dynamic viewport height */
   }
   
-  /* Ensure content doesn't overflow */
-  .glass-shell {
-    max-height: calc(100vh - 140px);
-    max-height: calc(100dvh - 140px);
-    overflow-y: auto !important;
-  }
-  
   /* Disable expensive animations on mobile */
   .bg-scene::before,
   .bg-scene::after,
