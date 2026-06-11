@@ -4,11 +4,21 @@
     <meta charset="UTF-8" />
     
     <!-- Primary Meta Tags -->
-    <title>VTU VAULT - Engineering Study Resources, Notes & Question Papers</title>
-    <meta name="title" content="VTU VAULT - Engineering Study Resources, Notes & Question Papers">
-    <meta name="description" content="Access 1000+ VTU study resources, previous year question papers, notes, and lab programs. Free for all engineering students. No sign-up required.">
-    <meta name="keywords" content="VTU, engineering, study materials, question papers, notes, lab programs, VTU resources, engineering notes">
-    <meta name="author" content="VTU VAULT">
+    <title>VTU Vault - Free VTU Notes, Question Papers, Results & Resources for Engineering Students</title>
+    <meta name="title" content="VTU Vault - Free VTU Notes, Question Papers, Results & Resources">
+    <meta name="description" content="VTU Vault: Free study materials, previous year question papers, live exam results, VTU notifications, SGPA calculator & lab programs for all VTU engineering branches. Access 1000+ resources instantly - no signup required!">
+    <meta name="keywords" content="VTU, VTU notes, VTU question papers, VTU results, VTU notifications, engineering notes, VTU SGPA calculator, VTU study materials, computer science notes, mechanical engineering notes, electrical notes, civil engineering notes, VTU exam calendar, VTU resources, Karnataka engineering, Visvesvaraya Technological University">
+    <meta name="author" content="VTU Vault">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    
+    <!-- Geo Tags for Local SEO -->
+    <meta name="geo.region" content="IN-KA">
+    <meta name="geo.placename" content="Karnataka, India">
+    <meta name="geo.position" content="12.9716;77.5946">
+    <meta name="ICBM" content="12.9716, 77.5946">
     
     <!-- Mobile Optimization -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
@@ -25,17 +35,26 @@
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://eng-dusky.vercel.app/">
-    <meta property="og:title" content="VTU VAULT - Engineering Study Resources">
-    <meta property="og:description" content="Access 1000+ VTU study resources, question papers, notes, and lab programs. Free for all engineering students.">
-    <meta property="og:image" content="https://eng-dusky.vercel.app/og-image.png">
+    <meta property="og:url" content="https://vtuvault.online/">
+    <meta property="og:site_name" content="VTU Vault">
+    <meta property="og:title" content="VTU Vault - Free VTU Notes, Results & Resources for Engineering Students">
+    <meta property="og:description" content="Access free VTU study materials, previous year question papers, live exam results, notifications & SGPA calculator. 1000+ resources for all engineering branches.">
+    <meta property="og:image" content="https://vtuvault.online/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="VTU Vault - Engineering Resources Platform">
+    <meta property="og:locale" content="en_IN">
     
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://eng-dusky.vercel.app/">
-    <meta property="twitter:title" content="VTU VAULT - Engineering Study Resources">
-    <meta property="twitter:description" content="Access 1000+ VTU study resources, question papers, notes, and lab programs. Free for all engineering students.">
-    <meta property="twitter:image" content="https://eng-dusky.vercel.app/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://vtuvault.online/">
+    <meta name="twitter:title" content="VTU Vault - Free VTU Notes & Resources">
+    <meta name="twitter:description" content="Access free VTU study materials, results, notifications & SGPA calculator. 1000+ resources for engineering students.">
+    <meta name="twitter:image" content="https://vtuvault.online/og-image.png">
+    <meta name="twitter:image:alt" content="VTU Vault Platform">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://vtuvault.online/">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -51,8 +70,46 @@
     <!-- Manifest for PWA -->
     <link rel="manifest" href="/manifest.json">
     
+    <!-- Structured Data (JSON-LD) for better SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "VTU Vault",
+      "description": "Free study materials, notes, question papers, and resources for VTU engineering students",
+      "url": "https://vtuvault.online",
+      "logo": "https://vtuvault.online/favicon.svg",
+      "sameAs": [],
+      "address": {
+        "@type": "PostalAddress",
+        "addressRegion": "Karnataka",
+        "addressCountry": "IN"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+        "description": "Free access to all VTU study resources"
+      }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "VTU Vault",
+      "url": "https://vtuvault.online",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://vtuvault.online/home/resources?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
     <!-- Prevent indexing of admin routes -->
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   </head>
   <body class="bg-slate-950 text-slate-100">
     <!-- Loading Screen -->
