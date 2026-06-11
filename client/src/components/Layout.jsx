@@ -269,10 +269,6 @@ const Layout = () => {
                 </span>
               </NavLink>
             ))}
-                   item.label}
-                </span>
-              </NavLink>
-            ))}
             
             {/* More Menu Button */}
             <button
