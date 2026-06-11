@@ -8,7 +8,6 @@ const Semester  = require('../models/Semester');
 const Subject   = require('../models/Subject');
 const Resource  = require('../models/Resource');
 const Exam = require('../models/Exam');
-const Discussion = require('../models/Discussion');
 const Notification = require('../models/Notification');
 const ResourceRequest = require('../models/ResourceRequest');
 const { syncVTUNotifications } = require('../services/vtuScraper');
@@ -334,33 +333,6 @@ router.put('/exams/:id', async (req, res, next) => {
 });
 router.delete('/exams/:id', async (req, res, next) => {
   try { await Exam.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (err) { next(err); }
-});
-
-// ── Discussions ───────────────────────────────────────────────────────────────
-router.get('/discussions', async (req, res, next) => {
-  try {
-    const { page = 1, limit = 20 } = req.query;
-    const total = await Discussion.countDocuments();
-    const discussions = await Discussion.find()
-      .populate('subjectId', 'name code')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(Number(limit));
-    res.json({ discussions, total, page: Number(page), pages: Math.ceil(total / limit) });
-  } catch (err) { next(err); }
-});
-router.post('/discussions', async (req, res, next) => {
-  try { res.status(201).json(await Discussion.create(req.body)); } catch (err) { next(err); }
-});
-router.put('/discussions/:id', async (req, res, next) => {
-  try {
-    const discussion = await Discussion.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!discussion) return res.status(404).json({ message: 'Not found' });
-    res.json(discussion);
-  } catch (err) { next(err); }
-});
-router.delete('/discussions/:id', async (req, res, next) => {
-  try { await Discussion.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (err) { next(err); }
 });
 
 // ── Notifications ─────────────────────────────────────────────────────────────
