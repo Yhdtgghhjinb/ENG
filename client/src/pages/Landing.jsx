@@ -49,7 +49,7 @@ const Landing = () => {
       </div>
       
       <div className="relative z-10">
-        {/* Simple Header - Logo Only */}
+        {/* Simple Header - Logo Left */}
         <motion.header 
           initial={{ y: -100 }}
           animate={{ y: 0 }}
@@ -57,24 +57,28 @@ const Landing = () => {
             scrollY > 50 ? 'bg-slate-950/80 backdrop-blur-xl border-b border-white/5' : ''
           }`}>
           <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-center">
-              <Link to="/">
-                <Logo size="lg" animated={true} />
+            <div className="flex items-center justify-start">
+              <Link to="/" className="flex items-center gap-3">
+                <Logo size="md" animated={true} showText={false} />
+                <div className="flex flex-col">
+                  <span className="text-base sm:text-lg font-bold text-white leading-tight">VTU VAULT</span>
+                  <span className="text-[10px] text-slate-400 leading-tight">Engineering Resources</span>
+                </div>
               </Link>
             </div>
           </nav>
         </motion.header>
 
         {/* Hero Section */}
-        <section className="relative min-h-[calc(100vh-80px)] flex items-center px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
+        <section className="relative min-h-[calc(100vh-80px)] flex items-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="max-w-7xl mx-auto w-full">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
               {/* Left: Content */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
-                className="space-y-6 sm:space-y-8 text-center lg:text-left">
+                className="space-y-5 sm:space-y-6 text-center lg:text-left">
                 
                 {/* Badge */}
                 <motion.div
@@ -92,12 +96,12 @@ const Landing = () => {
                 </motion.div>
 
                 {/* Main Heading */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight">
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
                     <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
                       Your Complete
                     </span>
@@ -111,7 +115,7 @@ const Landing = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="text-base sm:text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    className="text-sm sm:text-base md:text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                     Access <span className="text-white font-semibold">premium study materials</span>, previous year question papers, notes, and lab programs—all in one secure platform. 
                     <span className="text-indigo-400 font-semibold"> 100% Free Forever.</span>
                   </motion.p>

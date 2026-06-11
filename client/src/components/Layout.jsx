@@ -179,8 +179,12 @@ const Layout = () => {
         {/* Header - Mobile Optimized */}
         <header className="flex flex-shrink-0 items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5"
           style={{ background: 'rgba(2,6,23,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(99,102,241,0.08)' }}>
-          <div className="lg:hidden">
+          <div className="flex items-center gap-3 lg:hidden">
             <Logo size="sm" animated={false} showText={false} />
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-white leading-tight">VTU VAULT</span>
+              <span className="text-[9px] text-slate-500 leading-tight">Engineering Resources</span>
+            </div>
           </div>
 
           <div className="hidden items-center gap-2.5 lg:flex">
@@ -204,7 +208,7 @@ const Layout = () => {
         </header>
 
         {/* Content - Optimized for Mobile */}
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-20 sm:px-5 sm:py-5 sm:pb-24 md:px-8 md:py-6 lg:pb-8">
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 pb-24 sm:px-5 sm:py-5 sm:pb-28 md:px-8 md:py-6 lg:pb-8">
           <div className="mx-auto max-w-7xl">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -277,26 +281,34 @@ const Layout = () => {
           <AnimatePresence>
             {showMoreMenu && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-40 bg-black/20" 
+                  onClick={() => setShowMoreMenu(false)} 
+                />
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                   className="absolute bottom-full right-4 mb-2 w-48 rounded-2xl overflow-hidden z-50"
                   style={{
                     background: 'rgba(10,16,36,0.98)',
                     backdropFilter: 'blur(24px)',
-                    border: '1px solid rgba(99,102,241,0.2)',
+                    border: '1px solid rgba(99,102,241,0.3)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
                   }}>
                   {NAV_ITEMS.slice(5).map((item) => (
                     <NavLink
                       key={item.to}
                       to={item.to}
+                      end={item.end}
                       onClick={() => setShowMoreMenu(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 transition-all duration-200 ${
-                          isActive ? 'text-indigo-300 bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        `flex items-center gap-3 px-4 py-3 transition-all duration-200 border-b border-white/5 last:border-0 ${
+                          isActive ? 'text-indigo-300 bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10'
                         }`
                       }>
                       <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
