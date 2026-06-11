@@ -36,8 +36,9 @@ const FileRow = memo(({ resource, color, rgb, isLast }) => {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   
-  // Check if it's a PDF - also check for Cloudinary URLs with parameters
-  const isPdf = resource.fileUrl?.toLowerCase().includes('.pdf') || resource.type === 'notes' || resource.type === 'question-papers';
+  // Check if it's a PDF - treat all resource types as PDFs with preview capability
+  const isPdf = resource.fileUrl?.toLowerCase().includes('.pdf') || 
+    ['notes', 'pyq', 'model', 'textbook', 'lab', 'important', 'assignment', 'reference', 'handout'].includes(resource.type);
 
   const trackDownload = () => {
     if (resource._id) fetch(`/api/resources/${resource._id}/download`, { method: 'POST' }).catch(() => {});
