@@ -1,8 +1,7 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
-import LanguageSelector from './LanguageSelector';
+import Logo from './Logo';
 
 const NAV_ITEMS = [
   {
@@ -84,40 +83,12 @@ const Layout = () => {
         }}
       >
         {/* ── Logo ─────────────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-3.5 px-5 pt-7 pb-6">
+        <div className="px-5 pt-7 pb-6">
           <motion.div
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-            className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-              boxShadow: '0 0 28px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.1), inset 0 -2px 4px rgba(0,0,0,0.3)',
-              border: '2px solid #475569',
-            }}
-          >
-            {/* Vault door design */}
-            <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
-              <circle cx="32" cy="32" r="24" stroke="#64748b" strokeWidth="2" fill="none"/>
-              <circle cx="32" cy="32" r="18" stroke="#475569" strokeWidth="1.5" fill="none"/>
-              <circle cx="32" cy="32" r="8" fill="url(#vaultGrad)" stroke="#94a3b8" strokeWidth="1"/>
-              <line x1="32" y1="14" x2="32" y2="22" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="50" y1="32" x2="42" y2="32" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="32" y1="50" x2="32" y2="42" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="14" y1="32" x2="22" y2="32" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="20" y1="20" x2="26" y2="26" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="44" y1="20" x2="38" y2="26" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="44" y1="44" x2="38" y2="38" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="20" y1="44" x2="26" y2="38" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round"/>
-              <defs>
-                <linearGradient id="vaultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-                  <stop offset="100%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
-                </linearGradient>
-              </defs>
-            </svg>
-            {/* Inner shine */}
-            <div className="absolute inset-0 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
+            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}>
+            <Logo size="md" animated={false} />
           </motion.div>
           <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
             <p className="text-[13.5px] font-bold tracking-tight text-slate-100">VTU VAULT</p>
@@ -211,30 +182,8 @@ const Layout = () => {
         {/* Header - Mobile Optimized */}
         <header className="flex flex-shrink-0 items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5"
           style={{ background: 'rgba(2,6,23,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(99,102,241,0.08)' }}>
-          <div className="flex items-center gap-2 sm:gap-3 lg:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg overflow-hidden"
-              style={{ 
-                background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', 
-                boxShadow: '0 0 12px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.1)',
-                border: '1.5px solid #475569'
-              }}>
-              <svg width="18" height="18" viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="24" stroke="#64748b" strokeWidth="2" fill="none"/>
-                <circle cx="32" cy="32" r="18" stroke="#475569" strokeWidth="1.5" fill="none"/>
-                <circle cx="32" cy="32" r="8" fill="url(#vaultGradMobile)" stroke="#94a3b8" strokeWidth="1"/>
-                <line x1="32" y1="14" x2="32" y2="22" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-                <line x1="50" y1="32" x2="42" y2="32" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-                <line x1="32" y1="50" x2="32" y2="42" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-                <line x1="14" y1="32" x2="22" y2="32" stroke="#64748b" strokeWidth="2" strokeLinecap="round"/>
-                <defs>
-                  <linearGradient id="vaultGradMobile" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-                    <stop offset="100%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <span className="text-sm font-bold tracking-tight text-slate-100">VTU VAULT</span>
+          <div className="lg:hidden">
+            <Logo size="sm" animated={false} />
           </div>
 
           <div className="hidden items-center gap-2.5 lg:flex">
@@ -243,8 +192,7 @@ const Layout = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <LanguageSelector />
-            <div className="hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] sm:text-[11px] font-semibold text-slate-400"
+            <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] sm:text-[11px] font-semibold text-slate-400"
               style={{ background: 'rgba(99,102,241,0.09)', border: '1px solid rgba(99,102,241,0.18)' }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="5"/>

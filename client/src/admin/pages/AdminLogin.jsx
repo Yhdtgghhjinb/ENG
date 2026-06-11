@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Logo from '../../components/Logo';
 
 const AdminLogin = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -48,21 +49,11 @@ const AdminLogin = () => {
       >
         {/* Logo & Title */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl mb-4 overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
-              boxShadow: '0 8px 32px rgba(99,102,241,0.5)',
-            }}>
-            <svg width="36" height="36" viewBox="0 0 64 64" fill="none" className="sm:w-12 sm:h-12">
-              <path d="M16 20 L16 48 L48 48 L48 20 Z" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,0.95)" strokeWidth="2"/>
-              <path d="M16 20 L32 16 L48 20" fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.85)" strokeWidth="2"/>
-              <path d="M28 20 L28 42 L32 38 L36 42 L36 20 Z" fill="#6366f1" strokeWidth="1.5"/>
-              <circle cx="44" cy="28" r="8" fill="#fbbf24" stroke="#ffffff" strokeWidth="2"/>
-              <path d="M44 24 L45 27 L48 27 L45.5 29 L46.5 32 L44 30 L41.5 32 L42.5 29 L40 27 L43 27 Z" fill="#ffffff"/>
-            </svg>
+          <div className="inline-block mb-4">
+            <Logo size="xl" animated={true} />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Admin Panel</h1>
-          <p className="text-sm sm:text-base text-slate-400">StudyHub VTU</p>
+          <p className="text-sm sm:text-base text-slate-400">VTU VAULT</p>
         </div>
 
         {/* Login Card */}

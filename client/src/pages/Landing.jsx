@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import Logo from '../components/Logo';
 
 const Landing = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -48,7 +49,7 @@ const Landing = () => {
       </div>
       
       <div className="relative z-10">
-        {/* Sticky Header */}
+        {/* Simple Header - Logo Only */}
         <motion.header 
           initial={{ y: -100 }}
           animate={{ y: 0 }}
@@ -56,38 +57,9 @@ const Landing = () => {
             scrollY > 50 ? 'bg-slate-950/80 backdrop-blur-xl border-b border-white/5' : ''
           }`}>
           <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              {/* Logo */}
-              <Link to="/" className="flex items-center gap-3 group">
-                <motion.div
-                  whileHover={{ rotate: 180, scale: 1.1 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl"
-                  style={{
-                    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                    boxShadow: '0 8px 32px rgba(99,102,241,0.3)',
-                  }}>
-                  <div className="absolute inset-0 rounded-xl flex items-center justify-center text-white font-black text-lg sm:text-xl">
-                    V
-                  </div>
-                </motion.div>
-                <div>
-                  <h1 className="text-lg sm:text-xl font-black bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                    VTU VAULT
-                  </h1>
-                  <p className="text-[10px] text-slate-500 font-medium">Engineering Resources</p>
-                </div>
-              </Link>
-
-              {/* CTA Button */}
-              <Link
-                to="/home"
-                className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-semibold text-sm sm:text-base text-white transition-all duration-300 hover:scale-105 active:scale-95"
-                style={{
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                  boxShadow: '0 4px 20px rgba(99,102,241,0.4)',
-                }}>
-                Enter
+            <div className="flex items-center justify-center">
+              <Link to="/">
+                <Logo size="lg" animated={true} />
               </Link>
             </div>
           </nav>
@@ -397,12 +369,7 @@ const Landing = () => {
         <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/5">
           <div className="max-w-7xl mx-auto">
             <div className="text-center space-y-4">
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-black">
-                  V
-                </div>
-                <span className="text-xl font-black text-white">VTU VAULT</span>
-              </div>
+              <Logo size="md" animated={false} />
               <p className="text-sm text-slate-500">
                 Built with ❤️ for VTU Engineering Students
               </p>
