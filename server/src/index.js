@@ -25,7 +25,9 @@ const MONGODB_URI =
   process.env.MONGODB_URI || 'mongodb://localhost:27017/eng-resource-platform';
 
 // Support both CLIENT_ORIGIN and CORS_ORIGIN env variables
-const allowedOrigins = (process.env.CLIENT_ORIGIN || process.env.CORS_ORIGIN || 'http://localhost:5173')
+// Default includes both old and new domains for backward compatibility
+const defaultOrigins = 'https://vtuvault.online,https://www.vtuvault.online,https://eng-dusky.vercel.app,http://localhost:5173';
+const allowedOrigins = (process.env.CLIENT_ORIGIN || process.env.CORS_ORIGIN || defaultOrigins)
   .split(',')
   .map(origin => origin.trim());
 
