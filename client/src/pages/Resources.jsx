@@ -120,7 +120,13 @@ const Resources = () => {
   };
 
   const fetchFacets = async (params = {}) => {
-    try { const res = await api.get('/api/resources/facets', { params }); setFacets((p) => ({ ...p, ...(res.data || {}) })); } catch {}
+    try { 
+      const res = await api.get('/api/resources/facets', { params }); 
+      setFacets((p) => ({ ...p, ...(res.data || {}) })); 
+    } catch (err) {
+      console.error('Failed to load facets:', err);
+      // Facets are optional, so non-critical - just log it
+    }
   };
 
   useEffect(() => {

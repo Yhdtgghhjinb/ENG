@@ -57,7 +57,10 @@ const ResourceCard = memo(({ resource, color }) => {
 
   const handleDownload = async () => {
     if (resource._id) {
-      fetch(`/api/resources/${resource._id}/download`, { method: 'POST' }).catch(() => {});
+      fetch(`/api/resources/${resource._id}/download`, { method: 'POST' }).catch((err) => {
+        console.error('Failed to track download:', err);
+        // Download tracking is analytics only - non-critical
+      });
     }
     
     try {

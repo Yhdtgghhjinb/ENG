@@ -49,7 +49,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment guide.
 
 - **Login URL**: `/admin/login`
 - **Username**: `rakeshn`
-- **Password**: `Rakeshn9380@`
+- **Password**: ``
 
 ## 🛠️ Tech Stack
 

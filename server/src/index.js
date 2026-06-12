@@ -86,14 +86,38 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('combined')); // More detailed logs in production
 }
 
-// Response time header - Fixed to set before response finishes
+// Enhanced response time tracking with performance logging
 app.use((req, res, next) => {
   const start = Date.now();
+  req.performanceMarks = {
+    requestStart: start,
+    dbQueries: [],
+    cacheHits: 0,
+    cacheMisses: 0
+  };
+  
   const originalSend = res.send;
   
   res.send = function(data) {
     const duration = Date.now() - start;
     res.setHeader('X-Response-Time', `${duration}ms`);
+    
+    // Log slow requests (>1000ms) with detailed breakdown
+    if (duration > 1000) {
+      console.warn(`⚠️ SLOW REQUEST [${duration}ms]: ${req.method} ${req.originalUrl}`, {
+        duration: `${duration}ms`,
+        dbQueries: req.performanceMarks.dbQueries.length,
+        cacheHits: req.performanceMarks.cacheHits,
+        cacheMisses: req.performanceMarks.cacheMisses,
+        queryTimes: req.performanceMarks.dbQueries.map(q => `${q.duration}ms`).join(', ')
+      });
+    }
+    
+    // Log all API requests in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`📊 ${req.method} ${req.originalUrl} - ${duration}ms`);
+    }
+    
     originalSend.call(this, data);
   };
   

@@ -36,7 +36,10 @@ const Notifications = () => {
           n._id === id ? { ...n, read: true } : n
         ));
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error('Failed to mark notification as read:', err);
+        // Notification functionality is non-critical, continue silently
+      });
   };
 
   const markAllAsRead = () => {
@@ -44,7 +47,10 @@ const Notifications = () => {
       .then(() => {
         setNotifications(notifications.map(n => ({ ...n, read: true })));
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error('Failed to mark all notifications as read:', err);
+        // Notification functionality is non-critical, continue silently
+      });
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;

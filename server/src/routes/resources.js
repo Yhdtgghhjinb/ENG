@@ -24,7 +24,22 @@ function cacheMiddleware(ttl = CACHE_TTL) {
 
     // Return cached response if still valid
     if (cached && Date.now() - cached.timestamp < ttl) {
+      // Track cache hit
+      if (req.performanceMarks) {
+        req.performanceMarks.cacheHits++;
+      }
+      console.log(`💾 CACHE HIT: ${req.originalUrl}`);
       return res.json(cached.data);
+    }
+    
+    // Track cache miss
+    if (req.performanceMarks) {
+      req.performanceMarks.cacheMisses++;
+    }
+    if (cached) {
+      console.log(`⏰ CACHE EXPIRED: ${req.originalUrl}`);
+    } else {
+      console.log(`❌ CACHE MISS: ${req.originalUrl}`);
     }
 
     // Override res.json to cache the response
@@ -34,6 +49,7 @@ function cacheMiddleware(ttl = CACHE_TTL) {
       if (cache.size >= MAX_CACHE_SIZE) {
         const firstKey = cache.keys().next().value;
         cache.delete(firstKey);
+        console.log(`🗑️ CACHE EVICTION: ${firstKey}`);
       }
 
       // Store in cache
@@ -41,6 +57,7 @@ function cacheMiddleware(ttl = CACHE_TTL) {
         data,
         timestamp: Date.now()
       });
+      console.log(`✅ CACHE STORED: ${req.originalUrl} (${cache.size}/${MAX_CACHE_SIZE})`);
 
       return originalJson(data);
     };
@@ -58,6 +75,8 @@ function clearCache() {
 // GET /api/resources — list with optional filters + keyword search + PAGINATION
 // Cached for 2 minutes to reduce database load
 router.get('/', cacheMiddleware(2 * 60 * 1000), async (req, res, next) => {
+  const startTime = Date.now();
+  
   try {
     const { scheme, branch, year, semester, subject, type, q, page = 1, limit = 20 } = req.query;
     const query = {};
@@ -94,6 +113,7 @@ router.get('/', cacheMiddleware(2 * 60 * 1000), async (req, res, next) => {
     }
 
     // Execute query with pagination and count in parallel
+    const dbStart = Date.now();
     const [resources, total] = await Promise.all([
       Resource.find(query)
         .sort({ createdAt: -1 })
@@ -102,11 +122,26 @@ router.get('/', cacheMiddleware(2 * 60 * 1000), async (req, res, next) => {
         .lean(), // Use lean() for better performance (returns plain objects)
       Resource.countDocuments(query)
     ]);
+    const dbDuration = Date.now() - dbStart;
+    
+    // Track performance
+    if (req.performanceMarks) {
+      req.performanceMarks.dbQueries.push({ 
+        operation: 'resources.list', 
+        duration: dbDuration,
+        resultCount: resources.length
+      });
+    }
 
     // Calculate pagination metadata
     const totalPages = Math.ceil(total / limitNum);
     const hasNextPage = pageNum < totalPages;
     const hasPrevPage = pageNum > 1;
+    
+    const totalDuration = Date.now() - startTime;
+    
+    // Log performance metrics
+    console.log(`📊 GET /api/resources - Total: ${totalDuration}ms, DB: ${dbDuration}ms, Results: ${resources.length}/${total}`);
 
     res.json({
       resources,
@@ -126,6 +161,8 @@ router.get('/', cacheMiddleware(2 * 60 * 1000), async (req, res, next) => {
 
 // GET /api/resources/search — MongoDB TEXT SEARCH with PAGINATION
 router.get('/search', async (req, res, next) => {
+  const startTime = Date.now();
+  
   try {
     const { query, scheme, branch, year, semester, subject, type, page = 1, limit = 20 } = req.query;
     const q = String(query || '').trim();
@@ -161,6 +198,7 @@ router.get('/search', async (req, res, next) => {
     queryObj.$text = { $search: q };
 
     // Execute query with text search, pagination, and count in parallel
+    const dbStart = Date.now();
     const [resources, total] = await Promise.all([
       Resource.find(queryObj, { 
         score: { $meta: 'textScore' } // Include text search score
@@ -171,9 +209,25 @@ router.get('/search', async (req, res, next) => {
         .lean(),
       Resource.countDocuments(queryObj)
     ]);
+    const dbDuration = Date.now() - dbStart;
+    
+    // Track performance
+    if (req.performanceMarks) {
+      req.performanceMarks.dbQueries.push({ 
+        operation: 'resources.textSearch', 
+        duration: dbDuration,
+        query: q,
+        resultCount: resources.length
+      });
+    }
 
     // Calculate pagination metadata
     const totalPages = Math.ceil(total / limitNum);
+    
+    const totalDuration = Date.now() - startTime;
+    
+    // Log performance metrics
+    console.log(`🔍 GET /api/resources/search - Total: ${totalDuration}ms, DB: ${dbDuration}ms, Query: "${q}", Results: ${resources.length}/${total}`);
 
     return res.json({ 
       success: true, 
@@ -192,7 +246,7 @@ router.get('/search', async (req, res, next) => {
   } catch (err) {
     // Fallback to regex if text index not available
     if (err.code === 27 || err.message.includes('text index')) {
-      console.warn('Text index not found, falling back to regex search');
+      console.warn('⚠️ Text index not found, falling back to regex search');
       return fallbackRegexSearch(req, res, next);
     }
     next(err);

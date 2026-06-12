@@ -17,6 +17,8 @@ const VALID_TYPES = [
 // ── GET /api/subjects/:subjectId/counts ───────────────────────────────────────
 // Fast endpoint to get resource counts by type (for initial page load)
 router.get('/:subjectId/counts', async (req, res, next) => {
+  const startTime = Date.now();
+  
   try {
     const { subjectId } = req.params;
 
@@ -25,10 +27,12 @@ router.get('/:subjectId/counts', async (req, res, next) => {
     }
 
     // Use MongoDB aggregation for fast counts
+    const dbStart = Date.now();
     const counts = await Resource.aggregate([
       { $match: { subjectId: new mongoose.Types.ObjectId(subjectId) } },
       { $group: { _id: '$type', count: { $sum: 1 } } },
     ]);
+    const dbDuration = Date.now() - dbStart;
 
     const countMap = {};
     VALID_TYPES.forEach(type => { countMap[type] = 0; });
@@ -36,6 +40,11 @@ router.get('/:subjectId/counts', async (req, res, next) => {
 
     // Total count
     const total = counts.reduce((sum, item) => sum + item.count, 0);
+    
+    const totalDuration = Date.now() - startTime;
+    
+    // Log performance
+    console.log(`🔢 GET /api/subjects/${subjectId}/counts - Total: ${totalDuration}ms, DB: ${dbDuration}ms, Resources: ${total}`);
 
     res.json({
       success: true,
@@ -78,6 +87,8 @@ router.post('/resources/:resourceId/download', async (req, res) => {
 //   other    → flat array (supplementary, question-bank, syllabus, other)
 // PAGINATION: ?section=notes&page=1&limit=20
 router.get('/:subjectId/resources', async (req, res, next) => {
+  const startTime = Date.now();
+  
   try {
     const { subjectId } = req.params;
     const { type, q, sort = 'newest', section, page = 1, limit = 50 } = req.query;
@@ -86,9 +97,11 @@ router.get('/:subjectId/resources', async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid subjectId format' });
     }
 
+    const subjectStart = Date.now();
     const subject = await Subject.findById(subjectId)
       .select('name code branchId schemeId semesterId')
       .lean();
+    const subjectDuration = Date.now() - subjectStart;
 
     if (!subject) {
       return res.status(404).json({ success: false, message: 'Subject not found' });
@@ -126,15 +139,19 @@ router.get('/:subjectId/resources', async (req, res, next) => {
     const skip = (pageNum - 1) * limitNum;
 
     // Get total count for pagination
+    const countStart = Date.now();
     const totalCount = await Resource.countDocuments(filter);
+    const countDuration = Date.now() - countStart;
 
     // Fetch paginated resources
+    const resourcesStart = Date.now();
     const resources = await Resource.find(filter)
       .select('title description type fileUrl tags moduleNumber unitTitle semesterNumber subjectName subjectCode branchName schemeName downloadCount createdAt')
       .sort(sortOrder)
       .skip(skip)
       .limit(limitNum)
       .lean();
+    const resourcesDuration = Date.now() - resourcesStart;
 
     // ── Build structured response ─────────────────────────────────────────
 
@@ -218,6 +235,12 @@ router.get('/:subjectId/resources', async (req, res, next) => {
       modules,   // notes grouped by module (alias)
       general,   // notes without moduleNumber
     });
+    
+    const totalDuration = Date.now() - startTime;
+    
+    // Log performance metrics
+    console.log(`📚 GET /api/subjects/${subjectId}/resources - Total: ${totalDuration}ms, Subject: ${subjectDuration}ms, Count: ${countDuration}ms, Resources: ${resourcesDuration}ms, Section: ${section || 'all'}, Results: ${resources.length}/${totalCount}`);
+    
   } catch (err) {
     next(err);
   }
