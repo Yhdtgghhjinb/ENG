@@ -152,10 +152,14 @@ const AdminLogin = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="space-y-2 px-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black">
-              <span className="bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
-                Admin Access
-              </span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black"
+              style={{
+                background: 'linear-gradient(to right, #a5b4fc, #c4b5fd, #f9a8d4)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+              Admin Access
             </h1>
             <p className="text-xs sm:text-sm text-slate-400">
               VTU VAULT Management Portal

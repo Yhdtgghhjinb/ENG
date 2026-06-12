@@ -137,20 +137,29 @@ const Landing = () => {
                   className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black leading-tight px-2"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}>
-                  <span className="inline-block bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
-                    Welcome to
-                  </span>
+                  transition={{ delay: 0.5 }}
+                  style={{
+                    background: 'linear-gradient(to right, #a5b4fc, #c4b5fd, #f9a8d4)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}>
+                  Welcome to
                 </motion.h1>
                 
                 <motion.h2
                   className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black leading-tight px-2"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.7, type: "spring" }}>
-                  <span className="inline-block bg-gradient-to-r from-white via-slate-100 to-white bg-clip-text text-transparent drop-shadow-2xl">
-                    VTU VAULT
-                  </span>
+                  transition={{ delay: 0.7, type: "spring" }}
+                  style={{
+                    background: 'linear-gradient(to right, #ffffff, #f1f5f9, #ffffff)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    filter: 'drop-shadow(0 20px 25px rgba(0, 0, 0, 0.5))',
+                  }}>
+                  VTU VAULT
                 </motion.h2>
               </div>
 
