@@ -168,27 +168,28 @@ const AdminLayout = () => {
               className="h-full w-64 flex flex-col"
               style={{ background: 'rgba(3,5,18,0.99)', backdropFilter: 'blur(40px)' }}
             >
-              <div className="flex items-center justify-between px-4 py-5" style={{ borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
+              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
                 <div className="flex items-center gap-3">
                   <Logo size="sm" />
                   <div>
-                    <p className="text-[13px] font-bold text-slate-100">Admin Panel</p>
+                    <p className="text-sm font-bold text-slate-100">Admin Panel</p>
                     <p className="text-[10px] text-slate-600">VTU VAULT</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-slate-500 hover:text-slate-300"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-300 transition-colors"
+                  style={{ background: 'rgba(99,102,241,0.08)' }}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <line x1="18" y1="6" x2="6" y2="18"/>
                     <line x1="6" y1="6" x2="18" y2="18"/>
                   </svg>
                 </button>
               </div>
               
-              <nav className="flex flex-1 flex-col gap-0.5 p-2 pt-3">
-                <p className="mb-2 px-2 text-[10px] font-bold uppercase tracking-widest text-slate-700">Menu</p>
+              <nav className="flex flex-1 flex-col gap-1 p-3 pt-4">
+                <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-700">Menu</p>
                 {NAV.map((item) => (
                   <NavLink 
                     key={item.to} 
@@ -196,7 +197,7 @@ const AdminLayout = () => {
                     end={item.end}
                     onClick={() => setMobileMenuOpen(false)}
                     className={({ isActive }) =>
-                      `relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all ${
+                      `relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
                         isActive ? 'text-primary-300' : 'text-slate-500 hover:text-slate-300'
                       }`
                     }
@@ -211,7 +212,7 @@ const AdminLayout = () => {
                             transition={{ type: 'spring', stiffness: 400, damping: 34 }} 
                           />
                         )}
-                        <span className="relative z-10 text-base">{item.icon}</span>
+                        <span className="relative z-10 text-lg">{item.icon}</span>
                         <span className="relative z-10">{item.label}</span>
                       </>
                     )}
@@ -223,10 +224,10 @@ const AdminLayout = () => {
               <div className="p-4" style={{ borderTop: '1px solid rgba(99,102,241,0.08)' }}>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:text-red-300 transition-all"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-red-400 hover:text-red-300 transition-all active:scale-95"
                   style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16 17 21 12 16 7"/>
                     <line x1="21" y1="12" x2="9" y2="12"/>

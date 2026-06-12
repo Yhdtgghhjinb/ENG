@@ -50,7 +50,7 @@ const AdminDashboard = () => {
         <p className="mt-1 text-xs sm:text-sm text-slate-500">Platform overview and key metrics</p>
       </div>
 
-      {/* Stat cards - Mobile Optimized */}
+      {/* Stat cards - Mobile Optimized with better grid */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Branches"  value={counts?.branches  ?? 0} icon="🏛️" accent="#818cf8" delay={0}    />
         <StatCard label="Schemes"   value={counts?.schemes   ?? 0} icon="📐" accent="#38bdf8" delay={0.06} />
@@ -63,14 +63,14 @@ const AdminDashboard = () => {
       <div className="grid gap-4 sm:gap-5 xl:grid-cols-2">
         {/* Resources by type */}
         <div className="rounded-xl sm:rounded-2xl p-4 sm:p-5" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-          <p className="mb-3 sm:mb-4 text-xs sm:text-sm font-semibold text-slate-200">Resources by Type</p>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={byType?.map(d => ({ name: d._id, count: d.count })) || []} barSize={24}>
+          <p className="mb-4 text-sm sm:text-base font-semibold text-slate-200">Resources by Type</p>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={byType?.map(d => ({ name: d._id, count: d.count })) || []} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barSize={28}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.08)" />
-              <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip {...TOOLTIP_STYLE} />
-              <Bar dataKey="count" radius={[6,6,0,0]}
+              <Bar dataKey="count" radius={[8,8,0,0]}
                 fill="url(#barGrad)"
               />
               <defs>
@@ -85,14 +85,14 @@ const AdminDashboard = () => {
 
         {/* Resources by branch */}
         <div className="rounded-xl sm:rounded-2xl p-4 sm:p-5" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-          <p className="mb-3 sm:mb-4 text-xs sm:text-sm font-semibold text-slate-200">Resources by Branch</p>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={byBranch?.map(d => ({ name: d._id, count: d.count })) || []} barSize={24}>
+          <p className="mb-4 text-sm sm:text-base font-semibold text-slate-200">Resources by Branch</p>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={byBranch?.map(d => ({ name: d._id, count: d.count })) || []} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barSize={28}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.08)" />
-              <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip {...TOOLTIP_STYLE} />
-              <Bar dataKey="count" radius={[6,6,0,0]} fill="url(#barGrad2)" />
+              <Bar dataKey="count" radius={[8,8,0,0]} fill="url(#barGrad2)" />
               <defs>
                 <linearGradient id="barGrad2" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#38bdf8" />
@@ -106,9 +106,9 @@ const AdminDashboard = () => {
 
       {/* Upload trend - Mobile Optimized */}
       <div className="rounded-xl sm:rounded-2xl p-4 sm:p-5" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-        <p className="mb-3 sm:mb-4 text-xs sm:text-sm font-semibold text-slate-200">Upload Trend (Last 30 Days)</p>
-        <ResponsiveContainer width="100%" height={160}>
-          <LineChart data={recentByDay?.map(d => ({ date: d._id, count: d.count })) || []}>
+        <p className="mb-4 text-sm sm:text-base font-semibold text-slate-200">Upload Trend (Last 30 Days)</p>
+        <ResponsiveContainer width="100%" height={180}>
+          <LineChart data={recentByDay?.map(d => ({ date: d._id, count: d.count })) || []} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.08)" />
             <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -120,19 +120,19 @@ const AdminDashboard = () => {
 
       {/* Top subjects - Mobile Optimized */}
       <div className="rounded-xl sm:rounded-2xl p-4 sm:p-5" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-        <p className="mb-3 sm:mb-4 text-xs sm:text-sm font-semibold text-slate-200">Top Subjects by Resources</p>
-        <div className="space-y-2 sm:space-y-2.5">
+        <p className="mb-4 text-sm sm:text-base font-semibold text-slate-200">Top Subjects by Resources</p>
+        <div className="space-y-3">
           {(topSubjects || []).map((s, i) => {
             const max = topSubjects[0]?.count || 1;
             const pct = Math.round((s.count / max) * 100);
             return (
-              <div key={s._id} className="flex items-center gap-2 sm:gap-3">
-                <span className="w-4 sm:w-5 text-[10px] sm:text-xs text-slate-600 font-mono">{i + 1}</span>
-                <span className="flex-1 min-w-0 truncate text-[11px] sm:text-xs text-slate-300">{s._id}</span>
-                <div className="flex-1 h-1.5 sm:h-2 rounded-full overflow-hidden" style={{ background: 'rgba(99,102,241,0.1)' }}>
+              <div key={s._id} className="flex items-center gap-3">
+                <span className="w-6 text-center text-xs font-bold text-slate-600 flex-shrink-0">{i + 1}</span>
+                <span className="flex-1 min-w-0 truncate text-xs sm:text-sm text-slate-300">{s._id}</span>
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(99,102,241,0.1)' }}>
                   <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #6366f1, #818cf8)' }} />
                 </div>
-                <span className="w-6 sm:w-8 text-right text-[10px] sm:text-xs text-slate-500 flex-shrink-0">{s.count}</span>
+                <span className="w-10 text-right text-xs font-semibold text-slate-400 flex-shrink-0">{s.count}</span>
               </div>
             );
           })}
