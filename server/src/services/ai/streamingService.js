@@ -4,11 +4,13 @@
 
 const ModelRouter = require('./modelRouter');
 const ModeController = require('./modeController');
+const RAGEngine = require('./ragEngine');
 const axios = require('axios');
 
 class StreamingService {
   constructor() {
     this.modelRouter = new ModelRouter();
+    this.ragEngine = new RAGEngine();
   }
 
   /**
@@ -45,8 +47,22 @@ class StreamingService {
         mode: mode
       });
 
+      // Perform RAG search for relevant resources
+      const ragContext = await this.ragEngine.search(message, {
+        branch: context.branch,
+        scheme: context.scheme,
+        semester: context.semester,
+        subject: context.subject
+      });
+
       // Get system prompt
       let systemPrompt = ModeController.getSystemPrompt(mode, context);
+      
+      // Add RAG context if available
+      if (ragContext) {
+        systemPrompt += ragContext.contextText;
+      }
+      
       if (mode === 'exam' && marks) {
         systemPrompt += `\n\n[IMPORTANT: Generate a ${marks}-mark VTU exam answer. Follow the exact format and word count for ${marks} marks.]`;
       }
@@ -77,7 +93,8 @@ class StreamingService {
       this.sendEvent(res, 'done', {
         model: selectedModel,
         tokens: totalTokens,
-        marks: marks
+        marks: marks,
+        sources: ragContext?.sources || []
       });
 
       res.end();

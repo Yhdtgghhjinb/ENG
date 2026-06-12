@@ -4,11 +4,13 @@
 
 const ModelRouter = require('./modelRouter');
 const ModeController = require('./modeController');
+const RAGEngine = require('./ragEngine');
 const axios = require('axios');
 
 class ConversationEngine {
   constructor() {
     this.modelRouter = new ModelRouter();
+    this.ragEngine = new RAGEngine();
   }
 
   /**
@@ -44,8 +46,21 @@ class ConversationEngine {
 
       console.log('✅ Selected model:', selectedModel);
 
+      // Perform RAG search for relevant resources
+      const ragContext = await this.ragEngine.search(message, {
+        branch: context.branch,
+        scheme: context.scheme,
+        semester: context.semester,
+        subject: context.subject
+      });
+
       // Get system prompt for mode
       let systemPrompt = ModeController.getSystemPrompt(mode, context);
+
+      // Add RAG context if available
+      if (ragContext) {
+        systemPrompt += ragContext.contextText;
+      }
 
       // Add marks instruction for exam mode
       if (mode === 'exam' && marks) {
@@ -66,7 +81,8 @@ class ConversationEngine {
         response: response.text,
         model: selectedModel,
         tokens: response.tokens,
-        marks: marks
+        marks: marks,
+        sources: ragContext?.sources || []
       };
 
     } catch (error) {
@@ -75,7 +91,8 @@ class ConversationEngine {
         success: false,
         response: this.getErrorMessage(error),
         model: null,
-        tokens: 0
+        tokens: 0,
+        sources: []
       };
     }
   }

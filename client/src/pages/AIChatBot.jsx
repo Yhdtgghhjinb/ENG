@@ -247,7 +247,8 @@ ${availableModes.map(m => `   • ${m.name}`).join('\n')}
                 model: metadata.model,
                 tokens: metadata.tokens,
                 mode: mode,
-                marks: metadata.marks
+                marks: metadata.marks,
+                sources: metadata.sources || []
               }
             };
 
@@ -803,6 +804,50 @@ Ask me anything!`,
                       <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                         {msg.content}
                       </div>
+                      
+                      {/* Source Citations (if available) */}
+                      {msg.metadata?.sources && msg.metadata.sources.length > 0 && (
+                        <div className="mt-4 pt-3 border-t" style={{
+                          borderColor: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                        }}>
+                          <div className="text-xs font-semibold mb-2" style={{
+                            color: theme === 'dark' ? '#9ca3af' : '#6b7280'
+                          }}>
+                            📚 Sources Used:
+                          </div>
+                          <div className="space-y-2">
+                            {msg.metadata.sources.map((source, srcIdx) => (
+                              <div key={srcIdx} className="flex items-start gap-2 text-xs">
+                                <span className="font-medium" style={{
+                                  color: theme === 'dark' ? '#818cf8' : '#6366f1'
+                                }}>
+                                  [{srcIdx + 1}]
+                                </span>
+                                <div className="flex-1">
+                                  <a 
+                                    href={source.url || '#'} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="hover:underline"
+                                    style={{
+                                      color: theme === 'dark' ? '#c4b5fd' : '#7c3aed'
+                                    }}>
+                                    {source.title}
+                                  </a>
+                                  <div className="text-[10px] mt-0.5" style={{
+                                    color: theme === 'dark' ? '#6b7280' : '#9ca3af'
+                                  }}>
+                                    {source.type && `${source.type} • `}
+                                    {source.subject && `${source.subject} • `}
+                                    {source.semester && `Sem ${source.semester}`}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Copy button for AI responses (except welcome message) */}
                       {msg.role === 'assistant' && !msg.isError && !msg.isWelcome && (
                         <motion.button
