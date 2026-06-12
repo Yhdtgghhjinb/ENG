@@ -24,12 +24,13 @@ const RESOURCE_TYPES = [
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const searchResources = (resources, query) => {
+  if (!Array.isArray(resources)) return [];
   if (!query?.trim()) return resources;
   const q = query.toLowerCase().trim();
   return resources.filter(r => 
-    r.title?.toLowerCase().includes(q) ||
-    r.description?.toLowerCase().includes(q) ||
-    r.unitTitle?.toLowerCase().includes(q)
+    r?.title?.toLowerCase().includes(q) ||
+    r?.description?.toLowerCase().includes(q) ||
+    r?.unitTitle?.toLowerCase().includes(q)
   );
 };
 
@@ -331,9 +332,9 @@ const SubjectDetail = () => {
   const totalFiles = Object.values(sectionCounts).reduce((a, b) => a + b, 0);
   const activeType = RESOURCE_TYPES.find(t => t.key === activeTab);
   
-  const noteModules = sections.notes?.notes?.modules || [];
-  const noteGeneral = sections.notes?.notes?.general || [];
-  const flatResources = sections[activeTab]?.resources || [];
+  const noteModules = Array.isArray(sections.notes?.notes?.modules) ? sections.notes.notes.modules : [];
+  const noteGeneral = Array.isArray(sections.notes?.notes?.general) ? sections.notes.notes.general : [];
+  const flatResources = Array.isArray(sections[activeTab]?.resources) ? sections[activeTab].resources : [];
   
   // Memoized filtered resources with proper error handling
   const filteredFlat = useMemo(() => {
@@ -445,8 +446,8 @@ const SubjectDetail = () => {
 
   return (
     <div className="min-h-screen pb-20">
-      {/* ═══════════════ SECTION 1: COMPACT HERO HEADER ═══════════════ */}
-      <div className="mb-5">
+      {/* ═══════════════ SECTION 1: CLEAN ACADEMIC HEADER ═══════════════ */}
+      <div className="mb-6">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
@@ -458,79 +459,83 @@ const SubjectDetail = () => {
           <span className="text-sm font-medium">Back</span>
         </button>
 
-        {/* Hero Card - Max Height 220px */}
-        <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 rounded-2xl p-5 md:p-6 backdrop-blur-sm shadow-xl shadow-black/5">
+        {/* Clean Subject Header */}
+        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 backdrop-blur-sm">
           {/* Subject Name */}
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight tracking-tight">
+          <h1 className="text-xl md:text-2xl font-bold text-white mb-3 leading-tight uppercase tracking-wide">
             {subject.name}
           </h1>
 
-          {/* Academic Info Chips */}
-          <div className="flex flex-wrap gap-2 mb-5">
+          {/* Academic Info - Single Line */}
+          <div className="flex flex-wrap items-center gap-2 text-sm text-slate-300 mb-4">
             {subject.code && (
-              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 backdrop-blur-sm">
-                {subject.code}
-              </span>
+              <span className="font-semibold text-indigo-300">{subject.code}</span>
             )}
             {subject.semesterNumber && (
-              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/20 text-cyan-200 border border-cyan-500/30 backdrop-blur-sm">
-                Sem {subject.semesterNumber}
-              </span>
+              <>
+                <span className="text-slate-600">•</span>
+                <span>Semester {subject.semesterNumber}</span>
+              </>
             )}
             {subject.scheme && (
-              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500/20 text-orange-200 border border-orange-500/30 backdrop-blur-sm">
-                {subject.scheme}
-              </span>
+              <>
+                <span className="text-slate-600">•</span>
+                <span>{subject.scheme}</span>
+              </>
             )}
             {subject.credits && (
-              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 backdrop-blur-sm">
-                {subject.credits} Credits
-              </span>
+              <>
+                <span className="text-slate-600">•</span>
+                <span className="font-medium">{subject.credits} Credits</span>
+              </>
             )}
             {(subject.lectureHours || subject.tutorialHours || subject.practicalHours) && (
-              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-purple-500/20 text-purple-200 border border-purple-500/30 backdrop-blur-sm">
-                {subject.lectureHours || 0}-{subject.tutorialHours || 0}-{subject.practicalHours || 0}
-              </span>
+              <>
+                <span className="text-slate-600">•</span>
+                <span className="font-mono text-xs">
+                  L-T-P: {subject.lectureHours || 0}-{subject.tutorialHours || 0}-{subject.practicalHours || 0}
+                </span>
+              </>
             )}
           </div>
 
-          {/* Resource Stats - Horizontal Scroll on Mobile */}
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
-            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-indigo-500/15 border border-indigo-500/25 backdrop-blur-sm">
-              <div className="text-xl font-bold text-white">{sectionCounts.notes}</div>
-              <div className="text-xs text-indigo-200 font-medium mt-0.5">Notes</div>
+          {/* Resource Stats - Compact Single Line */}
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400">Notes:</span>
+              <span className="font-bold text-indigo-300">{sectionCounts.notes}</span>
             </div>
-            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-cyan-500/15 border border-cyan-500/25 backdrop-blur-sm">
-              <div className="text-xl font-bold text-white">{sectionCounts.pyq}</div>
-              <div className="text-xs text-cyan-200 font-medium mt-0.5">PYQs</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400">PYQs:</span>
+              <span className="font-bold text-cyan-300">{sectionCounts.pyq}</span>
             </div>
-            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-purple-500/15 border border-purple-500/25 backdrop-blur-sm">
-              <div className="text-xl font-bold text-white">{sectionCounts.textbook}</div>
-              <div className="text-xs text-purple-200 font-medium mt-0.5">Books</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400">Books:</span>
+              <span className="font-bold text-purple-300">{sectionCounts.textbook}</span>
             </div>
-            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-orange-500/15 border border-orange-500/25 backdrop-blur-sm">
-              <div className="text-xl font-bold text-white">{sectionCounts.lab}</div>
-              <div className="text-xs text-orange-200 font-medium mt-0.5">Labs</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400">Labs:</span>
+              <span className="font-bold text-orange-300">{sectionCounts.lab}</span>
             </div>
-            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-              <div className="text-xl font-bold text-white">{totalFiles}</div>
-              <div className="text-xs text-slate-300 font-medium mt-0.5">Total</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400">Total:</span>
+              <span className="font-bold text-white">{totalFiles}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ═══════════════ SECTION 2: SEARCH BAR ═══════════════ */}
+      {/* ═══════════════ SECTION 2: CLEAN SEARCH BAR ═══════════════ */}
       <div className="mb-5">
         <div className="relative">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
           </svg>
           <input
             type="text"
             placeholder="Search resources..."
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full h-12 pl-11 pr-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/[0.07] transition-all text-sm"
+            className="w-full h-12 pl-12 pr-4 bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/[0.05] transition-all text-sm"
           />
         </div>
       </div>
