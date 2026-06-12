@@ -1,11 +1,11 @@
 const FormField = ({ label, error, required, children, hint }) => (
-  <div className="space-y-1.5">
-    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+  <div className="space-y-2">
+    <label className="block text-xs sm:text-sm font-semibold text-slate-300">
       {label}{required && <span className="ml-1 text-red-400">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[11px] text-slate-600">{hint}</p>}
-    {error && <p className="text-[11px] text-red-400">{error}</p>}
+    {hint && <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed">{hint}</p>}
+    {error && <p className="text-[10px] sm:text-[11px] text-red-400 font-medium">{error}</p>}
   </div>
 );
 
