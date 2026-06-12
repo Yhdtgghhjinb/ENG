@@ -335,13 +335,26 @@ const SubjectDetail = () => {
   const noteGeneral = sections.notes?.notes?.general || [];
   const flatResources = sections[activeTab]?.resources || [];
   
-  const filteredFlat = searchQuery ? searchResources(flatResources, searchQuery) : flatResources;
-  const filteredModules = searchQuery 
-    ? noteModules.map(m => ({
-        ...m, 
-        resources: searchResources(m.resources, searchQuery)
-      })).filter(m => m.resources.length > 0) 
-    : noteModules;
+  // Memoized filtered resources with proper error handling
+  const filteredFlat = useMemo(() => {
+    if (!searchQuery) return flatResources;
+    return searchResources(flatResources, searchQuery);
+  }, [flatResources, searchQuery]);
+
+  const filteredModules = useMemo(() => {
+    if (!searchQuery) return noteModules;
+    return noteModules
+      .map(m => ({
+        ...m,
+        resources: Array.isArray(m.resources) ? searchResources(m.resources, searchQuery) : []
+      }))
+      .filter(m => m.resources.length > 0);
+  }, [noteModules, searchQuery]);
+
+  const filteredGeneral = useMemo(() => {
+    if (!searchQuery) return noteGeneral;
+    return searchResources(noteGeneral, searchQuery);
+  }, [noteGeneral, searchQuery]);
 
   const hasCourseInfo = subject?.courseObjectives?.length > 0 || 
                         subject?.courseOutcomes?.length > 0 || 
@@ -662,11 +675,11 @@ const SubjectDetail = () => {
               ))}
               
               {/* General Notes */}
-              {noteGeneral.length > 0 && (
+              {filteredGeneral.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-slate-400 mb-3 px-1">General Notes</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {noteGeneral.map(r => (
+                    {filteredGeneral.map(r => (
                       <ResourceCard key={r._id} resource={r} color={activeType?.color || '#6366f1'} />
                     ))}
                   </div>
@@ -674,7 +687,7 @@ const SubjectDetail = () => {
               )}
 
               {/* Empty State */}
-              {filteredModules.length === 0 && noteGeneral.length === 0 && (
+              {filteredModules.length === 0 && filteredGeneral.length === 0 && (
                 <div className="text-center py-16">
                   <div className="text-5xl mb-4 opacity-20">📚</div>
                   <p className="text-slate-400 text-sm">
