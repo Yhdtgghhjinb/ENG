@@ -4,6 +4,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import api from '../config/api';
 import ContextDetector from '../utils/ai/contextDetector';
 import MemoryManager from '../utils/ai/memoryManager';
+import streamingClient from '../utils/ai/streamingClient';
 
 const AIChatBot = () => {
   // Theme Management (Light/Dark)
@@ -80,6 +81,8 @@ ${availableModes.map(m => `   • ${m.name}`).join('\n')}
   });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingMessage, setStreamingMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [showModeSelector, setShowModeSelector] = useState(false);
@@ -89,6 +92,7 @@ ${availableModes.map(m => `   • ${m.name}`).join('\n')}
   const recognitionRef = useRef(null);
   const chatContainerRef = useRef(null);
   const modeSelectorRef = useRef(null);
+  const abortControllerRef = useRef(null);
 
   // Close mode selector on click outside
   useEffect(() => {
@@ -183,7 +187,7 @@ ${availableModes.map(m => `   • ${m.name}`).join('\n')}
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || isStreaming) return;
 
     const userMessage = {
       role: 'user',
@@ -201,56 +205,115 @@ ${availableModes.map(m => `   • ${m.name}`).join('\n')}
       MemoryManager.addMessage(activeConversationId, userMessage);
     }
     
+    const userInput = input.trim();
     setInput('');
-    setLoading(true);
+    setIsStreaming(true);
+    setStreamingMessage('');
 
     try {
       // Get conversation history
       const history = MemoryManager.getActiveConversationHistory(10);
       
       // Detect marks from message
-      const marksMatch = input.match(/(\d+)\s*marks?/i);
+      const marksMatch = userInput.match(/(\d+)\s*marks?/i);
       const marks = marksMatch ? parseInt(marksMatch[1]) : null;
 
-      const res = await api.post('/api/ai/chat', {
-        message: input.trim(),
-        history: history,
-        context: context,
-        mode: mode,
-        marks: marks
-      });
+      // Stream response
+      await streamingClient.streamMessage(
+        {
+          message: userInput,
+          history,
+          context,
+          mode,
+          marks
+        },
+        {
+          onStart: (metadata) => {
+            console.log('🌊 Stream started:', metadata);
+          },
+          
+          onToken: (token, fullText) => {
+            setStreamingMessage(fullText);
+          },
+          
+          onComplete: (fullResponse, metadata) => {
+            console.log('✅ Stream complete:', metadata);
+            
+            const aiMessage = {
+              role: 'assistant',
+              content: fullResponse,
+              timestamp: new Date(),
+              metadata: {
+                model: metadata.model,
+                tokens: metadata.tokens,
+                mode: mode,
+                marks: metadata.marks
+              }
+            };
 
-      const aiMessage = {
-        role: 'assistant',
-        content: res.data.response,
-        timestamp: new Date(),
-        metadata: {
-          model: res.data.metadata?.model,
-          tokens: res.data.metadata?.tokens,
-          mode: mode,
-          marks: res.data.marks
+            setMessages(prev => [...prev, aiMessage]);
+            setStreamingMessage('');
+            setIsStreaming(false);
+            
+            // Add to conversation
+            if (activeConversationId) {
+              MemoryManager.addMessage(activeConversationId, aiMessage);
+            }
+          },
+          
+          onError: (error) => {
+            console.error('❌ Stream error:', error);
+            const errorMessage = {
+              role: 'assistant',
+              content: `❌ Error: ${error}`,
+              timestamp: new Date(),
+              isError: true
+            };
+            setMessages(prev => [...prev, errorMessage]);
+            setStreamingMessage('');
+            setIsStreaming(false);
+            toast.error('Streaming failed');
+          }
         }
-      };
-
-      setMessages(prev => [...prev, aiMessage]);
-      
-      // Add to conversation
-      if (activeConversationId) {
-        MemoryManager.addMessage(activeConversationId, aiMessage);
-      }
+      );
 
     } catch (error) {
+      console.error('❌ Submit error:', error);
       const errorMessage = {
         role: 'assistant',
-        content: '❌ Sorry, I encountered an error. Please try again or rephrase your question.',
+        content: '❌ Sorry, I encountered an error. Please try again.',
         timestamp: new Date(),
         isError: true
       };
       setMessages(prev => [...prev, errorMessage]);
-      toast.error('Failed to get response');
-    } finally {
-      setLoading(false);
+      setStreamingMessage('');
+      setIsStreaming(false);
+      toast.error('Failed to send message');
     }
+  };
+
+  // Stop streaming
+  const handleStopGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    if (streamingMessage && activeConversationId) {
+      // Save partial response
+      const partialMessage = {
+        role: 'assistant',
+        content: streamingMessage + '\n\n[Generation stopped]',
+        timestamp: new Date(),
+        metadata: { partial: true }
+      };
+      
+      setMessages(prev => [...prev, partialMessage]);
+      MemoryManager.addMessage(activeConversationId, partialMessage);
+    }
+    
+    setIsStreaming(false);
+    setStreamingMessage('');
+    toast.success('Generation stopped');
   };
 
   // Voice Input Handler
@@ -775,7 +838,52 @@ Ask me anything!`,
             ))}
           </AnimatePresence>
 
-          {loading && (
+          {/* Streaming Message */}
+          {isStreaming && streamingMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-start">
+              <div
+                className="max-w-[90%] sm:max-w-[85%] md:max-w-[75%] rounded-2xl rounded-tl-sm p-4 shadow-lg"
+                style={{
+                  background: theme === 'dark'
+                    ? 'rgba(255,255,255,0.05)'
+                    : 'rgba(255,255,255,0.9)',
+                  border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(203,213,225,0.5)'}`,
+                  color: theme === 'dark' ? '#f1f5f9' : '#1e293b'
+                }}>
+                <div className="flex items-start gap-2">
+                  <span className="text-lg sm:text-xl flex-shrink-0">🎓</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-xs font-medium"
+                        style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+                        VTU Expert • Streaming...
+                      </p>
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                        className="w-2 h-2 rounded-full"
+                        style={{ background: theme === 'dark' ? '#818cf8' : '#6366f1' }}
+                      />
+                    </div>
+                    <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                      {streamingMessage}
+                      <motion.span
+                        animate={{ opacity: [1, 0] }}
+                        transition={{ duration: 0.8, repeat: Infinity }}
+                        className="inline-block ml-1">
+                        ▊
+                      </motion.span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {loading && !isStreaming && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -827,7 +935,7 @@ Ask me anything!`,
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleVoiceInput}
-              disabled={loading}
+              disabled={loading || isStreaming}
               className={`flex-shrink-0 p-3 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                 isListening ? 'animate-pulse' : ''
               }`}
@@ -839,7 +947,7 @@ Ask me anything!`,
                   : 'linear-gradient(135deg, #818cf8, #a78bfa)',
                 boxShadow: isListening
                   ? '0 0 20px rgba(239,68,68,0.5)'
-                  : !loading && theme === 'dark'
+                  : !(loading || isStreaming) && theme === 'dark'
                   ? '0 4px 20px rgba(99,102,241,0.3)'
                   : '0 2px 10px rgba(99,102,241,0.2)',
                 color: '#ffffff'
@@ -853,7 +961,7 @@ Ask me anything!`,
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Ask any VTU exam question..."
-              disabled={loading || isListening}
+              disabled={loading || isListening || isStreaming}
               className="flex-1 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all duration-200"
               style={{
                 background: theme === 'dark' 
@@ -866,25 +974,45 @@ Ask me anything!`,
                   : 'inset 0 1px 2px rgba(0,0,0,0.05)'
               }}
             />
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              disabled={!input.trim() || loading}
-              className="flex-shrink-0 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: theme === 'dark'
-                  ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
-                  : 'linear-gradient(135deg, #818cf8, #a78bfa)',
-                color: '#ffffff',
-                boxShadow: !input.trim() || loading
-                  ? 'none'
-                  : theme === 'dark'
-                  ? '0 4px 20px rgba(99,102,241,0.3)'
-                  : '0 2px 10px rgba(99,102,241,0.2)'
-              }}>
-              {loading ? '...' : 'Send'}
-            </motion.button>
+            
+            {/* Send or Stop Button */}
+            {isStreaming ? (
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleStopGeneration}
+                className="flex-shrink-0 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: '#ffffff',
+                  boxShadow: '0 4px 20px rgba(239,68,68,0.3)'
+                }}
+                title="Stop Generation">
+                ⏹ Stop
+              </motion.button>
+            ) : (
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                disabled={!input.trim() || loading}
+                className="flex-shrink-0 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  background: theme === 'dark'
+                    ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
+                    : 'linear-gradient(135deg, #818cf8, #a78bfa)',
+                  color: '#ffffff',
+                  boxShadow: !input.trim() || loading
+                    ? 'none'
+                    : theme === 'dark'
+                    ? '0 4px 20px rgba(99,102,241,0.3)'
+                    : '0 2px 10px rgba(99,102,241,0.2)'
+                }}
+                title="Send Message">
+                {loading ? '...' : 'Send'}
+              </motion.button>
+            )}
           </form>
         </div>
       </div>

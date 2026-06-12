@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const ConversationEngine = require('../services/ai/conversationEngine');
+const StreamingService = require('../services/ai/streamingService');
 const ContextDetector = require('../utils/contextDetector');
 const { analyzeQuestionPaper } = require('../services/aiService');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 
-// Initialize conversation engine
+// Initialize services
 const conversationEngine = new ConversationEngine();
+const streamingService = new StreamingService();
 
 // Multer configuration for file uploads
 const storage = multer.diskStorage({
@@ -112,6 +114,45 @@ router.post('/chat', async (req, res) => {
         tokens: 0
       }
     });
+  }
+});
+
+// Streaming chat endpoint (SSE)
+router.post('/chat/stream', async (req, res) => {
+  try {
+    const { message, history, context, mode = 'normal', marks } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    console.log('🌊 Streaming request:', { 
+      messageLength: message.length, 
+      mode,
+      marks
+    });
+
+    // Detect context from referer URL if not provided
+    let detectedContext = context || {};
+    if (!detectedContext.branch && req.headers.referer) {
+      const urlContext = ContextDetector.detectFromURL(req.headers.referer);
+      detectedContext = ContextDetector.mergeContext(urlContext, context, {});
+    }
+
+    // Stream response
+    await streamingService.streamResponse(res, {
+      message,
+      history: history || [],
+      context: detectedContext,
+      mode,
+      marks
+    });
+
+  } catch (error) {
+    console.error('❌ Streaming API Error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Streaming failed' });
+    }
   }
 });
 
