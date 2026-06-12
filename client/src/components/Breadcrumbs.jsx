@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 /**
  * items: [{ label, to? }]
  * Bulletproof breadcrumb - guaranteed single line
+ * v2.0 - Pure inline styles
  */
 const Breadcrumbs = ({ items }) => {
   const navigate = useNavigate();
