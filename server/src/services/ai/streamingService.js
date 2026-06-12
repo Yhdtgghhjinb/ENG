@@ -241,7 +241,7 @@ class StreamingService {
    */
   async streamGoogle(res, model, messages) {
     const client = this.modelRouter.getClient(model);
-    const geminiModel = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    const geminiModel = client.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     // Convert messages to Gemini format
     const systemMessage = messages.find(m => m.role === 'system');

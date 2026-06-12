@@ -12,9 +12,9 @@ class RAGEngine {
       ? new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
       : null;
     
-    this.embeddingModel = this.google?.getGenerativeModel({ 
-      model: 'embedding-001' 
-    });
+    // Disable RAG temporarily until we verify available embedding models
+    // The system will work without RAG by using AI general knowledge
+    this.embeddingModel = null; // Disabled for now
     
     this.chunkSize = 800; // Tokens per chunk
     this.chunkOverlap = 100; // Overlap to preserve context
