@@ -64,36 +64,38 @@ class ModelRouter {
     
     // Vision tasks → Vision-capable models
     if (hasImage) {
+      return this.selectFromModels(['gemini-2.0-flash', 'gpt-4o', 'claude-3-5-sonnet']);
+    }
+    
+    // Code generation/debugging → Prefer available models
+    if (type === 'code') {
       return this.selectFromModels(['gpt-4o', 'gemini-2.0-flash', 'claude-3-5-sonnet']);
     }
     
-    // Code generation/debugging → GPT-4o
-    if (type === 'code') {
-      return 'gpt-4o';
-    }
-    
-    // Long context (>20k tokens) → Claude
+    // Long context (>20k tokens) → Claude or Gemini
     if (contextLength > 20000) {
-      return 'claude-3-5-sonnet';
+      return this.selectFromModels(['claude-3-5-sonnet', 'gemini-2.0-flash']);
     }
     
     // Research mode → Best analytical model
     if (mode === 'research') {
-      return 'claude-3-5-sonnet';
+      return this.selectFromModels(['claude-3-5-sonnet', 'gemini-2.0-flash']);
     }
     
     // Exam answers → Based on complexity
     if (mode === 'exam') {
-      return complexity === 'high' ? 'gpt-4o' : 'gemini-2.0-flash';
+      return complexity === 'high' 
+        ? this.selectFromModels(['gpt-4o', 'gemini-2.0-flash']) 
+        : this.selectFromModels(['gemini-2.0-flash', 'llama-3.3-70b']);
     }
     
     // Simple Q&A → Fast, cost-effective model
     if (complexity === 'low' && contextLength < 2000) {
-      return 'llama-3.3-70b';
+      return this.selectFromModels(['llama-3.3-70b', 'gemini-2.0-flash']);
     }
     
-    // Default: GPT-4o for best quality
-    return 'gpt-4o';
+    // Default: Use best available model
+    return this.selectFromModels(['gemini-2.0-flash', 'gpt-4o', 'claude-3-5-sonnet', 'llama-3.3-70b']);
   }
 
   /**
