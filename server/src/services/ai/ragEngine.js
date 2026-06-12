@@ -12,9 +12,10 @@ class RAGEngine {
       ? new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
       : null;
     
-    // Disable RAG temporarily until we verify available embedding models
-    // The system will work without RAG by using AI general knowledge
-    this.embeddingModel = null; // Disabled for now
+    // Use text-embedding-004 (stable production model)
+    this.embeddingModel = this.google?.getGenerativeModel({ 
+      model: 'text-embedding-004' 
+    });
     
     this.chunkSize = 800; // Tokens per chunk
     this.chunkOverlap = 100; // Overlap to preserve context
@@ -61,7 +62,10 @@ class RAGEngine {
    */
   async generateEmbedding(text) {
     try {
-      const result = await this.embeddingModel.embedContent(text);
+      // Use embedContent method with correct model
+      const result = await this.embeddingModel.embedContent({
+        content: { parts: [{ text }] }
+      });
       return result.embedding.values;
     } catch (error) {
       console.error('❌ Embedding generation error:', error);
