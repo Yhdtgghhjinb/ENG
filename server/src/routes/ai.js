@@ -1,9 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { getChatResponse, analyzeQuestionPaper } = require('../services/aiService');
+const ConversationEngine = require('../services/ai/conversationEngine');
+const ContextDetector = require('../utils/contextDetector');
+const { analyzeQuestionPaper } = require('../services/aiService');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
+
+// Initialize conversation engine
+const conversationEngine = new ConversationEngine();
 
 // Multer configuration for file uploads
 const storage = multer.diskStorage({
@@ -34,39 +39,78 @@ const upload = multer({
   }
 });
 
-// Chat endpoint
+// Chat endpoint (Enhanced with multi-model routing)
 router.post('/chat', async (req, res) => {
   try {
-    const { message, history } = req.body;
+    const { message, history, context, mode = 'normal', marks, files = [] } = req.body;
 
     if (!message || !message.trim()) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    console.log('Chat request received:', { message: message.substring(0, 50) });
+    console.log('💬 Chat request:', { 
+      messageLength: message.length, 
+      historyCount: history?.length || 0,
+      mode,
+      marks,
+      hasContext: !!context?.subject
+    });
 
-    const result = await getChatResponse(message, history || []);
+    // Detect context from referer URL if not provided
+    let detectedContext = context || {};
+    if (!detectedContext.branch && req.headers.referer) {
+      const urlContext = ContextDetector.detectFromURL(req.headers.referer);
+      detectedContext = ContextDetector.mergeContext(urlContext, context, {});
+    }
 
-    console.log('Chat result:', { success: result.success, hasResponse: !!result.response });
+    // Generate response using conversation engine
+    const result = await conversationEngine.generateResponse({
+      message,
+      history: history || [],
+      context: detectedContext,
+      mode,
+      marks,
+      files
+    });
+
+    console.log('✅ Response generated:', { 
+      success: result.success, 
+      model: result.model,
+      tokens: result.tokens
+    });
 
     if (result.success) {
       res.json({ 
         response: result.response,
-        marks: result.marks 
+        marks: result.marks,
+        metadata: {
+          model: result.model,
+          tokens: result.tokens,
+          mode: mode
+        }
       });
     } else {
-      // Return the error message as the response so user sees it
+      // Return the error message as the response
       res.json({ 
         response: result.response,
-        marks: null
+        marks: null,
+        metadata: {
+          model: null,
+          tokens: 0,
+          mode: mode
+        }
       });
     }
   } catch (error) {
-    console.error('Chat API Error:', error);
-    console.error('Error stack:', error.stack);
+    console.error('❌ Chat API Error:', error);
+    console.error('Stack:', error.stack);
     res.json({ 
       response: '❌ Sorry, an unexpected error occurred. Please try again.\n\nError: ' + error.message,
-      marks: null
+      marks: null,
+      metadata: {
+        model: null,
+        tokens: 0
+      }
     });
   }
 });
@@ -136,7 +180,12 @@ router.post('/suggest-resources', async (req, res) => {
 
     const prompt = `Suggest study resources and tips for VTU students learning ${subject}${topic ? ` - specifically ${topic}` : ''}`;
 
-    const result = await getChatResponse(prompt, []);
+    const result = await conversationEngine.generateResponse({
+      message: prompt,
+      history: [],
+      context: {},
+      mode: 'normal'
+    });
 
     if (result.success) {
       res.json({ suggestions: result.response });
@@ -147,6 +196,13 @@ router.post('/suggest-resources', async (req, res) => {
     console.error('Suggest Resources Error:', error);
     res.status(500).json({ error: 'Failed to generate suggestions' });
   }
+});
+
+// Get available modes
+router.get('/modes', (req, res) => {
+  const ModeController = require('../services/ai/modeController');
+  const modes = ModeController.getAllModes();
+  res.json({ modes });
 });
 
 module.exports = router;

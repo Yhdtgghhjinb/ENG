@@ -2,78 +2,138 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
 import api from '../config/api';
+import ContextDetector from '../utils/ai/contextDetector';
+import MemoryManager from '../utils/ai/memoryManager';
 
 const AIChatBot = () => {
   // Theme Management (Light/Dark)
   const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('vtu-theme');
-    return savedTheme || 'dark';
+    const prefs = MemoryManager.getPreferences();
+    return prefs.theme || 'dark';
   });
 
-  // Load chat history from sessionStorage on component mount
+  // Context Detection
+  const [context, setContext] = useState(() => {
+    return ContextDetector.detectContext();
+  });
+
+  // Mode Selection
+  const [mode, setMode] = useState('normal');
+  const [availableModes, setAvailableModes] = useState([
+    { key: 'normal', name: 'Normal' },
+    { key: 'exam', name: 'VTU Exam Mode' },
+    { key: 'tutor', name: 'AI Tutor' },
+    { key: 'viva', name: 'Mock Viva' },
+    { key: 'quiz', name: 'Quiz Mode' },
+    { key: 'code', name: 'Coding Assistant' }
+  ]);
+
+  // Active conversation
+  const [activeConversationId, setActiveConversationId] = useState(() => {
+    return MemoryManager.getActiveConversationId();
+  });
+
+  // Load chat history from active conversation or create new
   const [messages, setMessages] = useState(() => {
-    const savedMessages = sessionStorage.getItem('vtu-chat-history');
-    if (savedMessages) {
-      try {
-        return JSON.parse(savedMessages);
-      } catch (e) {
-        console.error('Error loading chat history:', e);
+    if (activeConversationId) {
+      const conversation = MemoryManager.getConversation(activeConversationId);
+      if (conversation) {
+        return conversation.messages;
       }
     }
-    return [
-      {
-        role: 'assistant',
-        content: `🎓 Welcome! I'm your VTU Exam Expert Assistant.
 
-📖 **HOW TO USE:**
+    // Create new conversation
+    const newConv = MemoryManager.createConversation();
+    newConv.messages.push({
+      role: 'assistant',
+      content: `🎓 Welcome! I'm your VTU AI Assistant with multi-model intelligence.
 
-1️⃣ **Ask Any VTU Question**
-   Simply type your question and mention marks if needed
-   
-2️⃣ **Get Perfect VTU Answers**
-   • Textbook-aligned format
-   • Proper exam structure
-   • Ready to copy and use
-   
-3️⃣ **Mark-Based Responses**
-   • 2 marks = Brief answer (70-90 words)
-   • 5 marks = Detailed answer (220-260 words)
-   • 10 marks = Complete answer (550-650 words)
-   • 16 marks = Full explanation (1100-1300 words)
+📖 **NEW FEATURES:**
+
+🎯 **Smart Modes:**
+${availableModes.map(m => `   • ${m.name}`).join('\n')}
+
+🧠 **Context Aware:**
+   Automatically detects your Branch, Semester, Subject
+
+🤖 **Multi-Model AI:**
+   Uses best AI (GPT-4o, Claude, Gemini, Groq) for each task
 
 💡 **Features:**
 ✓ Voice Input (🎤)
 ✓ Export to PDF (📄)
-✓ Share Answers (📤)
-✓ Dark/Light Mode (🌓)
-✓ Copy with one click (📋)
-✓ Chat history saved
+✓ Multiple AI Modes
+✓ Conversation History
+✓ Context Detection
 ✓ 100% Free
 
-❓ Start by asking any VTU exam question!`,
-        timestamp: new Date(),
-        isWelcome: true
-      }
-    ];
+❓ Ask me anything!`,
+      timestamp: new Date(),
+      isWelcome: true
+    });
+
+    MemoryManager.saveConversation(newConv);
+    MemoryManager.setActiveConversationId(newConv.id);
+    setActiveConversationId(newConv.id);
+
+    return newConv.messages;
   });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showModeSelector, setShowModeSelector] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
   
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const modeSelectorRef = useRef(null);
 
-  // Save messages to sessionStorage whenever they change
+  // Close mode selector on click outside
   useEffect(() => {
-    sessionStorage.setItem('vtu-chat-history', JSON.stringify(messages));
-  }, [messages]);
+    const handleClickOutside = (event) => {
+      if (modeSelectorRef.current && !modeSelectorRef.current.contains(event.target)) {
+        setShowModeSelector(false);
+      }
+    };
+
+    if (showModeSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showModeSelector]);
+
+  // Update context when URL changes
+  useEffect(() => {
+    const detectedContext = ContextDetector.detectContext();
+    setContext(detectedContext);
+    
+    // Save to localStorage
+    if (ContextDetector.hasContext(detectedContext)) {
+      ContextDetector.saveContext(detectedContext);
+    }
+  }, [window.location.pathname]);
+
+  // Save messages to conversation when they change
+  useEffect(() => {
+    if (activeConversationId && messages.length > 0) {
+      const conversation = MemoryManager.getConversation(activeConversationId);
+      if (conversation) {
+        conversation.messages = messages;
+        conversation.updatedAt = new Date().toISOString();
+        conversation.totalMessages = messages.length;
+        MemoryManager.saveConversation(conversation);
+      }
+    }
+  }, [messages, activeConversationId]);
 
   // Save theme preference
   useEffect(() => {
-    localStorage.setItem('vtu-theme', theme);
+    MemoryManager.updatePreference('theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
@@ -128,27 +188,57 @@ const AIChatBot = () => {
     const userMessage = {
       role: 'user',
       content: input.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
+      context: context
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    // Add user message immediately
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    
+    // Add to conversation
+    if (activeConversationId) {
+      MemoryManager.addMessage(activeConversationId, userMessage);
+    }
+    
     setInput('');
     setLoading(true);
 
     try {
+      // Get conversation history
+      const history = MemoryManager.getActiveConversationHistory(10);
+      
+      // Detect marks from message
+      const marksMatch = input.match(/(\d+)\s*marks?/i);
+      const marks = marksMatch ? parseInt(marksMatch[1]) : null;
+
       const res = await api.post('/api/ai/chat', {
         message: input.trim(),
-        history: messages.slice(-10) // Send last 10 messages for context
+        history: history,
+        context: context,
+        mode: mode,
+        marks: marks
       });
 
       const aiMessage = {
         role: 'assistant',
         content: res.data.response,
         timestamp: new Date(),
-        marks: res.data.marks // Track if it was a marks-based question
+        metadata: {
+          model: res.data.metadata?.model,
+          tokens: res.data.metadata?.tokens,
+          mode: mode,
+          marks: res.data.marks
+        }
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Add to conversation
+      if (activeConversationId) {
+        MemoryManager.addMessage(activeConversationId, aiMessage);
+      }
+
     } catch (error) {
       const errorMessage = {
         role: 'assistant',
@@ -329,48 +419,33 @@ const AIChatBot = () => {
     }
   }, [messages]);
 
-  // Clear Chat
+  // Clear Chat / Start New Conversation
   const clearChat = useCallback(() => {
-    if (confirm('Are you sure you want to clear all chat history?')) {
-      setMessages([
-        {
-          role: 'assistant',
-          content: `🎓 Welcome! I'm your VTU Exam Expert Assistant.
+    if (confirm('Start a new conversation? Current chat will be saved.')) {
+      // Create new conversation
+      const newConv = MemoryManager.createConversation();
+      newConv.messages.push({
+        role: 'assistant',
+        content: `🎓 New Conversation Started!
 
-📖 **HOW TO USE:**
+I'm ready to help with:
+• ${availableModes.find(m => m.key === mode)?.name || 'Normal Mode'}
+${ContextDetector.hasContext(context) ? `• Context: ${ContextDetector.formatForDisplay(context)}` : ''}
 
-1️⃣ **Ask Any VTU Question**
-   Simply type your question and mention marks if needed
-   
-2️⃣ **Get Perfect VTU Answers**
-   • Textbook-aligned format
-   • Proper exam structure
-   • Ready to copy and use
-   
-3️⃣ **Mark-Based Responses**
-   • 2 marks = Brief answer (70-90 words)
-   • 5 marks = Detailed answer (220-260 words)
-   • 10 marks = Complete answer (550-650 words)
-   • 16 marks = Full explanation (1100-1300 words)
+Ask me anything!`,
+        timestamp: new Date(),
+        isWelcome: true
+      });
 
-💡 **Features:**
-✓ Voice Input (🎤)
-✓ Export to PDF (📄)
-✓ Share Answers (📤)
-✓ Dark/Light Mode (🌓)
-✓ Copy with one click (📋)
-✓ Chat history saved
-✓ 100% Free
-
-❓ Start by asking any VTU exam question!`,
-          timestamp: new Date(),
-          isWelcome: true
-        }
-      ]);
-      sessionStorage.removeItem('vtu-chat-history');
-      toast.success('Chat cleared!');
+      MemoryManager.saveConversation(newConv);
+      MemoryManager.setActiveConversationId(newConv.id);
+      
+      setActiveConversationId(newConv.id);
+      setMessages(newConv.messages);
+      
+      toast.success('New conversation started!');
     }
-  }, []);
+  }, [mode, context, availableModes]);
 
   // Toggle Theme
   const toggleTheme = () => {
@@ -411,16 +486,93 @@ const AIChatBot = () => {
             <div className="flex-1 min-w-[200px]">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight"
                 style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }}>
-                🎓 VTU Exam Expert AI
+                🎓 VTU AI Assistant
               </h1>
               <p className="text-xs sm:text-sm mt-1"
                 style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
-                Get exact VTU board answers • Mark-based responses • 100% Free
+                Multi-Model AI • Context Aware • 7+ Modes
+                {ContextDetector.hasContext(context) && ` • ${ContextDetector.formatForDisplay(context)}`}
               </p>
             </div>
             
             {/* Action Buttons */}
             <div className="flex items-center gap-2 flex-wrap">
+              {/* Mode Selector */}
+              <div className="relative" ref={modeSelectorRef}>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowModeSelector(!showModeSelector)}
+                  className="p-2.5 rounded-xl transition-all duration-200 flex items-center gap-2"
+                  style={{
+                    background: theme === 'dark' 
+                      ? 'rgba(139,92,246,0.15)' 
+                      : 'rgba(139,92,246,0.1)',
+                    border: `1px solid ${theme === 'dark' ? 'rgba(139,92,246,0.3)' : 'rgba(139,92,246,0.4)'}`,
+                    color: theme === 'dark' ? '#c4b5fd' : '#7c3aed'
+                  }}
+                  title="Select AI Mode">
+                  <span className="text-lg">🎯</span>
+                  <span className="text-xs font-medium hidden sm:inline">
+                    {availableModes.find(m => m.key === mode)?.name || 'Normal'}
+                  </span>
+                </motion.button>
+
+                {/* Mode Dropdown */}
+                <AnimatePresence>
+                  {showModeSelector && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full right-0 mt-2 w-56 rounded-xl shadow-2xl z-50"
+                      style={{
+                        background: theme === 'dark' 
+                          ? 'rgba(17,24,39,0.95)' 
+                          : 'rgba(255,255,255,0.95)',
+                        border: `1px solid ${theme === 'dark' ? 'rgba(99,102,241,0.3)' : 'rgba(99,102,241,0.4)'}`,
+                        backdropFilter: 'blur(12px)'
+                      }}>
+                      <div className="p-2">
+                        <div className="text-xs font-semibold px-3 py-2"
+                          style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+                          SELECT MODE
+                        </div>
+                        {availableModes.map(m => (
+                          <button
+                            key={m.key}
+                            onClick={() => {
+                              setMode(m.key);
+                              setShowModeSelector(false);
+                              toast.success(`Switched to ${m.name}`);
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200"
+                            style={{
+                              background: mode === m.key 
+                                ? theme === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.15)'
+                                : 'transparent',
+                              color: theme === 'dark' ? '#f1f5f9' : '#1e293b'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (mode !== m.key) {
+                                e.currentTarget.style.background = theme === 'dark' ? 'rgba(99,102,241,0.1)' : 'rgba(99,102,241,0.08)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (mode !== m.key) {
+                                e.currentTarget.style.background = 'transparent';
+                              }
+                            }}>
+                            {m.name}
+                            {mode === m.key && ' ✓'}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* Theme Toggle */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -456,11 +608,33 @@ const AIChatBot = () => {
                 <span className="text-lg">📄</span>
               </motion.button>
 
-              {/* Clear Chat */}
+              {/* New Chat */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={clearChat}
+                className="p-2.5 rounded-xl transition-all duration-200"
+                style={{
+                  background: theme === 'dark' 
+                    ? 'rgba(59,130,246,0.15)' 
+                    : 'rgba(59,130,246,0.1)',
+                  border: `1px solid ${theme === 'dark' ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.4)'}`,
+                  color: theme === 'dark' ? '#93c5fd' : '#2563eb'
+                }}
+                title="New Conversation">
+                <span className="text-lg">➕</span>
+              </motion.button>
+
+              {/* Clear Chat */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  if (confirm('Clear ALL conversations? This cannot be undone.')) {
+                    MemoryManager.clearAllConversations();
+                    window.location.reload();
+                  }
+                }}
                 disabled={messages.length <= 1}
                 className="p-2.5 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{
@@ -470,7 +644,7 @@ const AIChatBot = () => {
                   border: `1px solid ${theme === 'dark' ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.4)'}`,
                   color: theme === 'dark' ? '#fca5a5' : '#dc2626'
                 }}
-                title="Clear Chat">
+                title="Clear All Conversations">
                 <span className="text-lg">🗑️</span>
               </motion.button>
             </div>
@@ -532,7 +706,7 @@ const AIChatBot = () => {
                           }}>
                           {msg.role === 'user' ? 'You' : 'VTU Expert'} • {new Date(msg.timestamp).toLocaleTimeString()}
                         </p>
-                        {msg.marks && (
+                        {msg.metadata?.marks && (
                           <motion.span 
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
@@ -544,7 +718,22 @@ const AIChatBot = () => {
                               color: '#fbbf24',
                               border: `1px solid rgba(245,158,11,0.3)`
                             }}>
-                            📝 {msg.marks} Marks Answer
+                            📝 {msg.metadata.marks} Marks
+                          </motion.span>
+                        )}
+                        {msg.metadata?.model && (
+                          <motion.span 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap"
+                            style={{ 
+                              background: theme === 'dark' 
+                                ? 'rgba(139,92,246,0.2)' 
+                                : 'rgba(139,92,246,0.15)', 
+                              color: theme === 'dark' ? '#c4b5fd' : '#7c3aed',
+                              border: `1px solid ${theme === 'dark' ? 'rgba(139,92,246,0.3)' : 'rgba(139,92,246,0.4)'}`
+                            }}>
+                            🤖 {msg.metadata.model}
                           </motion.span>
                         )}
                       </div>
