@@ -26,10 +26,9 @@ api.interceptors.request.use((config) => {
     const cached = cache.get(cacheKey);
     
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-      // Log cache hit
+      // Cache hit - silent in production
       const timer = perfMonitor.start(`API Cache Hit: ${config.url}`);
       if (timer) timer.end();
-      console.log(`💾 Frontend Cache HIT: ${config.url}`);
       
       // Return cached data
       config.adapter = () => {
@@ -41,9 +40,6 @@ api.interceptors.request.use((config) => {
           config,
         });
       };
-    } else {
-      // Log cache miss
-      console.log(`❌ Frontend Cache MISS: ${config.url}`);
     }
   }
   return config;
@@ -56,17 +52,13 @@ api.interceptors.response.use((response) => {
     ? Math.round(performance.now() - response.config.metadata.startTime) 
     : 0;
   
-  // Log API performance
+  // Only log slow requests in production (>1000ms)
   const url = response.config.url;
   const method = response.config.method.toUpperCase();
   const responseTime = response.headers['x-response-time'] || 'unknown';
   
   if (duration > 1000) {
-    console.warn(`🐌 SLOW API: ${method} ${url} - Frontend: ${duration}ms, Backend: ${responseTime}`);
-  } else if (duration > 500) {
-    console.log(`⚠️ ${method} ${url} - Frontend: ${duration}ms, Backend: ${responseTime}`);
-  } else {
-    console.log(`✅ ${method} ${url} - Frontend: ${duration}ms, Backend: ${responseTime}`);
+    console.warn(`🐌 SLOW: ${method} ${url} - ${duration}ms (Backend: ${responseTime})`);
   }
   
   if (response.config.method === 'get' && response.status === 200) {
@@ -76,15 +68,12 @@ api.interceptors.response.use((response) => {
     if (cache.size >= MAX_CACHE_SIZE) {
       const firstKey = cache.keys().next().value;
       cache.delete(firstKey);
-      console.log(`🗑️ Frontend Cache EVICTION (${cache.size}/${MAX_CACHE_SIZE})`);
     }
     
     cache.set(cacheKey, {
       data: response.data,
       timestamp: Date.now(),
     });
-    
-    console.log(`✅ Frontend Cache STORED: ${response.config.url} (${cache.size}/${MAX_CACHE_SIZE})`);
   }
   return response;
 });
