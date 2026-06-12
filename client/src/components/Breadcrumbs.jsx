@@ -2,23 +2,29 @@ import { Link, useNavigate } from 'react-router-dom';
 
 /**
  * items: [{ label, to? }]
- * Simple breadcrumb navigation with working back button
- * Mobile-optimized with horizontal scrolling (no wrapping)
+ * Bulletproof breadcrumb - guaranteed single line
  */
 const Breadcrumbs = ({ items }) => {
   const navigate = useNavigate();
   const lastIdx = items.length - 1;
 
   return (
-    <nav aria-label="breadcrumb" className="mb-6">
-      <div className="flex items-center gap-3">
+    <nav aria-label="breadcrumb" className="mb-6" style={{ overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex-shrink-0 flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 hover:-translate-x-1"
           style={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '36px',
+            width: '36px',
+            borderRadius: '8px',
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
+            transition: 'all 0.2s',
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -27,29 +33,33 @@ const Breadcrumbs = ({ items }) => {
           </svg>
         </button>
 
-        {/* Breadcrumb Trail - Horizontal Scrollable (No Wrap) */}
-        <div className="flex-1 min-w-0">
+        {/* Breadcrumb Trail */}
+        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
           <div 
-            className="flex items-center overflow-x-auto text-xs sm:text-sm scrollbar-hide"
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              overflowX: 'auto',
+              fontSize: '12px',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
               WebkitOverflowScrolling: 'touch',
-              display: 'flex',
-              flexWrap: 'nowrap',
             }}
+            className="scrollbar-hide"
           >
             {items.map((item, idx) => {
               const isLast = idx === lastIdx;
               return (
                 <div key={`crumb-${idx}`} style={{ display: 'flex', alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' }}>
                   {idx > 0 && (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mx-1.5 flex-shrink-0 text-slate-600">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ margin: '0 6px', flexShrink: 0, color: '#475569' }}>
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
                   )}
                   {isLast || !item.to ? (
-                    <span className="font-semibold text-white" style={{ 
+                    <span style={{ 
+                      fontWeight: 600,
+                      color: '#fff',
                       maxWidth: '100px',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -61,13 +71,14 @@ const Breadcrumbs = ({ items }) => {
                   ) : (
                     <Link
                       to={item.to}
-                      className="text-slate-400 transition-colors hover:text-white"
                       style={{ 
+                        color: '#94a3b8',
                         maxWidth: '80px',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
-                        display: 'inline-block'
+                        display: 'inline-block',
+                        transition: 'color 0.2s'
                       }}
                     >
                       {item.label}
