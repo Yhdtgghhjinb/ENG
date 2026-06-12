@@ -152,13 +152,7 @@ const AdminLogin = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="space-y-2 px-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-indigo-300 md:text-transparent"
-              style={{
-                willChange: 'transform, opacity',
-                background: 'linear-gradient(to right, #a5b4fc, #c4b5fd, #f9a8d4)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-              }}>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-indigo-300">
               Admin Access
             </h1>
             <p className="text-xs sm:text-sm text-slate-400">

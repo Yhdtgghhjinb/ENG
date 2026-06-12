@@ -133,34 +133,14 @@ const Landing = () => {
               className="space-y-4 sm:space-y-5 md:space-y-6 px-2">
               
               <div className="space-y-2 sm:space-y-3">
-                <motion.h1
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black leading-tight px-2 text-indigo-300 md:text-transparent"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  style={{
-                    willChange: 'transform, opacity',
-                    background: 'linear-gradient(to right, #a5b4fc, #c4b5fd, #f9a8d4)',
-                    WebkitBackgroundClip: 'text',
-                    backgroundClip: 'text',
-                  }}>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black leading-tight px-2 text-indigo-300">
                   Welcome to
-                </motion.h1>
+                </h1>
                 
-                <motion.h2
-                  className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black leading-tight px-2 text-white md:text-transparent"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.7, type: "spring", stiffness: 100 }}
-                  style={{
-                    willChange: 'transform, opacity',
-                    background: 'linear-gradient(to right, #ffffff, #f1f5f9, #ffffff)',
-                    WebkitBackgroundClip: 'text',
-                    backgroundClip: 'text',
-                    textShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
-                  }}>
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black leading-tight px-2 text-white"
+                  style={{ textShadow: '0 20px 40px rgba(0, 0, 0, 0.4)' }}>
                   VTU VAULT
-                </motion.h2>
+                </h2>
               </div>
 
               <motion.p
