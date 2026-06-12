@@ -30,7 +30,7 @@ const Breadcrumbs = ({ items }) => {
         {/* Breadcrumb Trail - Horizontal Scrollable (No Wrap) */}
         <div className="relative flex-1 min-w-0 overflow-hidden">
           <div 
-            className="flex items-center gap-1.5 overflow-x-auto text-xs sm:text-sm scrollbar-hide"
+            className="flex flex-nowrap items-center gap-1.5 overflow-x-auto text-xs sm:text-sm scrollbar-hide"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
