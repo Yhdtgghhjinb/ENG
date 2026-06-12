@@ -20,13 +20,13 @@ const MODEL_CONFIGS = {
     contextWindow: 200000,
     bestFor: ['long-context', 'analysis', 'writing', 'research']
   },
-  'gemini-2.0-flash': {
+  'gemini-pro': {
     provider: 'google',
-    capabilities: ['text', 'vision', 'speed'],
+    capabilities: ['text', 'speed'],
     costPerMillion: { input: 0.10, output: 0.40 },
     speed: 'fast',
-    contextWindow: 100000,
-    bestFor: ['simple-qa', 'quick-answers', 'vision']
+    contextWindow: 32000,
+    bestFor: ['simple-qa', 'quick-answers', 'general']
   },
   'llama-3.3-70b': {
     provider: 'groq',
@@ -64,38 +64,38 @@ class ModelRouter {
     
     // Vision tasks → Vision-capable models
     if (hasImage) {
-      return this.selectFromModels(['gemini-2.0-flash', 'gpt-4o', 'claude-3-5-sonnet']);
+      return this.selectFromModels(['gpt-4o', 'claude-3-5-sonnet', 'gemini-pro']);
     }
     
     // Code generation/debugging → Prefer available models
     if (type === 'code') {
-      return this.selectFromModels(['gpt-4o', 'gemini-2.0-flash', 'claude-3-5-sonnet']);
+      return this.selectFromModels(['gpt-4o', 'gemini-pro', 'claude-3-5-sonnet']);
     }
     
     // Long context (>20k tokens) → Claude or Gemini
     if (contextLength > 20000) {
-      return this.selectFromModels(['claude-3-5-sonnet', 'gemini-2.0-flash']);
+      return this.selectFromModels(['claude-3-5-sonnet', 'gemini-pro']);
     }
     
     // Research mode → Best analytical model
     if (mode === 'research') {
-      return this.selectFromModels(['claude-3-5-sonnet', 'gemini-2.0-flash']);
+      return this.selectFromModels(['claude-3-5-sonnet', 'gemini-pro']);
     }
     
     // Exam answers → Based on complexity
     if (mode === 'exam') {
       return complexity === 'high' 
-        ? this.selectFromModels(['gpt-4o', 'gemini-2.0-flash']) 
-        : this.selectFromModels(['gemini-2.0-flash', 'llama-3.3-70b']);
+        ? this.selectFromModels(['gpt-4o', 'gemini-pro']) 
+        : this.selectFromModels(['gemini-pro', 'llama-3.3-70b']);
     }
     
     // Simple Q&A → Fast, cost-effective model
     if (complexity === 'low' && contextLength < 2000) {
-      return this.selectFromModels(['llama-3.3-70b', 'gemini-2.0-flash']);
+      return this.selectFromModels(['llama-3.3-70b', 'gemini-pro']);
     }
     
     // Default: Use best available model
-    return this.selectFromModels(['gemini-2.0-flash', 'gpt-4o', 'claude-3-5-sonnet', 'llama-3.3-70b']);
+    return this.selectFromModels(['gemini-pro', 'gpt-4o', 'claude-3-5-sonnet', 'llama-3.3-70b']);
   }
 
   /**

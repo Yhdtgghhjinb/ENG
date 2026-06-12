@@ -196,7 +196,7 @@ class ConversationEngine {
    */
   async callGoogle(model, messages, maxTokens) {
     const client = this.modelRouter.getClient(model);
-    const geminiModel = client.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const geminiModel = client.getGenerativeModel({ model: 'gemini-pro' });
 
     // Convert messages to Gemini format
     const systemMessage = messages.find(m => m.role === 'system');
