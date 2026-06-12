@@ -1,16 +1,20 @@
 import { Link, useNavigate } from 'react-router-dom';
 
 /**
- * items: [{ label, to? }]
- * Bulletproof breadcrumb - arrows included in text nodes
+ * Breadcrumbs - absolute no-wrap guarantee
  */
 const Breadcrumbs = ({ items }) => {
   const navigate = useNavigate();
   const lastIdx = items.length - 1;
 
   return (
-    <nav aria-label="breadcrumb" style={{ marginBottom: '24px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+    <nav aria-label="breadcrumb" style={{ marginBottom: '24px', width: '100%' }}>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '12px',
+        width: '100%',
+      }}>
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
@@ -34,63 +38,72 @@ const Breadcrumbs = ({ items }) => {
           </svg>
         </button>
 
-        {/* Breadcrumb Trail - Single nowrap container */}
+        {/* Breadcrumb - SINGLE UNWRAPPABLE LINE */}
         <div style={{ 
-          flex: 1, 
-          minWidth: 0, 
-          display: 'flex',
-          alignItems: 'center',
-          overflowX: 'auto',
-          fontSize: '12px',
-          whiteSpace: 'nowrap',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch',
-        }}
-        className="scrollbar-hide">
-          {items.map((item, idx) => {
-            const isLast = idx === lastIdx;
-            const Arrow = () => (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ display: 'inline-block', verticalAlign: 'middle', margin: '0 6px', flexShrink: 0, color: '#475569' }}>
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            );
-
-            return (
-              <span key={`crumb-${idx}`} style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
-                {idx > 0 && <Arrow />}
-                {isLast || !item.to ? (
-                  <span style={{ 
-                    fontWeight: 600,
-                    color: '#fff',
-                    maxWidth: '100px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    display: 'inline-block',
-                  }}>
-                    {item.label}
-                  </span>
-                ) : (
-                  <Link
-                    to={item.to}
-                    style={{ 
-                      color: '#94a3b8',
-                      maxWidth: '80px',
+          flex: '1 1 0',
+          minWidth: 0,
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            display: 'block',
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            whiteSpace: 'nowrap',
+            fontSize: '12px',
+            lineHeight: '36px',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}
+          className="scrollbar-hide">
+            {items.map((item, idx) => {
+              const isLast = idx === lastIdx;
+              return (
+                <span key={idx} style={{ whiteSpace: 'nowrap' }}>
+                  {idx > 0 && (
+                    <span style={{ 
+                      display: 'inline-block',
+                      margin: '0 6px',
+                      color: '#475569',
+                      verticalAlign: 'middle',
+                    }}>
+                      ›
+                    </span>
+                  )}
+                  {isLast || !item.to ? (
+                    <span style={{ 
+                      fontWeight: 600,
+                      color: '#fff',
+                      display: 'inline-block',
+                      maxWidth: '100px',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
+                      verticalAlign: 'middle',
                       whiteSpace: 'nowrap',
-                      display: 'inline-block',
-                      transition: 'color 0.2s',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    {item.label}
-                  </Link>
-                )}
-              </span>
-            );
-          })}
+                    }}>
+                      {item.label}
+                    </span>
+                  ) : (
+                    <Link
+                      to={item.to}
+                      style={{ 
+                        color: '#94a3b8',
+                        display: 'inline-block',
+                        maxWidth: '80px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        verticalAlign: 'middle',
+                        whiteSpace: 'nowrap',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+                </span>
+              );
+            })}
+          </div>
         </div>
       </div>
     </nav>
