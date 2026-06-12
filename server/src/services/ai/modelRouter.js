@@ -94,8 +94,8 @@ class ModelRouter {
       return this.selectFromModels(['llama-3.3-70b', 'gemini-pro']);
     }
     
-    // Default: Use best available model
-    return this.selectFromModels(['gemini-pro', 'gpt-4o', 'claude-3-5-sonnet', 'llama-3.3-70b']);
+    // Default: Use best available model (prefer Groq for reliability and speed)
+    return this.selectFromModels(['llama-3.3-70b', 'gemini-pro', 'gpt-4o', 'claude-3-5-sonnet']);
   }
 
   /**
