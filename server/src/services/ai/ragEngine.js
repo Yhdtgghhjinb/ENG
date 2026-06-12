@@ -13,7 +13,7 @@ class RAGEngine {
       : null;
     
     this.embeddingModel = this.google?.getGenerativeModel({ 
-      model: 'text-embedding-004' 
+      model: 'embedding-001' 
     });
     
     this.chunkSize = 800; // Tokens per chunk

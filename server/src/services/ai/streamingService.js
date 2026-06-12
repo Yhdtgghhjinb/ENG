@@ -261,7 +261,10 @@ class StreamingService {
 
     const chat = geminiModel.startChat({
       history: chatHistory,
-      systemInstruction: systemMessage?.content || ''
+      systemInstruction: systemMessage ? {
+        role: 'user',
+        parts: [{ text: systemMessage.content }]
+      } : undefined
     });
 
     const lastMessage = conversationMessages[conversationMessages.length - 1];
