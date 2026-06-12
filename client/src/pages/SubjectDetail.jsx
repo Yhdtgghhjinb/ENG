@@ -462,40 +462,46 @@ const SubjectDetail = () => {
         {/* Clean Subject Header */}
         <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 backdrop-blur-sm">
           {/* Subject Name */}
-          <h1 className="text-xl md:text-2xl font-bold text-white mb-3 leading-tight uppercase tracking-wide">
+          <h1 className="text-xl md:text-2xl font-bold text-white mb-4 leading-tight uppercase tracking-wide">
             {subject.name}
           </h1>
 
-          {/* Academic Info - Single Line */}
-          <div className="flex flex-wrap items-center gap-2 text-sm text-slate-300 mb-4">
+          {/* Academic Info Chips - Consistent Visual Hierarchy */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
             {subject.code && (
-              <span className="font-semibold text-indigo-300">{subject.code}</span>
+              <span className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">
+                {subject.code}
+              </span>
             )}
-            {subject.semesterNumber && (
-              <>
-                <span className="text-slate-600">•</span>
-                <span>Semester {subject.semesterNumber}</span>
-              </>
+            {(subject.branchId?.code || subject.branchId?.name) && (
+              <span className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                {subject.branchId?.code || subject.branchId?.name}
+              </span>
             )}
-            {subject.scheme && (
-              <>
-                <span className="text-slate-600">•</span>
-                <span>{subject.scheme}</span>
-              </>
+            {(subject.semesterId?.number || subject.semesterNumber) && (
+              <span className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/25">
+                Semester {subject.semesterId?.number || subject.semesterNumber}
+              </span>
+            )}
+            {(subject.schemeId?.label || subject.scheme) && (
+              <span className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-500/15 text-violet-300 border border-violet-500/25">
+                {subject.schemeId?.label || subject.scheme}
+              </span>
             )}
             {subject.credits && (
-              <>
-                <span className="text-slate-600">•</span>
-                <span className="font-medium">{subject.credits} Credits</span>
-              </>
+              <span className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/25">
+                {subject.credits} Credits
+              </span>
             )}
-            {(subject.lectureHours || subject.tutorialHours || subject.practicalHours) && (
-              <>
-                <span className="text-slate-600">•</span>
-                <span className="font-mono text-xs">
-                  L-T-P: {subject.lectureHours || 0}-{subject.tutorialHours || 0}-{subject.practicalHours || 0}
-                </span>
-              </>
+            {(subject.lectureHours !== null || subject.tutorialHours !== null || subject.practicalHours !== null) && (
+              <span className="px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/25">
+                L-T-P: {subject.lectureHours || 0}-{subject.tutorialHours || 0}-{subject.practicalHours || 0}
+              </span>
+            )}
+            {subject.totalHours && (
+              <span className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/25">
+                {subject.totalHours} Hours
+              </span>
             )}
           </div>
 
