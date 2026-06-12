@@ -80,17 +80,17 @@ const ResourceCard = memo(({ resource, color }) => {
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="group relative bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.06] hover:border-white/10 rounded-lg p-3 transition-all"
+        className="group relative bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.08] hover:border-white/[0.15] rounded-xl p-4 transition-all duration-200 hover:shadow-lg hover:shadow-black/10"
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3.5">
           {/* PDF Icon */}
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-lg">
+          <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-xl group-hover:scale-105 transition-transform">
             📄
           </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-slate-200 line-clamp-2 mb-1 leading-snug">
+            <h4 className="text-sm font-semibold text-slate-100 line-clamp-2 mb-1.5 leading-snug group-hover:text-white transition-colors">
               {resource.title}
             </h4>
             
@@ -106,14 +106,14 @@ const ResourceCard = memo(({ resource, color }) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2.5">
               {isPdf && (
                 <button
                   onClick={() => setPreviewing(true)}
-                  className="flex-1 min-h-[36px] md:min-h-[32px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all"
+                  className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all active:scale-95"
                   style={{ background: `${color}20`, color: color, border: `1px solid ${color}40` }}
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                   </svg>
                   Preview
@@ -121,9 +121,9 @@ const ResourceCard = memo(({ resource, color }) => {
               )}
               <button
                 onClick={handleDownload}
-                className="min-h-[36px] md:min-h-[32px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition-all"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 active:bg-white/15 text-slate-400 hover:text-white border border-white/10 hover:border-white/20 transition-all active:scale-95"
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                 </svg>
                 Save
@@ -189,23 +189,23 @@ const ModuleCard = memo(({ moduleNumber, unitTitle, resources, color }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg overflow-hidden">
+    <div className="bg-white/[0.02] hover:bg-white/[0.03] border border-white/[0.08] rounded-xl overflow-hidden transition-all duration-200">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors"
+        className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-white/[0.03] transition-all duration-200 active:scale-[0.99] min-h-[60px]"
       >
         <div 
-          className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold border"
+          className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-base font-bold border transition-transform duration-200 group-hover:scale-105"
           style={{ background: `${color}15`, color: color, borderColor: `${color}30` }}
         >
           {moduleNumber}
         </div>
         <div className="flex-1 text-left min-w-0">
           <div className="text-sm font-semibold text-white">Module {moduleNumber}</div>
-          <div className="text-xs text-slate-500">{resources.length} {resources.length === 1 ? 'File' : 'Files'}</div>
+          <div className="text-xs text-slate-400 mt-0.5">{resources.length} {resources.length === 1 ? 'File' : 'Files'}</div>
         </div>
         <svg 
-          className={`w-5 h-5 text-slate-400 transition-transform flex-shrink-0 ${expanded ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-slate-400 transition-all duration-300 flex-shrink-0 ${expanded ? 'rotate-180 text-slate-300' : ''}`}
           fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
         >
           <path d="M19 9l-7 7-7-7"/>
@@ -218,10 +218,10 @@ const ModuleCard = memo(({ moduleNumber, unitTitle, resources, color }) => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
             className="border-t border-white/5"
           >
-            <div className="p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {resources.map(r => (
                 <ResourceCard key={r._id} resource={r} color={color} />
               ))}
@@ -363,13 +363,62 @@ const SubjectDetail = () => {
                         subject?.syllabus;
 
   /* ═══════════════════════════════════════════════════════════════════════════
-     LOADING STATE
+     LOADING STATE - SKELETON LOADERS
      ═══════════════════════════════════════════════════════════════════════════ */
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-indigo-500 border-t-transparent" />
+      <div className="min-h-screen pb-20">
+        {/* Header Skeleton */}
+        <div className="mb-5 animate-pulse">
+          <div className="mb-4 h-10 w-24 bg-white/5 rounded-lg" />
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6">
+            <div className="h-9 w-3/4 bg-white/10 rounded-lg mb-4" />
+            <div className="flex flex-wrap gap-2 mb-5">
+              <div className="h-8 w-20 bg-white/10 rounded-lg" />
+              <div className="h-8 w-16 bg-white/10 rounded-lg" />
+              <div className="h-8 w-24 bg-white/10 rounded-lg" />
+            </div>
+            <div className="flex gap-3">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="h-16 w-24 bg-white/10 rounded-xl" />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Search Skeleton */}
+        <div className="mb-5 animate-pulse">
+          <div className="h-12 w-full bg-white/5 rounded-xl" />
+        </div>
+
+        {/* Tabs Skeleton */}
+        <div className="mb-5 animate-pulse">
+          <div className="flex gap-2">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="h-11 w-28 bg-white/5 rounded-xl" />
+            ))}
+          </div>
+        </div>
+
+        {/* Cards Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4">
+              <div className="flex gap-3">
+                <div className="w-11 h-11 bg-white/10 rounded-xl" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-full bg-white/10 rounded" />
+                  <div className="h-3 w-1/2 bg-white/10 rounded" />
+                  <div className="flex gap-2 mt-2">
+                    <div className="h-9 flex-1 bg-white/10 rounded-lg" />
+                    <div className="h-9 w-20 bg-white/10 rounded-lg" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -397,49 +446,49 @@ const SubjectDetail = () => {
   return (
     <div className="min-h-screen pb-20">
       {/* ═══════════════ SECTION 1: COMPACT HERO HEADER ═══════════════ */}
-      <div className="mb-4">
+      <div className="mb-5">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="mb-3 flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+          className="mb-4 flex items-center gap-2 text-slate-400 hover:text-white transition-colors active:scale-95 min-h-[44px]"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M15 19l-7-7 7-7"/>
           </svg>
-          <span className="text-sm">Back</span>
+          <span className="text-sm font-medium">Back</span>
         </button>
 
         {/* Hero Card - Max Height 220px */}
-        <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-white/10 rounded-xl p-4 md:p-5 backdrop-blur-sm">
+        <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 rounded-2xl p-5 md:p-6 backdrop-blur-sm shadow-xl shadow-black/5">
           {/* Subject Name */}
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight tracking-tight">
             {subject.name}
           </h1>
 
           {/* Academic Info Chips */}
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-5">
             {subject.code && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 backdrop-blur-sm">
                 {subject.code}
               </span>
             )}
             {subject.semesterNumber && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/20 text-cyan-200 border border-cyan-500/30 backdrop-blur-sm">
                 Sem {subject.semesterNumber}
               </span>
             )}
             {subject.scheme && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-500/30">
+              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500/20 text-orange-200 border border-orange-500/30 backdrop-blur-sm">
                 {subject.scheme}
               </span>
             )}
             {subject.credits && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 backdrop-blur-sm">
                 {subject.credits} Credits
               </span>
             )}
             {(subject.lectureHours || subject.tutorialHours || subject.practicalHours) && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-purple-500/20 text-purple-200 border border-purple-500/30 backdrop-blur-sm">
                 {subject.lectureHours || 0}-{subject.tutorialHours || 0}-{subject.practicalHours || 0}
               </span>
             )}
@@ -447,65 +496,66 @@ const SubjectDetail = () => {
 
           {/* Resource Stats - Horizontal Scroll on Mobile */}
           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
-            <div className="flex-shrink-0 px-3 py-2 rounded-lg bg-indigo-500/15 border border-indigo-500/25">
-              <div className="text-lg font-bold text-white">{sectionCounts.notes}</div>
-              <div className="text-xs text-slate-400">Notes</div>
+            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-indigo-500/15 border border-indigo-500/25 backdrop-blur-sm">
+              <div className="text-xl font-bold text-white">{sectionCounts.notes}</div>
+              <div className="text-xs text-indigo-200 font-medium mt-0.5">Notes</div>
             </div>
-            <div className="flex-shrink-0 px-3 py-2 rounded-lg bg-cyan-500/15 border border-cyan-500/25">
-              <div className="text-lg font-bold text-white">{sectionCounts.pyq}</div>
-              <div className="text-xs text-slate-400">PYQs</div>
+            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-cyan-500/15 border border-cyan-500/25 backdrop-blur-sm">
+              <div className="text-xl font-bold text-white">{sectionCounts.pyq}</div>
+              <div className="text-xs text-cyan-200 font-medium mt-0.5">PYQs</div>
             </div>
-            <div className="flex-shrink-0 px-3 py-2 rounded-lg bg-purple-500/15 border border-purple-500/25">
-              <div className="text-lg font-bold text-white">{sectionCounts.textbook}</div>
-              <div className="text-xs text-slate-400">Books</div>
+            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-purple-500/15 border border-purple-500/25 backdrop-blur-sm">
+              <div className="text-xl font-bold text-white">{sectionCounts.textbook}</div>
+              <div className="text-xs text-purple-200 font-medium mt-0.5">Books</div>
             </div>
-            <div className="flex-shrink-0 px-3 py-2 rounded-lg bg-orange-500/15 border border-orange-500/25">
-              <div className="text-lg font-bold text-white">{sectionCounts.lab}</div>
-              <div className="text-xs text-slate-400">Labs</div>
+            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-orange-500/15 border border-orange-500/25 backdrop-blur-sm">
+              <div className="text-xl font-bold text-white">{sectionCounts.lab}</div>
+              <div className="text-xs text-orange-200 font-medium mt-0.5">Labs</div>
             </div>
-            <div className="flex-shrink-0 px-3 py-2 rounded-lg bg-white/5 border border-white/10">
-              <div className="text-lg font-bold text-white">{totalFiles}</div>
-              <div className="text-xs text-slate-400">Total</div>
+            <div className="flex-shrink-0 px-4 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <div className="text-xl font-bold text-white">{totalFiles}</div>
+              <div className="text-xs text-slate-300 font-medium mt-0.5">Total</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* ═══════════════ SECTION 2: SEARCH BAR ═══════════════ */}
-      <div className="mb-4">
+      <div className="mb-5">
         <div className="relative">
-          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
           </svg>
           <input
             type="text"
             placeholder="Search resources..."
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full h-12 md:h-11 pl-10 pr-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all text-sm"
+            className="w-full h-12 pl-11 pr-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/[0.07] transition-all text-sm"
           />
         </div>
       </div>
 
       {/* ═══════════════ SECTION 3: RESOURCE TABS (Sticky) ═══════════════ */}
-      <div className="sticky top-0 z-10 -mx-4 px-4 md:mx-0 md:px-0 py-2 bg-[#020617]/80 backdrop-blur-md mb-4">
+      <div className="sticky top-0 z-10 -mx-4 px-4 md:mx-0 md:px-0 py-3 bg-[#020617]/90 backdrop-blur-xl mb-5 border-b border-white/5">
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex gap-2 min-w-max pb-1">
             {RESOURCE_TYPES.filter(type => sectionCounts[type.key] > 0).map(type => (
               <button
                 key={type.key}
                 onClick={() => handleTabChange(type.key)}
-                className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 active:scale-95 min-h-[44px]"
                 style={{
                   background: activeTab === type.key ? `${type.color}20` : 'rgba(255,255,255,0.03)',
                   border: `1px solid ${activeTab === type.key ? `${type.color}40` : 'rgba(255,255,255,0.06)'}`,
                   color: activeTab === type.key ? type.color : '#94a3b8',
+                  boxShadow: activeTab === type.key ? `0 4px 12px ${type.color}15` : 'none'
                 }}
               >
-                <span>{type.icon}</span>
-                <span className="hidden sm:inline">{type.label}</span>
-                <span className="inline sm:hidden">{type.label.split(' ')[0]}</span>
+                <span className="text-base">{type.icon}</span>
+                <span className="hidden sm:inline font-semibold">{type.label}</span>
+                <span className="inline sm:hidden font-semibold">{type.label.split(' ')[0]}</span>
                 <span 
-                  className="px-1.5 py-0.5 rounded text-xs font-bold"
+                  className="px-2 py-0.5 rounded-lg text-xs font-bold"
                   style={{ background: activeTab === type.key ? `${type.color}30` : 'rgba(255,255,255,0.05)' }}
                 >
                   {sectionCounts[type.key]}
@@ -518,21 +568,21 @@ const SubjectDetail = () => {
 
       {/* ═══════════════ SECTION 4: COURSE INFORMATION ACCORDION ═══════════════ */}
       {hasCourseInfo && (
-        <div className="mb-4">
-          <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg overflow-hidden">
+        <div className="mb-5">
+          <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl overflow-hidden transition-all duration-200 hover:border-white/[0.12]">
             <button
               onClick={() => setCourseInfoOpen(!courseInfoOpen)}
-              className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.03] transition-colors"
+              className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.03] transition-all duration-200 active:scale-[0.99] min-h-[60px]"
             >
               <div className="flex items-center gap-3">
-                <span className="text-lg">📚</span>
+                <span className="text-xl">📚</span>
                 <div className="text-left">
                   <div className="text-sm font-semibold text-white">Course Information</div>
-                  <div className="text-xs text-slate-500">Objectives, Outcomes & Resources</div>
+                  <div className="text-xs text-slate-400 mt-0.5">Objectives, Outcomes & Resources</div>
                 </div>
               </div>
               <svg 
-                className={`w-5 h-5 text-slate-400 transition-transform flex-shrink-0 ${courseInfoOpen ? 'rotate-180' : ''}`}
+                className={`w-5 h-5 text-slate-400 transition-all duration-300 flex-shrink-0 ${courseInfoOpen ? 'rotate-180 text-slate-300' : ''}`}
                 fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
               >
                 <path d="M19 9l-7 7-7-7"/>
@@ -545,10 +595,10 @@ const SubjectDetail = () => {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
                   className="border-t border-white/5"
                 >
-                  <div className="p-4 space-y-5">
+                  <div className="p-5 space-y-6">
                     {/* Course Handout */}
                     {subject.courseHandoutUrl && (
                       <div>
@@ -688,10 +738,15 @@ const SubjectDetail = () => {
 
               {/* Empty State */}
               {filteredModules.length === 0 && filteredGeneral.length === 0 && (
-                <div className="text-center py-16">
-                  <div className="text-5xl mb-4 opacity-20">📚</div>
-                  <p className="text-slate-400 text-sm">
-                    {searchQuery ? 'No notes found matching your search' : 'No notes available yet'}
+                <div className="flex flex-col items-center justify-center py-20 px-4">
+                  <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4">
+                    <span className="text-4xl opacity-50">📚</span>
+                  </div>
+                  <p className="text-slate-300 text-base font-medium mb-1.5">
+                    {searchQuery ? 'No notes found' : 'No notes available'}
+                  </p>
+                  <p className="text-slate-500 text-sm">
+                    {searchQuery ? 'Try adjusting your search terms' : 'Check back later for updates'}
                   </p>
                 </div>
               )}
@@ -706,10 +761,21 @@ const SubjectDetail = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-16">
-                  <div className="text-5xl mb-4 opacity-20">{activeType?.icon}</div>
-                  <p className="text-slate-400 text-sm">
-                    {searchQuery ? `No ${activeType?.label.toLowerCase()} found matching your search` : `No ${activeType?.label.toLowerCase()} available yet`}
+                <div className="flex flex-col items-center justify-center py-20 px-4">
+                  <div 
+                    className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4 border"
+                    style={{ 
+                      background: `${activeType?.color}10`, 
+                      borderColor: `${activeType?.color}20` 
+                    }}
+                  >
+                    <span className="text-4xl opacity-50">{activeType?.icon}</span>
+                  </div>
+                  <p className="text-slate-300 text-base font-medium mb-1.5">
+                    {searchQuery ? `No ${activeType?.label.toLowerCase()} found` : `No ${activeType?.label.toLowerCase()} available`}
+                  </p>
+                  <p className="text-slate-500 text-sm">
+                    {searchQuery ? 'Try adjusting your search terms' : 'Check back later for updates'}
                   </p>
                 </div>
               )}
