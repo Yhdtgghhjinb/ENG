@@ -28,37 +28,52 @@ const Breadcrumbs = ({ items }) => {
         </button>
 
         {/* Breadcrumb Trail - Horizontal Scrollable (No Wrap) */}
-        <div className="relative flex-1 min-w-0 overflow-hidden">
+        <div className="flex-1 min-w-0">
           <div 
-            className="flex flex-nowrap items-center gap-1.5 overflow-x-auto text-xs sm:text-sm scrollbar-hide"
+            className="flex items-center overflow-x-auto text-xs sm:text-sm scrollbar-hide"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
               WebkitOverflowScrolling: 'touch',
+              display: 'flex',
+              flexWrap: 'nowrap',
             }}
           >
             {items.map((item, idx) => {
               const isLast = idx === lastIdx;
               return (
-                <span key={`crumb-${idx}`} className="inline-flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap">
+                <div key={`crumb-${idx}`} style={{ display: 'flex', alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' }}>
                   {idx > 0 && (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-slate-600">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mx-1.5 flex-shrink-0 text-slate-600">
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
                   )}
                   {isLast || !item.to ? (
-                    <span className="font-semibold text-white max-w-[100px] sm:max-w-[150px] md:max-w-none truncate inline-block">
+                    <span className="font-semibold text-white" style={{ 
+                      maxWidth: '100px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      display: 'inline-block'
+                    }}>
                       {item.label}
                     </span>
                   ) : (
                     <Link
                       to={item.to}
-                      className="text-slate-400 transition-colors hover:text-white max-w-[80px] sm:max-w-[120px] md:max-w-none truncate inline-block"
+                      className="text-slate-400 transition-colors hover:text-white"
+                      style={{ 
+                        maxWidth: '80px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-block'
+                      }}
                     >
                       {item.label}
                     </Link>
                   )}
-                </span>
+                </div>
               );
             })}
           </div>
