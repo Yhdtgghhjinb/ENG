@@ -45,12 +45,12 @@ const Breadcrumbs = ({ items }) => {
           overflow: 'hidden',
         }}>
           <div style={{
-            display: 'block',
+            display: 'inline-block',
+            width: '100%',
             overflowX: 'auto',
             overflowY: 'hidden',
             whiteSpace: 'nowrap',
             fontSize: '12px',
-            lineHeight: '36px',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
@@ -59,13 +59,12 @@ const Breadcrumbs = ({ items }) => {
             {items.map((item, idx) => {
               const isLast = idx === lastIdx;
               return (
-                <span key={idx} style={{ whiteSpace: 'nowrap' }}>
+                <span key={idx} style={{ display: 'inline', whiteSpace: 'nowrap' }}>
                   {idx > 0 && (
                     <span style={{ 
-                      display: 'inline-block',
+                      display: 'inline',
                       margin: '0 6px',
                       color: '#475569',
-                      verticalAlign: 'middle',
                     }}>
                       ›
                     </span>
@@ -74,11 +73,10 @@ const Breadcrumbs = ({ items }) => {
                     <span style={{ 
                       fontWeight: 600,
                       color: '#fff',
-                      display: 'inline-block',
+                      display: 'inline',
                       maxWidth: '100px',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
-                      verticalAlign: 'middle',
                       whiteSpace: 'nowrap',
                     }}>
                       {item.label}
@@ -88,11 +86,10 @@ const Breadcrumbs = ({ items }) => {
                       to={item.to}
                       style={{ 
                         color: '#94a3b8',
-                        display: 'inline-block',
+                        display: 'inline',
                         maxWidth: '80px',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        verticalAlign: 'middle',
                         whiteSpace: 'nowrap',
                         textDecoration: 'none',
                       }}
