@@ -118,21 +118,21 @@ const AdminDashboard = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* Top subjects */}
-      <div className="rounded-2xl p-5" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-        <p className="mb-4 text-sm font-semibold text-slate-200">Top Subjects by Resources</p>
-        <div className="space-y-2.5">
+      {/* Top subjects - Mobile Optimized */}
+      <div className="rounded-xl sm:rounded-2xl p-4 sm:p-5" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
+        <p className="mb-3 sm:mb-4 text-xs sm:text-sm font-semibold text-slate-200">Top Subjects by Resources</p>
+        <div className="space-y-2 sm:space-y-2.5">
           {(topSubjects || []).map((s, i) => {
             const max = topSubjects[0]?.count || 1;
             const pct = Math.round((s.count / max) * 100);
             return (
-              <div key={s._id} className="flex items-center gap-3">
-                <span className="w-5 text-xs text-slate-600 font-mono">{i + 1}</span>
-                <span className="w-48 truncate text-xs text-slate-300">{s._id}</span>
-                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(99,102,241,0.1)' }}>
+              <div key={s._id} className="flex items-center gap-2 sm:gap-3">
+                <span className="w-4 sm:w-5 text-[10px] sm:text-xs text-slate-600 font-mono">{i + 1}</span>
+                <span className="flex-1 min-w-0 truncate text-[11px] sm:text-xs text-slate-300">{s._id}</span>
+                <div className="flex-1 h-1.5 sm:h-2 rounded-full overflow-hidden" style={{ background: 'rgba(99,102,241,0.1)' }}>
                   <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #6366f1, #818cf8)' }} />
                 </div>
-                <span className="w-8 text-right text-xs text-slate-500">{s.count}</span>
+                <span className="w-6 sm:w-8 text-right text-[10px] sm:text-xs text-slate-500 flex-shrink-0">{s.count}</span>
               </div>
             );
           })}

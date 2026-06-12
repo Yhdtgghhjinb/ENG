@@ -71,30 +71,30 @@ const AdminAnalytics = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      {/* Header - Mobile Optimized */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Analytics</h1>
-          <p className="mt-1 text-sm text-slate-500">Platform usage insights and download trends</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Analytics</h1>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-500">Platform usage insights and download trends</p>
         </div>
         <button onClick={load}
-          className="btn-ghost text-xs px-3 py-2">
+          className="btn-ghost text-xs px-3 py-2 self-start sm:self-auto">
           ↻ Refresh
         </button>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+      {/* Stat cards - Mobile Optimized */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
         <StatCard label="Total Resources" value={counts?.resources ?? 0} icon="📄" accent="#818cf8" delay={0} />
         <StatCard label="Total Downloads" value={counts?.totalDownloads ?? 0} icon="⬇️" accent="#34d399" delay={0.06} />
         <StatCard label="Subjects" value={counts?.subjects ?? 0} icon="📘" accent="#38bdf8" delay={0.12} />
       </div>
 
-      {/* Tab switcher */}
-      <div className="flex gap-1 rounded-xl p-1" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)', width: 'fit-content' }}>
+      {/* Tab switcher - Mobile Optimized */}
+      <div className="flex gap-1 rounded-xl p-1 overflow-x-auto" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)', width: 'fit-content', maxWidth: '100%' }}>
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className="rounded-lg px-4 py-2 text-sm font-medium transition-all"
+            className="rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap"
             style={{
               background: tab === t.id ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'transparent',
               color: tab === t.id ? '#fff' : '#64748b',
@@ -108,29 +108,29 @@ const AdminAnalytics = () => {
       {/* ── OVERVIEW TAB ──────────────────────────────────────────────────── */}
       {tab === 'overview' && (
         <div className="space-y-5">
-          <div className="grid gap-5 xl:grid-cols-2">
-            {/* Pie: by type */}
-            <div className="rounded-2xl p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-              <p className="mb-5 text-sm font-semibold text-slate-200">Resource Distribution by Type</p>
-              <ResponsiveContainer width="100%" height={260}>
+          <div className="grid gap-4 sm:gap-5 xl:grid-cols-2">
+            {/* Pie: by type - Mobile Optimized */}
+            <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
+              <p className="mb-3 sm:mb-5 text-xs sm:text-sm font-semibold text-slate-200">Resource Distribution by Type</p>
+              <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={3} dataKey="value">
+                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
                     {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                   </Pie>
                   <Tooltip contentStyle={TOOLTIP_STYLE.contentStyle} />
-                  <Legend formatter={v => <span style={{ color: '#94a3b8', fontSize: 12 }}>{v}</span>} />
+                  <Legend formatter={v => <span style={{ color: '#94a3b8', fontSize: 11 }}>{v}</span>} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
 
-            {/* Bar: by branch */}
-            <div className="rounded-2xl p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-              <p className="mb-5 text-sm font-semibold text-slate-200">Resources per Branch</p>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={(byBranch || []).map(d => ({ name: d._id, count: d.count }))} barSize={32}>
+            {/* Bar: by branch - Mobile Optimized */}
+            <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
+              <p className="mb-3 sm:mb-5 text-xs sm:text-sm font-semibold text-slate-200">Resources per Branch</p>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={(byBranch || []).map(d => ({ name: d._id, count: d.count }))} barSize={24}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.08)" />
-                  <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 9 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip {...TOOLTIP_STYLE} />
                   <Bar dataKey="count" radius={[6,6,0,0]}>
                     {(byBranch || []).map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
@@ -139,14 +139,14 @@ const AdminAnalytics = () => {
               </ResponsiveContainer>
             </div>
 
-            {/* Upload trend */}
-            <div className="rounded-2xl p-6 xl:col-span-2" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-              <p className="mb-5 text-sm font-semibold text-slate-200">Upload Activity — Last 30 Days</p>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={(recentByDay || []).map(d => ({ date: d._id.slice(5), count: d.count }))} barSize={18}>
+            {/* Upload trend - Mobile Optimized */}
+            <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6 xl:col-span-2" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
+              <p className="mb-3 sm:mb-5 text-xs sm:text-sm font-semibold text-slate-200">Upload Activity — Last 30 Days</p>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={(recentByDay || []).map(d => ({ date: d._id.slice(5), count: d.count }))} barSize={14}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.08)" />
-                  <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 9 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip {...TOOLTIP_STYLE} />
                   <Bar dataKey="count" radius={[4,4,0,0]} fill="url(#trendGrad)" />
                   <defs>
@@ -160,22 +160,22 @@ const AdminAnalytics = () => {
             </div>
           </div>
 
-          {/* Top subjects by resource count */}
-          <div className="rounded-2xl p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-            <p className="mb-5 text-sm font-semibold text-slate-200">Top Subjects by Resource Count</p>
-            <div className="space-y-3">
+          {/* Top subjects by resource count - Mobile Optimized */}
+          <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
+            <p className="mb-3 sm:mb-5 text-xs sm:text-sm font-semibold text-slate-200">Top Subjects by Resource Count</p>
+            <div className="space-y-2 sm:space-y-3">
               {(topSubjects || []).map((s, i) => {
                 const max = topSubjects[0]?.count || 1;
                 const pct = Math.round((s.count / max) * 100);
                 const color = COLORS[i % COLORS.length];
                 return (
-                  <div key={s._id} className="flex items-center gap-4">
-                    <span className="w-6 text-center text-xs font-bold text-slate-600">{i + 1}</span>
-                    <span className="w-52 truncate text-sm text-slate-300">{s._id || '—'}</span>
-                    <div className="flex-1 h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(99,102,241,0.1)' }}>
+                  <div key={s._id} className="flex items-center gap-2 sm:gap-4">
+                    <span className="w-5 sm:w-6 text-center text-[10px] sm:text-xs font-bold text-slate-600">{i + 1}</span>
+                    <span className="flex-1 min-w-0 truncate text-[11px] sm:text-sm text-slate-300">{s._id || '—'}</span>
+                    <div className="flex-1 h-1.5 sm:h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(99,102,241,0.1)' }}>
                       <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}, ${color}88)` }} />
                     </div>
-                    <span className="w-10 text-right text-xs font-semibold" style={{ color }}>{s.count}</span>
+                    <span className="w-7 sm:w-10 text-right text-[10px] sm:text-xs font-semibold flex-shrink-0" style={{ color }}>{s.count}</span>
                   </div>
                 );
               })}
@@ -186,40 +186,40 @@ const AdminAnalytics = () => {
 
       {/* ── DOWNLOADS TAB ─────────────────────────────────────────────────── */}
       {tab === 'downloads' && (
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5">
 
-          {/* Most downloaded resources */}
-          <div className="rounded-2xl p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-            <div className="mb-5 flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-200">Most Downloaded Resources</p>
-              <span className="badge">Top 10</span>
+          {/* Most downloaded resources - Mobile Optimized */}
+          <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
+            <div className="mb-3 sm:mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <p class Name="text-xs sm:text-sm font-semibold text-slate-200">Most Downloaded Resources</p>
+              <span className="badge text-[10px] sm:text-xs self-start">Top 10</span>
             </div>
 
             {!mostDownloaded?.length ? (
-              <div className="py-10 text-center text-sm text-slate-600">
+              <div className="py-8 sm:py-10 text-center text-xs sm:text-sm text-slate-600">
                 No downloads recorded yet. Downloads are tracked when users click the Save button.
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 {mostDownloaded.map((r, i) => {
                   const max = mostDownloaded[0]?.downloadCount || 1;
                   const pct = Math.round((r.downloadCount / max) * 100);
                   const color = TYPE_COLORS[r.type] || '#818cf8';
                   return (
-                    <div key={r._id} className="flex items-center gap-4 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/5">
-                      <span className="w-6 text-center text-xs font-black" style={{ color }}>{i + 1}</span>
+                    <div key={r._id} className="flex items-center gap-2 sm:gap-4 rounded-lg sm:rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 transition-colors hover:bg-white/5">
+                      <span className="w-4 sm:w-6 text-center text-[10px] sm:text-xs font-black flex-shrink-0" style={{ color }}>{i + 1}</span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-slate-200">{r.title}</p>
-                        <p className="truncate text-[11px] text-slate-600">{r.subjectName} · {r.branchName}</p>
+                        <p className="truncate text-[11px] sm:text-sm font-semibold text-slate-200">{r.title}</p>
+                        <p className="truncate text-[9px] sm:text-[11px] text-slate-600">{r.subjectName} · {r.branchName}</p>
                       </div>
-                      <span className="flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
+                      <span className="hidden sm:flex flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
                         style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}>
                         {r.type}
                       </span>
-                      <div className="w-24 h-2 rounded-full overflow-hidden flex-shrink-0" style={{ background: 'rgba(99,102,241,0.1)' }}>
+                      <div className="hidden sm:block w-20 sm:w-24 h-1.5 sm:h-2 rounded-full overflow-hidden flex-shrink-0" style={{ background: 'rgba(99,102,241,0.1)' }}>
                         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}, ${color}88)` }} />
                       </div>
-                      <span className="w-12 text-right text-sm font-black flex-shrink-0" style={{ color }}>
+                      <span className="w-8 sm:w-12 text-right text-[10px] sm:text-sm font-black flex-shrink-0" style={{ color }}>
                         {r.downloadCount}
                       </span>
                     </div>
@@ -229,24 +229,24 @@ const AdminAnalytics = () => {
             )}
           </div>
 
-          {/* Trending subjects by downloads */}
-          <div className="rounded-2xl p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
-            <div className="mb-5 flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-200">Trending Subjects by Downloads</p>
-              <span className="badge">Top 8</span>
+          {/* Trending subjects by downloads - Mobile Optimized */}
+          <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6" style={{ background: 'rgba(8,13,26,0.8)', border: '1px solid rgba(99,102,241,0.12)' }}>
+            <div className="mb-3 sm:mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <p className="text-xs sm:text-sm font-semibold text-slate-200">Trending Subjects by Downloads</p>
+              <span className="badge text-[10px] sm:text-xs self-start">Top 8</span>
             </div>
 
             {!trendingSubjects?.length ? (
-              <div className="py-10 text-center text-sm text-slate-600">
+              <div className="py-8 sm:py-10 text-center text-xs sm:text-sm text-slate-600">
                 No download data yet.
               </div>
             ) : (
               <>
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={trendingSubjects.map(s => ({ name: s._id || '—', downloads: s.totalDownloads, resources: s.resourceCount }))} barSize={28}>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={trendingSubjects.map(s => ({ name: s._id || '—', downloads: s.totalDownloads, resources: s.resourceCount }))} barSize={20}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.08)" />
-                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 9 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
                     <Tooltip {...TOOLTIP_STYLE} />
                     <Bar dataKey="downloads" name="Downloads" radius={[6,6,0,0]} fill="url(#dlGrad)" />
                     <defs>
@@ -258,20 +258,19 @@ const AdminAnalytics = () => {
                   </BarChart>
                 </ResponsiveContainer>
 
-                {/* Leaderboard */}
-                <div className="mt-5 space-y-2.5">
+                {/* Leaderboard - Mobile Optimized */}
+                <div className="mt-4 sm:mt-5 space-y-2 sm:space-y-2.5">
                   {trendingSubjects.map((s, i) => {
                     const max = trendingSubjects[0]?.totalDownloads || 1;
                     const pct = Math.round((s.totalDownloads / max) * 100);
-                    const color = COLORS[i % COLORS.length];
                     return (
-                      <div key={s._id} className="flex items-center gap-4">
-                        <span className="w-6 text-center text-xs font-bold text-slate-600">{i + 1}</span>
-                        <span className="flex-1 truncate text-sm text-slate-300">{s._id || '—'}</span>
-                        <div className="w-32 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(52,211,153,0.1)' }}>
+                      <div key={s._id} className="flex items-center gap-2 sm:gap-4">
+                        <span className="w-4 sm:w-6 text-center text-[10px] sm:text-xs font-bold text-slate-600 flex-shrink-0">{i + 1}</span>
+                        <span className="flex-1 min-w-0 truncate text-[11px] sm:text-sm text-slate-300">{s._id || '—'}</span>
+                        <div className="w-20 sm:w-32 h-1.5 sm:h-2 rounded-full overflow-hidden flex-shrink-0" style={{ background: 'rgba(52,211,153,0.1)' }}>
                           <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: `linear-gradient(90deg, #34d399, #059669)` }} />
                         </div>
-                        <span className="w-16 text-right text-xs font-semibold text-emerald-400">
+                        <span className="w-10 sm:w-16 text-right text-[10px] sm:text-xs font-semibold text-emerald-400 flex-shrink-0">
                           {s.totalDownloads} dl
                         </span>
                       </div>
