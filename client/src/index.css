@@ -919,6 +919,16 @@ motion-div {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
+/* Hide scrollbar utility class */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Mobile-specific card spacing */
 @media (max-width: 640px) {
   .glass-shell {
