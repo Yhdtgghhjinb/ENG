@@ -27,7 +27,8 @@ api.interceptors.request.use((config) => {
     
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
       // Log cache hit
-      perfMonitor.start(`API Cache Hit: ${config.url}`).end();
+      const timer = perfMonitor.start(`API Cache Hit: ${config.url}`);
+      if (timer) timer.end();
       console.log(`💾 Frontend Cache HIT: ${config.url}`);
       
       // Return cached data
