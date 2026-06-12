@@ -197,19 +197,19 @@ const ModuleCard = memo(({ moduleNumber, unitTitle, resources }) => {
     <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 md:px-5 py-4 text-left hover:bg-white/5 transition-colors touch-manipulation min-h-[60px]"
+        className="w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 text-left hover:bg-white/5 transition-colors touch-manipulation"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-sm md:text-base font-bold"
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-sm font-bold"
             style={{ background: `rgba(${rgb},0.15)`, color, border: `1px solid rgba(${rgb},0.3)` }}>
             {moduleNumber}
           </div>
           <div>
-            <p className="text-sm md:text-base font-semibold text-white">Module {moduleNumber}</p>
+            <p className="text-sm font-semibold text-white">Module {moduleNumber}</p>
             <p className="text-xs text-slate-500">{unitTitle || `${resources.length} files`}</p>
           </div>
         </div>
-        <svg className={`w-5 h-5 text-slate-400 transition-transform flex-shrink-0 ${expanded ? 'rotate-180' : ''}`}
+        <svg className={`w-4 h-4 text-slate-400 transition-transform flex-shrink-0 ${expanded ? 'rotate-180' : ''}`}
           fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path d="M19 9l-7 7-7-7"/>
         </svg>
@@ -223,7 +223,7 @@ const ModuleCard = memo(({ moduleNumber, unitTitle, resources }) => {
             exit={{ height: 0, opacity: 0 }}
             className="border-t border-white/5"
           >
-            <div className="p-3 md:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="p-2.5 md:p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {resources.map(r => (
                 <ResourceCard key={r._id} resource={r} color={color} rgb={rgb} />
               ))}
@@ -335,72 +335,85 @@ const SubjectDetail = () => {
       <Breadcrumbs items={[{ label: 'Home', to: '/home' }, { label: subject?.name || 'Subject' }]} />
 
       {/* ═══════════════ ENHANCED HEADER WITH ACADEMIC INFO ═══════════════ */}
-      <div className="mt-6 mb-6">
+      <div className="mt-4 mb-4">
         {/* Subject Title & Icon */}
-        <div className="flex items-start gap-4 mb-4">
-          <div className="flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center text-3xl"
+        <div className="flex items-start gap-3 mb-3">
+          <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
             style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}>
             📚
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">{subject?.name}</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-white mb-1.5">{subject?.name}</h1>
             
             {/* Academic Info Chips - Desktop */}
-            <div className="hidden md:flex items-center gap-2 flex-wrap">
+            <div className="hidden md:flex items-center gap-1.5 flex-wrap">
               {subject?.code && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
                   </svg>
                   {subject.code}
                 </span>
               )}
               {subject?.semesterNumber && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                   </svg>
-                  Semester {subject.semesterNumber}
+                  Sem {subject.semesterNumber}
+                </span>
+              )}
+              {subject?.scheme && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                  </svg>
+                  {subject.scheme}
                 </span>
               )}
               {subject?.credits && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  {subject.credits} Credits
+                  {subject.credits}C
                 </span>
               )}
               {(subject?.lectureHours || subject?.tutorialHours || subject?.practicalHours) && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  L-T-P: {subject.lectureHours || 0}-{subject.tutorialHours || 0}-{subject.practicalHours || 0}
+                  {subject.lectureHours || 0}-{subject.tutorialHours || 0}-{subject.practicalHours || 0}
                 </span>
               )}
             </div>
 
             {/* Academic Info Chips - Mobile (Horizontal Scroll) */}
-            <div className="md:hidden overflow-x-auto -mx-4 px-4 pb-2">
-              <div className="flex gap-2 min-w-max">
+            <div className="md:hidden overflow-x-auto -mx-4 px-4 pb-1.5 scrollbar-hide">
+              <div className="flex gap-1.5 min-w-max">
                 {subject?.code && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                     {subject.code}
                   </span>
                 )}
                 {subject?.semesterNumber && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    Sem {subject.semesterNumber}
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                    S{subject.semesterNumber}
+                  </span>
+                )}
+                {subject?.scheme && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                    {subject.scheme}
                   </span>
                 )}
                 {subject?.credits && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    {subject.credits} Credits
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    {subject.credits}C
                   </span>
                 )}
                 {(subject?.lectureHours || subject?.tutorialHours || subject?.practicalHours) && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
                     {subject.lectureHours || 0}-{subject.tutorialHours || 0}-{subject.practicalHours || 0}
                   </span>
                 )}
@@ -410,46 +423,46 @@ const SubjectDetail = () => {
         </div>
 
         {/* Resource Stats - Desktop */}
-        <div className="hidden md:flex gap-3 justify-end">
-          <div className="px-4 py-2 rounded-lg text-center" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
-            <div className="text-lg font-bold text-white">{sectionCounts.notes}</div>
+        <div className="hidden md:flex gap-2 justify-end">
+          <div className="px-3 py-1.5 rounded-lg text-center" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
+            <div className="text-base font-bold text-white">{sectionCounts.notes}</div>
             <div className="text-xs text-slate-400">Notes</div>
           </div>
-          <div className="px-4 py-2 rounded-lg text-center" style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)' }}>
-            <div className="text-lg font-bold text-white">{sectionCounts.pyq}</div>
+          <div className="px-3 py-1.5 rounded-lg text-center" style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)' }}>
+            <div className="text-base font-bold text-white">{sectionCounts.pyq}</div>
             <div className="text-xs text-slate-400">PYQs</div>
           </div>
-          <div className="px-4 py-2 rounded-lg text-center" style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)' }}>
-            <div className="text-lg font-bold text-white">{sectionCounts.textbook}</div>
+          <div className="px-3 py-1.5 rounded-lg text-center" style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)' }}>
+            <div className="text-base font-bold text-white">{sectionCounts.textbook}</div>
             <div className="text-xs text-slate-400">Books</div>
           </div>
-          <div className="px-4 py-2 rounded-lg text-center" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <div className="text-lg font-bold text-white">{totalFiles}</div>
+          <div className="px-3 py-1.5 rounded-lg text-center" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="text-base font-bold text-white">{totalFiles}</div>
             <div className="text-xs text-slate-400">Total</div>
           </div>
         </div>
 
         {/* Resource Stats - Mobile (Horizontal Scroll) */}
-        <div className="md:hidden overflow-x-auto -mx-4 px-4">
-          <div className="flex gap-3 min-w-max">
-            <div className="px-4 py-2 rounded-lg text-center min-w-[80px]" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
-              <div className="text-lg font-bold text-white">{sectionCounts.notes}</div>
+        <div className="md:hidden overflow-x-auto -mx-4 px-4 scrollbar-hide">
+          <div className="flex gap-2 min-w-max">
+            <div className="px-3 py-1.5 rounded-lg text-center min-w-[70px]" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
+              <div className="text-base font-bold text-white">{sectionCounts.notes}</div>
               <div className="text-xs text-slate-400">Notes</div>
             </div>
-            <div className="px-4 py-2 rounded-lg text-center min-w-[80px]" style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)' }}>
-              <div className="text-lg font-bold text-white">{sectionCounts.pyq}</div>
+            <div className="px-3 py-1.5 rounded-lg text-center min-w-[70px]" style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)' }}>
+              <div className="text-base font-bold text-white">{sectionCounts.pyq}</div>
               <div className="text-xs text-slate-400">PYQs</div>
             </div>
-            <div className="px-4 py-2 rounded-lg text-center min-w-[80px]" style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)' }}>
-              <div className="text-lg font-bold text-white">{sectionCounts.textbook}</div>
+            <div className="px-3 py-1.5 rounded-lg text-center min-w-[70px]" style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)' }}>
+              <div className="text-base font-bold text-white">{sectionCounts.textbook}</div>
               <div className="text-xs text-slate-400">Books</div>
             </div>
-            <div className="px-4 py-2 rounded-lg text-center min-w-[80px]" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}>
-              <div className="text-lg font-bold text-white">{sectionCounts.lab}</div>
+            <div className="px-3 py-1.5 rounded-lg text-center min-w-[70px]" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}>
+              <div className="text-base font-bold text-white">{sectionCounts.lab}</div>
               <div className="text-xs text-slate-400">Labs</div>
             </div>
-            <div className="px-4 py-2 rounded-lg text-center min-w-[80px]" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <div className="text-lg font-bold text-white">{totalFiles}</div>
+            <div className="px-3 py-1.5 rounded-lg text-center min-w-[70px]" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div className="text-base font-bold text-white">{totalFiles}</div>
               <div className="text-xs text-slate-400">Total</div>
             </div>
           </div>
@@ -462,24 +475,24 @@ const SubjectDetail = () => {
         subject?.referenceBooks?.length > 0 ||
         subject?.courseHandoutUrl ||
         subject?.syllabus) && (
-        <div className="mb-6">
+        <div className="mb-4">
           <details className="group rounded-xl overflow-hidden transition-all"
             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <summary className="flex items-center justify-between px-4 md:px-6 py-4 cursor-pointer hover:bg-white/5 transition-colors touch-manipulation">
-              <div className="flex items-center gap-3">
-                <span className="text-xl flex-shrink-0">📋</span>
+            <summary className="flex items-center justify-between px-4 md:px-5 py-3 cursor-pointer hover:bg-white/5 transition-colors touch-manipulation">
+              <div className="flex items-center gap-2.5">
+                <span className="text-lg flex-shrink-0">📋</span>
                 <div>
                   <p className="text-sm font-semibold text-white">Course Details</p>
                   <p className="text-xs text-slate-500">Objectives, Outcomes & Resources</p>
                 </div>
               </div>
-              <svg className="w-5 h-5 text-slate-400 transition-transform group-open:rotate-180 flex-shrink-0"
+              <svg className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180 flex-shrink-0"
                 fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M19 9l-7 7-7-7"/>
               </svg>
             </summary>
             
-            <div className="px-4 md:px-6 py-4 space-y-6 border-t border-white/5">
+            <div className="px-4 md:px-5 py-3 space-y-4 border-t border-white/5">
               {/* Course Handout Link */}
               {subject.courseHandoutUrl && (
                 <div>
@@ -579,38 +592,38 @@ const SubjectDetail = () => {
       )}
 
       {/* ═══════════════ STICKY SEARCH BAR ═══════════════ */}
-      <div className="sticky top-0 z-20 bg-[#020617] py-3 -mx-4 px-4 md:mx-0 md:px-0 md:static md:mb-6 mb-3 border-b md:border-b-0 border-white/5">
+      <div className="sticky top-0 z-20 bg-[#020617] py-2 -mx-4 px-4 md:mx-0 md:px-0 md:static md:mb-4 mb-2 border-b md:border-b-0 border-white/5">
         <div className="relative">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
           </svg>
           <input
             type="text"
             placeholder="Search resources..."
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 md:py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm md:text-base touch-manipulation"
+            className="w-full pl-10 pr-4 py-2 md:py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm touch-manipulation"
           />
         </div>
       </div>
 
       {/* ═══════════════ TAB NAVIGATION (Mobile: Horizontal Scroll) ═══════════════ */}
-      <div className="mb-6 -mx-4 px-4 md:mx-0 md:px-0">
+      <div className="mb-4 -mx-4 px-4 md:mx-0 md:px-0">
         <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
-          <div className="flex gap-2 min-w-max pb-2 md:pb-0">
+          <div className="flex gap-1.5 min-w-max pb-1.5 md:pb-0">
             {SECTIONS.filter(s => sectionCounts[s.key] > 0).map(section => (
               <button
                 key={section.key}
                 onClick={() => handleTabChange(section.key)}
-                className="flex items-center gap-2 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap touch-manipulation min-h-[44px]"
+                className="flex items-center gap-1.5 px-3 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium transition-all whitespace-nowrap touch-manipulation min-h-[40px]"
                 style={{
                   background: activeTab === section.key ? `rgba(${section.rgb},0.15)` : 'rgba(255,255,255,0.03)',
                   border: `1px solid ${activeTab === section.key ? `rgba(${section.rgb},0.3)` : 'rgba(255,255,255,0.06)'}`,
                   color: activeTab === section.key ? section.color : '#94a3b8',
                 }}>
-                <span className="text-base md:text-lg">{section.icon}</span>
+                <span className="text-base">{section.icon}</span>
                 <span className="hidden sm:inline">{section.label}</span>
                 <span className="sm:hidden">{section.label.split(' ')[0]}</span>
-                <span className="px-2 py-0.5 rounded-md text-xs font-bold"
+                <span className="px-1.5 py-0.5 rounded-md text-xs font-bold"
                   style={{ background: activeTab === section.key ? `rgba(${section.rgb},0.2)` : 'rgba(255,255,255,0.05)' }}>
                   {sectionCounts[section.key]}
                 </span>
@@ -630,14 +643,14 @@ const SubjectDetail = () => {
           transition={{ duration: 0.2 }}
         >
           {activeTab === 'notes' ? (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {filteredModules.map((m, i) => (
                 <ModuleCard key={m.moduleNumber} {...m} />
               ))}
               {noteGeneral.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-400 mb-3 px-1">General Notes</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <h3 className="text-xs font-semibold text-slate-400 mb-2 px-1">General Notes</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
                     {noteGeneral.map(r => (
                       <ResourceCard key={r._id} resource={r} color={activeSection.color} rgb={activeSection.rgb} />
                     ))}
@@ -646,14 +659,14 @@ const SubjectDetail = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
               {filteredFlat.map(r => (
                 <ResourceCard key={r._id} resource={r} color={activeSection.color} rgb={activeSection.rgb} />
               ))}
               {filteredFlat.length === 0 && (
-                <div className="col-span-full text-center py-16">
-                  <div className="text-6xl mb-4 opacity-20">{activeSection.icon}</div>
-                  <p className="text-slate-400">No {activeSection.label.toLowerCase()} available</p>
+                <div className="col-span-full text-center py-12">
+                  <div className="text-5xl mb-3 opacity-20">{activeSection.icon}</div>
+                  <p className="text-slate-400 text-sm">No {activeSection.label.toLowerCase()} available</p>
                 </div>
               )}
             </div>
