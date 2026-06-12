@@ -28,13 +28,9 @@ const Breadcrumbs = ({ items }) => {
         </button>
 
         {/* Breadcrumb Trail - Horizontal Scrollable (No Wrap) */}
-        <div className="relative flex-1 min-w-0">
-          {/* Fade gradient overlay at edges */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#020617] to-transparent z-10 opacity-0 peer-scroll:opacity-100" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#020617] to-transparent z-10 opacity-0 peer-scroll:opacity-100" />
-          
+        <div className="relative flex-1 min-w-0 overflow-hidden">
           <div 
-            className="peer flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-xs sm:text-sm md:text-base scrollbar-hide"
+            className="flex items-center gap-1.5 overflow-x-auto text-xs sm:text-sm scrollbar-hide"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
@@ -44,20 +40,20 @@ const Breadcrumbs = ({ items }) => {
             {items.map((item, idx) => {
               const isLast = idx === lastIdx;
               return (
-                <span key={`crumb-${idx}`} className="inline-flex items-center gap-1.5 flex-shrink-0">
+                <span key={`crumb-${idx}`} className="inline-flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap">
                   {idx > 0 && (
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-slate-600">
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
                   )}
                   {isLast || !item.to ? (
-                    <span className="font-semibold text-white max-w-[150px] sm:max-w-[200px] md:max-w-none truncate">
+                    <span className="font-semibold text-white max-w-[100px] sm:max-w-[150px] md:max-w-none truncate inline-block">
                       {item.label}
                     </span>
                   ) : (
                     <Link
                       to={item.to}
-                      className="text-slate-400 transition-colors hover:text-white max-w-[120px] sm:max-w-[180px] md:max-w-none truncate"
+                      className="text-slate-400 transition-colors hover:text-white max-w-[80px] sm:max-w-[120px] md:max-w-none truncate inline-block"
                     >
                       {item.label}
                     </Link>
