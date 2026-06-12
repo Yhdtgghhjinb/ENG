@@ -7,14 +7,21 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadBranches = async () => {
+    const loadBranches = async (retries = 3) => {
       try {
         const res = await api.get('/api/vtu/branches');
         setBranches(res.data || []);
-      } catch {
+      } catch (error) {
+        // Retry on failure (Railway cold start)
+        if (retries > 0) {
+          console.log(`Retrying branches load... (${retries} attempts left)`);
+          setTimeout(() => loadBranches(retries - 1), 2000);
+          return;
+        }
+        console.error('Failed to load branches:', error);
         setBranches([]);
       } finally {
-        setLoading(false);
+        if (retries === 0) setLoading(false);
       }
     };
     loadBranches();
