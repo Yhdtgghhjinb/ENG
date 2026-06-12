@@ -185,10 +185,17 @@ class ConversationEngine {
     const systemMessage = messages.find(m => m.role === 'system');
     const conversationMessages = messages.filter(m => m.role !== 'system');
 
+    // Build chat history (exclude the last message - it will be sent separately)
     const chatHistory = conversationMessages.slice(0, -1).map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
     }));
+
+    // Gemini requires history to start with user role, not model
+    // If history starts with 'model', remove it or ensure it starts with 'user'
+    if (chatHistory.length > 0 && chatHistory[0].role === 'model') {
+      chatHistory.shift(); // Remove first model message
+    }
 
     const chat = geminiModel.startChat({
       history: chatHistory,
