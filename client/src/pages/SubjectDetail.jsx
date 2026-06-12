@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, memo } from 'react';
+import { useEffect, useState, useCallback, memo, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../config/api';
@@ -28,6 +28,62 @@ const MODULE_COLORS = [
 ];
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   UTILITY FUNCTIONS — badges, search, device detection
+───────────────────────────────────────────────────────────────────────────── */
+
+// Calculate resource badge (trending, recommended, new, most downloaded)
+const getResourceBadge = (resource) => {
+  if (!resource) return null;
+  
+  const daysSinceCreated = resource.createdAt ? 
+    (Date.now() - new Date(resource.createdAt).getTime()) / (1000 * 60 * 60 * 24) : 999;
+  
+  // 🆕 New (< 7 days old)
+  if (daysSinceCreated < 7) {
+    return { label: 'New', icon: '🆕', color: '#10b981', rgb: '16,185,129' };
+  }
+  
+  // 📥 Most Downloaded (> 100 downloads)
+  if (resource.downloadCount && resource.downloadCount > 100) {
+    return { label: 'Popular', icon: '📥', color: '#f59e0b', rgb: '245,158,11' };
+  }
+  
+  // 🔥 Trending (50-100 downloads)
+  if (resource.downloadCount && resource.downloadCount > 50) {
+    return { label: 'Trending', icon: '🔥', color: '#ef4444', rgb: '239,68,68' };
+  }
+  
+  return null;
+};
+
+// Search filter function
+const searchResources = (resources, query) => {
+  if (!query || !query.trim()) return resources;
+  
+  const lowerQuery = query.toLowerCase().trim();
+  return resources.filter(r => 
+    r.title?.toLowerCase().includes(lowerQuery) ||
+    r.description?.toLowerCase().includes(lowerQuery) ||
+    r.unitTitle?.toLowerCase().includes(lowerQuery)
+  );
+};
+
+// Detect device type for adaptive resource limits
+const getDeviceType = () => {
+  if (typeof window === 'undefined') return 'desktop';
+  const width = window.innerWidth;
+  if (width < 768) return 'mobile';
+  if (width < 1024) return 'tablet';
+  return 'desktop';
+};
+
+// Get resource limit based on device
+const getResourceLimit = () => {
+  const device = getDeviceType();
+  return device === 'mobile' ? 20 : device === 'tablet' ? 30 : 50;
+};
+
+/* ─────────────────────────────────────────────────────────────────────────────
    FILE ROW — single resource with inline PDF viewer (MEMOIZED)
 ───────────────────────────────────────────────────────────────────────────── */
 const FileRow = memo(({ resource, color, rgb, isLast }) => {
@@ -39,6 +95,9 @@ const FileRow = memo(({ resource, color, rgb, isLast }) => {
   // Check if it's a PDF - treat all resource types as PDFs with preview capability
   const isPdf = resource.fileUrl?.toLowerCase().includes('.pdf') || 
     ['notes', 'pyq', 'model', 'textbook', 'lab', 'important', 'assignment', 'reference', 'handout'].includes(resource.type);
+
+  // Get badge for this resource
+  const badge = useMemo(() => getResourceBadge(resource), [resource]);
 
   const trackDownload = () => {
     if (resource._id) fetch(`/api/resources/${resource._id}/download`, { method: 'POST' }).catch(() => {});
@@ -153,10 +212,24 @@ const FileRow = memo(({ resource, color, rgb, isLast }) => {
 
         {/* Title + subtitle */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold leading-snug transition-colors duration-200"
-            style={{ color: hovered ? '#f1f5f9' : '#94a3b8' }}>
-            {resource.title}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="truncate text-[13px] font-semibold leading-snug transition-colors duration-200"
+              style={{ color: hovered ? '#f1f5f9' : '#94a3b8' }}>
+              {resource.title}
+            </p>
+            {/* Smart Badge */}
+            {badge && (
+              <span className="flex-shrink-0 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+                style={{
+                  background: `rgba(${badge.rgb},0.15)`,
+                  color: badge.color,
+                  border: `1px solid rgba(${badge.rgb},0.3)`,
+                }}>
+                <span>{badge.icon}</span>
+                <span>{badge.label}</span>
+              </span>
+            )}
+          </div>
           {(resource.unitTitle || resource.description) && (
             <p className="mt-0.5 truncate text-[11px]" style={{ color: `rgba(${rgb},0.65)` }}>
               {resource.unitTitle || resource.description}
@@ -735,11 +808,66 @@ const CourseInfo = ({ subject }) => {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SKELETON
+   SKELETON LOADING COMPONENTS — animated shimmer effects
 ───────────────────────────────────────────────────────────────────────────── */
-const Skeleton = () => (
+const SkeletonShimmer = () => (
+  <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite]">
+    <div className="h-full w-full bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+  </div>
+);
+
+const HeaderSkeleton = () => (
+  <div className="relative overflow-hidden rounded-3xl p-8"
+    style={{ background: 'linear-gradient(138deg,rgba(99,102,241,0.15) 0%,rgba(4,7,20,0.94) 100%)', border: '1px solid rgba(99,102,241,0.15)' }}>
+    <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex items-center gap-5">
+        <div className="relative h-18 w-18 rounded-2xl overflow-hidden" style={{ background: 'rgba(99,102,241,0.15)' }}>
+          <SkeletonShimmer />
+        </div>
+        <div className="space-y-3">
+          <div className="relative h-4 w-32 rounded overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+            <SkeletonShimmer />
+          </div>
+          <div className="relative h-8 w-64 rounded overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+            <SkeletonShimmer />
+          </div>
+          <div className="relative h-4 w-24 rounded overflow-hidden" style={{ background: 'rgba(99,102,241,0.15)' }}>
+            <SkeletonShimmer />
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-2.5">
+        {[1,2,3].map(i => (
+          <div key={i} className="relative h-12 w-20 rounded-2xl overflow-hidden" style={{ background: 'rgba(99,102,241,0.12)' }}>
+            <SkeletonShimmer />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const SectionSkeleton = () => (
   <div className="space-y-3">
-    {[1,2,3,4,5].map(i => <div key={i} className="skeleton rounded-3xl" style={{ height: 76 }} />)}
+    {[1,2,3,4,5].map(i => (
+      <div key={i} className="relative overflow-hidden rounded-3xl" style={{ height: 76, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+        <SkeletonShimmer />
+      </div>
+    ))}
+  </div>
+);
+
+const Skeleton = () => (
+  <div className="space-y-6">
+    <HeaderSkeleton />
+    <div className="flex flex-wrap gap-2">
+      {[1,2,3,4,5,6].map(i => (
+        <div key={i} className="relative h-8 w-28 rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <SkeletonShimmer />
+        </div>
+      ))}
+    </div>
+    <SectionSkeleton />
   </div>
 );
 
@@ -753,6 +881,16 @@ const SubjectDetail = () => {
   const [sections, setSections] = useState({}); // Lazy-loaded section data
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); // Search state
+  const [activeSection, setActiveSection] = useState('notes'); // Active tab for sticky nav
+  const sectionRefs = useRef({}); // Refs for scroll-to-section
+  const searchTimeoutRef = useRef(null); // Debounce search
+
+  // Cache management - persist loaded sections
+  const sectionCacheRef = useRef({});
+
+  // Device-aware resource limit
+  const resourceLimit = useMemo(() => getResourceLimit(), []);
 
   // Initial fast load - only metadata and counts
   const loadInitial = useCallback(async () => {
@@ -771,31 +909,72 @@ const SubjectDetail = () => {
     }
   }, [subjectId]);
 
-  // Lazy load a specific section when user expands it
+  // Lazy load a specific section when user expands it (WITH CACHING)
   const loadSection = useCallback(async (sectionKey) => {
-    if (sections[sectionKey]) return; // Already loaded
+    // Check cache first
+    if (sectionCacheRef.current[sectionKey]) {
+      setSections(prev => ({
+        ...prev,
+        [sectionKey]: sectionCacheRef.current[sectionKey]
+      }));
+      return;
+    }
+    
+    if (sections[sectionKey]) return; // Already loaded in state
     
     try {
       const response = await api.get(`/api/subjects/${subjectId}/resources`, {
-        params: { section: sectionKey, limit: 100 }
+        params: { section: sectionKey, limit: resourceLimit }
       });
       
       const data = response.data;
+      const sectionData = {
+        resources: data[sectionKey] || [],
+        notes: data.notes || null,
+        handout: data.handout || null,
+      };
+      
+      // Store in cache
+      sectionCacheRef.current[sectionKey] = sectionData;
+      
       setSections(prev => ({
         ...prev,
-        [sectionKey]: {
-          resources: data[sectionKey] || [],
-          notes: data.notes || null,
-          handout: data.handout || null,
-        }
+        [sectionKey]: sectionData
       }));
     } catch (err) {
       console.error(`Failed to load section ${sectionKey}:`, err);
       throw err;
     }
-  }, [subjectId, sections]);
+  }, [subjectId, sections, resourceLimit]);
 
   useEffect(() => { loadInitial(); }, [loadInitial]);
+
+  // Debounced search handler
+  const handleSearch = useCallback((query) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearchQuery(query);
+    }, 300); // 300ms debounce
+  }, []);
+
+  // Scroll to section handler
+  const scrollToSection = useCallback((sectionKey) => {
+    setActiveSection(sectionKey);
+    sectionRefs.current[sectionKey]?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start',
+      inline: 'nearest'
+    });
+  }, []);
+
+  // Filter resources based on search query
+  const filterResourcesBySearch = useCallback((resources) => {
+    if (!searchQuery.trim()) return resources;
+    return searchResources(resources, searchQuery);
+  }, [searchQuery]);
 
   // Derive counts for each section
   const sectionCounts = {
@@ -818,6 +997,90 @@ const SubjectDetail = () => {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Home', to: '/home' }, { label: subject?.name || 'Subject' }]} />
 
+      {/* ── Instant Search Bar ──────────────────────────────────────────── */}
+      {!loading && totalFiles > 0 && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+          className="sticky top-0 z-30 rounded-2xl p-4"
+          role="search"
+          aria-label="Search resources"
+          style={{
+            background: 'rgba(15,23,42,0.95)',
+            border: '1px solid rgba(99,102,241,0.2)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.5)'
+          }}>
+          <div className="flex items-center gap-3">
+            <svg className="h-5 w-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search resources across all sections..."
+              onChange={(e) => handleSearch(e.target.value)}
+              className="flex-1 bg-transparent text-sm text-white placeholder-slate-500 outline-none"
+              style={{ caretColor: '#818cf8' }}
+              aria-label="Search input"
+              autoComplete="off"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => { setSearchQuery(''); handleSearch(''); }}
+                className="text-slate-400 hover:text-white transition-colors"
+                aria-label="Clear search">
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            )}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Sticky Resource Navigation ──────────────────────────────────── */}
+      {!loading && totalFiles > 0 && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}
+          className="sticky top-20 z-20 overflow-x-auto rounded-2xl p-2"
+          role="navigation"
+          aria-label="Section navigation"
+          style={{
+            background: 'rgba(15,23,42,0.92)',
+            border: '1px solid rgba(99,102,241,0.15)',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
+          }}>
+          <div className="flex gap-2 min-w-max">
+            {SECTIONS.filter(s => sectionCounts[s.key] > 0).map(s => (
+              <button
+                key={s.key}
+                onClick={() => scrollToSection(s.key)}
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-200 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2"
+                aria-label={`Navigate to ${s.label} section`}
+                aria-current={activeSection === s.key ? 'true' : 'false'}
+                style={{
+                  background: activeSection === s.key ? `rgba(${s.rgb},0.2)` : 'rgba(255,255,255,0.03)',
+                  border: `1px solid rgba(${s.rgb},${activeSection === s.key ? '0.4' : '0.1'})`,
+                  color: activeSection === s.key ? s.color : '#94a3b8',
+                  transform: activeSection === s.key ? 'translateY(-2px)' : 'translateY(0)',
+                  boxShadow: activeSection === s.key ? `0 4px 12px rgba(${s.rgb},0.25)` : 'none',
+                  outlineColor: s.color
+                }}>
+                <span role="img" aria-label={s.label}>{s.icon}</span>
+                <span>{s.label}</span>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-black"
+                  style={{
+                    background: activeSection === s.key ? `rgba(${s.rgb},0.3)` : 'rgba(255,255,255,0.05)',
+                    color: activeSection === s.key ? s.color : '#64748b'
+                  }}>
+                  {sectionCounts[s.key]}
+                </span>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {error && (
         <div className="rounded-2xl p-4 text-sm text-red-300"
           style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -825,7 +1088,7 @@ const SubjectDetail = () => {
         </div>
       )}
 
-      {/* ── Subject hero ─────────────────────────────────────────────────── */}
+      {/* ── Premium Subject Hero with Animated Statistics ───────────────── */}
       <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}
         className="relative overflow-hidden rounded-3xl p-8"
         style={{
@@ -838,43 +1101,128 @@ const SubjectDetail = () => {
         <div className="pointer-events-none absolute -bottom-14 -left-14 h-48 w-48 rounded-full"
           style={{ background: 'radial-gradient(circle,rgba(139,92,246,0.38),transparent 70%)', filter: 'blur(36px)' }} />
 
-        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-center gap-5">
-            <div className="flex flex-shrink-0 items-center justify-center rounded-2xl text-3xl"
-              style={{ width: 72, height: 72, background: 'rgba(99,102,241,0.22)', border: '1px solid rgba(99,102,241,0.42)', boxShadow: '0 0 36px rgba(99,102,241,0.38)' }}>
-              &#x1F4D8;
+        <div className="relative space-y-6">
+          {/* Header Section */}
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-center gap-5">
+              <motion.div 
+                initial={{ scale: 0.8, rotate: -10 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.5, type: 'spring' }}
+                className="flex flex-shrink-0 items-center justify-center rounded-2xl text-3xl"
+                style={{ width: 72, height: 72, background: 'rgba(99,102,241,0.22)', border: '1px solid rgba(99,102,241,0.42)', boxShadow: '0 0 36px rgba(99,102,241,0.38)' }}>
+                &#x1F4D8;
+              </motion.div>
+              <div>
+                <p className="section-label mb-1.5">Subject Detail</p>
+                <h2 className="display-md text-white">{subject?.name || 'Loading\u2026'}</h2>
+                <div className="flex items-center gap-3 mt-2">
+                  {subject?.code && (
+                    <p className="font-mono text-sm font-bold" style={{ color: '#818cf8' }}>{subject.code}</p>
+                  )}
+                  {subject?.semesterNumber && (
+                    <span className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+                      style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399', border: '1px solid rgba(52,211,153,0.3)' }}>
+                      <span>📚</span>
+                      <span>Semester {subject.semesterNumber}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="section-label mb-1.5">Subject Detail</p>
-              <h2 className="display-md text-white">{subject?.name || 'Loading\u2026'}</h2>
-              {subject?.code && (
-                <p className="mt-1.5 font-mono text-sm font-bold" style={{ color: '#818cf8' }}>{subject.code}</p>
-              )}
-            </div>
+
+            {/* Last Updated Badge */}
+            {subject?.updatedAt && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex items-center gap-2 rounded-xl px-3 py-2 self-start"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <svg className="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span className="text-xs text-slate-400">
+                  Updated {new Date(subject.updatedAt).toLocaleDateString()}
+                </span>
+              </motion.div>
+            )}
           </div>
 
-          {/* Stats pills */}
-          <div className="flex flex-wrap items-center gap-2.5 self-start">
-            <div className="flex items-center gap-2 rounded-2xl px-4 py-2.5"
-              style={{ background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.3)' }}>
-              <span className="text-lg font-black text-white">{totalFiles}</span>
-              <span className="text-xs text-slate-400">files</span>
-            </div>
-            {noteModules.length > 0 && (
-              <div className="flex items-center gap-2 rounded-2xl px-4 py-2.5"
-                style={{ background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.25)' }}>
-                <span className="text-lg font-black text-emerald-400">{noteModules.length}</span>
-                <span className="text-xs text-slate-400">modules</span>
-              </div>
-            )}
-            {subject?.credits && (
-              <div className="flex items-center gap-2 rounded-2xl px-4 py-2.5"
-                style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)' }}>
-                <span className="text-lg font-black text-yellow-400">{subject.credits}</span>
-                <span className="text-xs text-slate-400">credits</span>
-              </div>
-            )}
+          {/* Animated Statistics Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {[
+              { label: 'Notes', icon: '📚', count: sectionCounts.notes, color: '#818cf8', rgb: '129,140,248' },
+              { label: 'PYQs', icon: '📝', count: sectionCounts.pyq, color: '#38bdf8', rgb: '56,189,248' },
+              { label: 'Textbooks', icon: '📖', count: sectionCounts.textbook, color: '#2dd4bf', rgb: '45,212,191' },
+              { label: 'Labs', icon: '🧪', count: sectionCounts.lab, color: '#fbbf24', rgb: '251,191,36' },
+              { label: 'Important', icon: '⭐', count: sectionCounts.important, color: '#fb7185', rgb: '251,113,133' },
+              { label: 'Total', icon: '📊', count: totalFiles, color: '#a78bfa', rgb: '167,139,250' },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.05, duration: 0.4 }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="relative overflow-hidden rounded-2xl p-4 cursor-pointer group"
+                style={{
+                  background: `linear-gradient(135deg, rgba(${stat.rgb},0.15) 0%, rgba(${stat.rgb},0.05) 100%)`,
+                  border: `1px solid rgba(${stat.rgb},0.3)`,
+                  boxShadow: `0 2px 8px rgba(${stat.rgb},0.1)`
+                }}>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: `linear-gradient(135deg, rgba(${stat.rgb},0.2) 0%, transparent 100%)` }} />
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl">{stat.icon}</span>
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.3 + i * 0.05, type: 'spring', stiffness: 200 }}
+                      className="text-2xl font-black"
+                      style={{ color: stat.color }}>
+                      {stat.count}
+                    </motion.span>
+                  </div>
+                  <p className="text-xs font-semibold text-slate-400">{stat.label}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
+
+          {/* Progress Indicators */}
+          {totalFiles > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: 'Notes Coverage', value: sectionCounts.notes > 0 ? 100 : 0, color: '#818cf8', rgb: '129,140,248' },
+                { label: 'PYQ Coverage', value: Math.min(100, (sectionCounts.pyq / 10) * 100), color: '#38bdf8', rgb: '56,189,248' },
+                { label: 'Textbooks', value: sectionCounts.textbook > 0 ? Math.min(100, sectionCounts.textbook * 25) : 0, color: '#2dd4bf', rgb: '45,212,191' },
+                { label: 'Labs', value: sectionCounts.lab > 0 ? Math.min(100, sectionCounts.lab * 20) : 0, color: '#fbbf24', rgb: '251,191,36' },
+              ].map((progress, i) => (
+                <div key={progress.label} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-400">{progress.label}</span>
+                    <span className="text-xs font-bold" style={{ color: progress.color }}>{Math.round(progress.value)}%</span>
+                  </div>
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress.value}%` }}
+                      transition={{ delay: 0.7 + i * 0.1, duration: 0.8, ease: 'easeOut' }}
+                      className="h-full rounded-full"
+                      style={{ background: `linear-gradient(90deg, ${progress.color}, rgba(${progress.rgb},0.6))` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </motion.div>
 
@@ -909,69 +1257,90 @@ const SubjectDetail = () => {
       {loading ? <Skeleton /> : (
         <div className="space-y-4">
 
-          {/* 1. NOTES — module-wise accordion */}
+          {/* 1. NOTES — module-wise accordion with search filtering */}
           {(() => {
             const s = SECTIONS.find(x => x.key === 'notes');
+            const filteredModules = noteModules.map(m => ({
+              ...m,
+              resources: filterResourcesBySearch(m.resources)
+            })).filter(m => m.resources.length > 0);
+            const filteredGeneral = filterResourcesBySearch(noteGeneral);
+            
             return (
-              <SectionCard 
-                section={s} 
-                count={sectionCounts.notes} 
-                defaultOpen={false}
-                subjectId={subjectId}
-                onLoad={loadSection}>
-                <div className="space-y-3">
-                  {noteModules.map((m, i) => (
-                    <ModuleAccordion
-                      key={m.moduleNumber}
-                      moduleNumber={m.moduleNumber}
-                      unitTitle={m.unitTitle}
-                      resources={m.resources}
-                      defaultOpen={i === 0}
-                    />
-                  ))}
-                  {/* General notes (no module assigned) */}
-                  {noteGeneral.length > 0 && (
-                    <div className="overflow-hidden rounded-2xl"
-                      style={{ border: '1px solid rgba(148,163,184,0.15)', background: 'rgba(255,255,255,0.02)' }}>
-                      <div className="flex items-center gap-3 px-5 py-3.5"
-                        style={{ borderBottom: '1px solid rgba(148,163,184,0.1)' }}>
-                        <span className="text-base">&#x1F4C2;</span>
-                        <span className="text-[12px] font-bold text-slate-400">General Notes</span>
-                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold text-slate-500"
-                          style={{ background: 'rgba(148,163,184,0.1)', border: '1px solid rgba(148,163,184,0.15)' }}>
-                          {noteGeneral.length}
-                        </span>
+              <div ref={el => sectionRefs.current['notes'] = el}>
+                <SectionCard 
+                  section={s} 
+                  count={sectionCounts.notes} 
+                  defaultOpen={false}
+                  subjectId={subjectId}
+                  onLoad={loadSection}>
+                  <div className="space-y-3">
+                    {filteredModules.map((m, i) => (
+                      <ModuleAccordion
+                        key={m.moduleNumber}
+                        moduleNumber={m.moduleNumber}
+                        unitTitle={m.unitTitle}
+                        resources={m.resources}
+                        defaultOpen={i === 0}
+                      />
+                    ))}
+                    {/* General notes (no module assigned) */}
+                    {filteredGeneral.length > 0 && (
+                      <div className="overflow-hidden rounded-2xl"
+                        style={{ border: '1px solid rgba(148,163,184,0.15)', background: 'rgba(255,255,255,0.02)' }}>
+                        <div className="flex items-center gap-3 px-5 py-3.5"
+                          style={{ borderBottom: '1px solid rgba(148,163,184,0.1)' }}>
+                          <span className="text-base">&#x1F4C2;</span>
+                          <span className="text-[12px] font-bold text-slate-400">General Notes</span>
+                          <span className="rounded-full px-2 py-0.5 text-[10px] font-bold text-slate-500"
+                            style={{ background: 'rgba(148,163,184,0.1)', border: '1px solid rgba(148,163,184,0.15)' }}>
+                            {filteredGeneral.length}
+                          </span>
+                        </div>
+                        <div className="space-y-0 p-3">
+                          {filteredGeneral.map((r, i) => (
+                            <FileRow key={r._id} resource={r} color={s.color} rgb={s.rgb} isLast={i === filteredGeneral.length - 1} />
+                          ))}
+                        </div>
                       </div>
-                      <div className="space-y-0 p-3">
-                        {noteGeneral.map((r, i) => (
-                          <FileRow key={r._id} resource={r} color={s.color} rgb={s.rgb} isLast={i === noteGeneral.length - 1} />
-                        ))}
+                    )}
+                    {searchQuery && filteredModules.length === 0 && filteredGeneral.length === 0 && (
+                      <div className="text-center py-8">
+                        <p className="text-sm text-slate-500">No notes found matching "{searchQuery}"</p>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </SectionCard>
+                    )}
+                  </div>
+                </SectionCard>
+              </div>
             );
           })()}
 
-          {/* 2–8. Flat sections */}
+          {/* 2–8. Flat sections with search filtering */}
           {['pyq','model','textbook','lab','important','assignment','reference'].map(key => {
             const s = SECTIONS.find(x => x.key === key);
             const items = sections[key]?.resources || [];
+            const filteredItems = filterResourcesBySearch(items);
+            
             return (
-              <SectionCard 
-                key={key} 
-                section={s} 
-                count={sectionCounts[key]} 
-                defaultOpen={false}
-                subjectId={subjectId}
-                onLoad={loadSection}>
-                <div className="space-y-0">
-                  {items.map((r, i) => (
-                    <FileRow key={r._id} resource={r} color={s.color} rgb={s.rgb} isLast={i === items.length - 1} />
-                  ))}
-                </div>
-              </SectionCard>
+              <div key={key} ref={el => sectionRefs.current[key] = el}>
+                <SectionCard 
+                  section={s} 
+                  count={sectionCounts[key]} 
+                  defaultOpen={false}
+                  subjectId={subjectId}
+                  onLoad={loadSection}>
+                  <div className="space-y-0">
+                    {filteredItems.map((r, i) => (
+                      <FileRow key={r._id} resource={r} color={s.color} rgb={s.rgb} isLast={i === filteredItems.length - 1} />
+                    ))}
+                    {searchQuery && filteredItems.length === 0 && items.length > 0 && (
+                      <div className="text-center py-8">
+                        <p className="text-sm text-slate-500">No {s.label.toLowerCase()} found matching "{searchQuery}"</p>
+                      </div>
+                    )}
+                  </div>
+                </SectionCard>
+              </div>
             );
           })}
 

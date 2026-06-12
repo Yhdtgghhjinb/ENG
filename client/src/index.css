@@ -48,6 +48,16 @@ body {
 /* ─── Typography ─────────────────────────────────────────────────────────────── */
 .display-xl { font-size: clamp(2.8rem, 5.5vw, 4.75rem); font-weight: 800; letter-spacing: -0.038em; line-height: 1.06; }
 .display-lg { font-size: clamp(2.2rem, 4.5vw, 3.75rem); font-weight: 800; letter-spacing: -0.032em; line-height: 1.1;  }
+
+/* ─── Animations ─────────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
 .display-md { font-size: clamp(1.65rem,3.5vw, 2.6rem);  font-weight: 700; letter-spacing: -0.026em; line-height: 1.14; }
 .heading-xl { font-size: 1.6rem;  font-weight: 700; letter-spacing: -0.022em; line-height: 1.22; }
 .heading-lg { font-size: 1.3rem;  font-weight: 700; letter-spacing: -0.018em; line-height: 1.28; }
