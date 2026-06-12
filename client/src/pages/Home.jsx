@@ -11,6 +11,7 @@ const Home = () => {
       try {
         const res = await api.get('/api/vtu/branches');
         setBranches(res.data || []);
+        setLoading(false);
       } catch (error) {
         // Retry on failure (Railway cold start)
         if (retries > 0) {
@@ -20,8 +21,7 @@ const Home = () => {
         }
         console.error('Failed to load branches:', error);
         setBranches([]);
-      } finally {
-        if (retries === 0) setLoading(false);
+        setLoading(false);
       }
     };
     loadBranches();
