@@ -12,7 +12,6 @@ const Results = lazy(() => import('./pages/Results'));
 const Calculator = lazy(() => import('./pages/Calculator'));
 const ExamCalendar = lazy(() => import('./pages/ExamCalendar'));
 const Notifications = lazy(() => import('./pages/Notifications'));
-const ResourceRequests = lazy(() => import('./pages/ResourceRequests'));
 const AIChatBot = lazy(() => import('./pages/AIChatBot'));
 const QuestionPaperAnalyzer = lazy(() => import('./pages/QuestionPaperAnalyzer'));
 const Resources = lazy(() => import('./pages/Resources'));
@@ -72,7 +71,6 @@ const App = () => {
             <Route path="calculator" element={<Calculator />} />
             <Route path="exam-calendar" element={<ExamCalendar />} />
             <Route path="notifications" element={<Notifications />} />
-            <Route path="resource-requests" element={<ResourceRequests />} />
             <Route path="ai-assistant" element={<AIChatBot />} />
             <Route path="qp-analyzer" element={<QuestionPaperAnalyzer />} />
             <Route path="resources" element={<Resources />} />
