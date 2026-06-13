@@ -80,7 +80,40 @@ router.put('/branches/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 router.delete('/branches/:id', async (req, res, next) => {
-  try { await Branch.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (err) { next(err); }
+  try {
+    const branchId = req.params.id;
+    
+    // Check for child records
+    const [schemeCount, semesterCount, subjectCount, resourceCount] = await Promise.all([
+      Scheme.countDocuments({ branchId }),
+      Semester.countDocuments({ branchId }),
+      Subject.countDocuments({ branchId }),
+      Resource.countDocuments({ branchId })
+    ]);
+    
+    const totalChildren = schemeCount + semesterCount + subjectCount + resourceCount;
+    
+    if (totalChildren > 0) {
+      return res.status(400).json({
+        success: false,
+        reason: 'HAS_CHILD_RECORDS',
+        message: 'Cannot delete branch because child records exist',
+        childCounts: {
+          schemes: schemeCount,
+          semesters: semesterCount,
+          subjects: subjectCount,
+          resources: resourceCount,
+          total: totalChildren
+        }
+      });
+    }
+    
+    // Safe to delete - no children
+    await Branch.findByIdAndDelete(branchId);
+    res.json({ success: true, message: 'Branch deleted successfully' });
+  } catch (err) { 
+    next(err); 
+  }
 });
 
 // ── Schemes ───────────────────────────────────────────────────────────────────
@@ -98,7 +131,38 @@ router.put('/schemes/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 router.delete('/schemes/:id', async (req, res, next) => {
-  try { await Scheme.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (err) { next(err); }
+  try {
+    const schemeId = req.params.id;
+    
+    // Check for child records
+    const [semesterCount, subjectCount, resourceCount] = await Promise.all([
+      Semester.countDocuments({ schemeId }),
+      Subject.countDocuments({ schemeId }),
+      Resource.countDocuments({ schemeId })
+    ]);
+    
+    const totalChildren = semesterCount + subjectCount + resourceCount;
+    
+    if (totalChildren > 0) {
+      return res.status(400).json({
+        success: false,
+        reason: 'HAS_CHILD_RECORDS',
+        message: 'Cannot delete scheme because child records exist',
+        childCounts: {
+          semesters: semesterCount,
+          subjects: subjectCount,
+          resources: resourceCount,
+          total: totalChildren
+        }
+      });
+    }
+    
+    // Safe to delete - no children
+    await Scheme.findByIdAndDelete(schemeId);
+    res.json({ success: true, message: 'Scheme deleted successfully' });
+  } catch (err) { 
+    next(err); 
+  }
 });
 
 // ── Semesters ─────────────────────────────────────────────────────────────────
@@ -118,7 +182,36 @@ router.put('/semesters/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 router.delete('/semesters/:id', async (req, res, next) => {
-  try { await Semester.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (err) { next(err); }
+  try {
+    const semesterId = req.params.id;
+    
+    // Check for child records
+    const [subjectCount, resourceCount] = await Promise.all([
+      Subject.countDocuments({ semesterId }),
+      Resource.countDocuments({ semesterId })
+    ]);
+    
+    const totalChildren = subjectCount + resourceCount;
+    
+    if (totalChildren > 0) {
+      return res.status(400).json({
+        success: false,
+        reason: 'HAS_CHILD_RECORDS',
+        message: 'Cannot delete semester because child records exist',
+        childCounts: {
+          subjects: subjectCount,
+          resources: resourceCount,
+          total: totalChildren
+        }
+      });
+    }
+    
+    // Safe to delete - no children
+    await Semester.findByIdAndDelete(semesterId);
+    res.json({ success: true, message: 'Semester deleted successfully' });
+  } catch (err) { 
+    next(err); 
+  }
 });
 
 // ── Subjects ──────────────────────────────────────────────────────────────────
@@ -154,7 +247,30 @@ router.put('/subjects/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 router.delete('/subjects/:id', async (req, res, next) => {
-  try { await Subject.findByIdAndDelete(req.params.id); res.json({ success: true }); } catch (err) { next(err); }
+  try {
+    const subjectId = req.params.id;
+    
+    // Check for child records (resources)
+    const resourceCount = await Resource.countDocuments({ subjectId });
+    
+    if (resourceCount > 0) {
+      return res.status(400).json({
+        success: false,
+        reason: 'HAS_CHILD_RECORDS',
+        message: 'Cannot delete subject because resources exist',
+        childCounts: {
+          resources: resourceCount,
+          total: resourceCount
+        }
+      });
+    }
+    
+    // Safe to delete - no children
+    await Subject.findByIdAndDelete(subjectId);
+    res.json({ success: true, message: 'Subject deleted successfully' });
+  } catch (err) { 
+    next(err); 
+  }
 });
 
 // ── Resources — STRICT HIERARCHY ─────────────────────────────────────────────
